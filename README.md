@@ -1,4 +1,4 @@
-Starter Code for BMinor Project
+BMinor Project - jchun2
 -------------------------------
 
 This directory contains the starter code for the BMinor compiler.
