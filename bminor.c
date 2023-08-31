@@ -21,7 +21,7 @@ int string_decode(const char *es, char *s) {
         return 1;
     }
 
-    for (; es < end_ptr; es++ && s++) {
+    for (; es < end_ptr; es++, s++) {
         /* Backslash code, need to check next char(s) */
         if (*es == '\\') {
             switch (*++es) {
@@ -100,7 +100,7 @@ int string_decode(const char *es, char *s) {
  */
 int string_encode(const char *s, char* es) {
     *es++ = '\"';
-    for (; *s; s++ && es++) {
+    for (; *s; s++, es++) {
         switch (*s) {
             case '\a':
                 *es++ = '\\';
@@ -204,7 +204,7 @@ int main(int argc, char** argv) {
     if (!same_str(argv[1], "--encode")) return 0;
 
     /* Read in encoded line */
-    char encoded_line[MAX_CHAR_LENGTH + 1] = {0};
+    char encoded_line[BUFSIZ] = {0};
     if (read_input(argv[2], encoded_line)) return 1;
 
     /* Decode line */
