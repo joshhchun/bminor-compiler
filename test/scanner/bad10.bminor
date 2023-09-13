@@ -1,0 +1,4 @@
+//invalid ops
+if (x & y) {
+        print "hi"
+}

@@ -1,0 +1,10 @@
+testing small program
+
+main: function integer ( argc: integer, argv: array [] string ) = {
+   for (i=0; i<100; i++) {
+       if (i % 2 == 0) {
+            print i;
+        }
+    }
+    return 0;
+}

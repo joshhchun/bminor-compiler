@@ -12,7 +12,7 @@
 int string_decode(const char *es, char *s) {
     const char *end_ptr = es + strlen(es) - 1;
     /* Check if string is surrounded by quotations */
-    if (*es && (es != end_ptr || *es++ != '\"' || *end_ptr != '\"')) {
+    if (*es && (es == end_ptr || *es++ != '\"' || *end_ptr != '\"')) {
         fprintf(stderr, "ERROR: String not surrounded by quotations\n");
         return 1;
     }

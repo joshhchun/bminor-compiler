@@ -1,0 +1,7 @@
+testing more math ops
+foo: integer = 0;
+foo = foo / 5;
+foo = 5 % 2;
+foo = 5^2
+foo = 5 * 6
+foo-;

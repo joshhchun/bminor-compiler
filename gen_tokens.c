@@ -133,6 +133,9 @@ int scanner() {
             case TOKEN_RPAREN:
                 printf("RIGHT PAREN    %s\n", yytext);
                 break;
+            case TOKEN_ASSIGN:
+                printf("ASSIGN         %s\n", yytext);
+                break;
             case TOKEN_LBRACE:
                 printf("LEFT BRACE     %s\n", yytext);
                 break;

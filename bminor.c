@@ -1,5 +1,5 @@
 #include "encode.c"
-#include "scanner.c"
+#include "gen_tokens.c"
 
 #define MAX_CHAR_LENGTH 255
 #define same_str(s1, s2) (!strcmp(s1, s2) ? 1 : 0)
@@ -14,6 +14,7 @@
 void usage(const char* program_name, int status) {
     fprintf(stderr, "Usage: %s [options] file_name\n", program_name);
     fprintf(stderr, "\t--encode : Encode string if valid\n");
+    fprintf(stderr, "\t--scan   : Scan a file and print out tokens\n");
     exit(status);
 }
 
@@ -67,13 +68,13 @@ int main(int argc, char** argv) {
         fprintf(stdout, "Decoded line: %s\n", decoded_line);
         fprintf(stdout, "Encoded line: %s\n", encoded_line);
     }
-    else if (same_str(argv[1], "--scanner")) {
+    else if (same_str(argv[1], "--scan")) {
         yyin = fopen(argv[2], "r");
         if (!yyin) {
             fprintf(stderr, "Could not %s\n", argv[2]);
             return 1;
         }
-        scanner();
+        if (scanner()) return 1;
     }
     else {
         usage(argv[0], 1);

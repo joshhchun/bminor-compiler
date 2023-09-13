@@ -1,14 +1,14 @@
-% {
+%{
 #include "token.h"
-% }
+%}
 
 DIGIT    [0-9]
 LETTER   [a-zA-Z]
-ALPHANUM DIGIT|LETTER
 HEX      [0-9a-fA-F]
 
 %%
-(" "|\t|\n) /* skip whitespace */
+(" "|\t|\n|\r)+                                      { /* ignore white space */ }
+
 
 array                                                 { return TOKEN_ARRAY; }
 auto                                                  { return TOKEN_AUTO; }
@@ -42,6 +42,7 @@ while                                                 { return TOKEN_WHILE; }
 \*                                                    { return TOKEN_MULT; }
 \/                                                    { return TOKEN_DIV; }
 %                                                     { return TOKEN_MOD; }
+=                                                     { return TOKEN_ASSIGN; }
 \^                                                    { return TOKEN_EXP; }
 !=                                                    { return TOKEN_INEQ; }
 ==                                                    { return TOKEN_EQ; }
@@ -52,16 +53,19 @@ while                                                 { return TOKEN_WHILE; }
 \>=                                                   { return TOKEN_GEQ; }
 &&                                                    { return TOKEN_AND; }
 \|\|                                                  { return TOKEN_OR; }
-\:                                                    { return TOKEN_OR; }
+\:                                                    { return TOKEN_DEFINE; }
 \;                                                    { return TOKEN_SEMICOLON; }
 
-[{LETTER}_][{ALPHANUM}_]*                             { return TOKEN_IDENT; }
+({LETTER}|_)({DIGIT}|{LETTER}|_){0,254}                         { return TOKEN_IDENT; }
 {DIGIT}+                                              { return TOKEN_INT_LITERAL; }
-{DIGIT}+                                              { return TOKEN_INT_LITERAL; }
-[-+]?{DIGIT}*(\.{DIGIT}*|([eE][-+]?{DIGIT}+))         { return TOKEN_FLOAT_VAL; }
+[-+]?{DIGIT}*(\.{DIGIT}*|([eE][-+]?{DIGIT}+))         { return TOKEN_FLOAT_LITERAL; }
 \"([^"\\\n]|\\.){0,255}\"                             { return TOKEN_STRING_LITERAL; }
-'(\\?[^']|(\\0x{HEX}{HEX}))'                          { return TOKEN_CHAR_LITERAL; }
+'([^\\]|\\[^']|(\\0x{HEX}{HEX}))'                          { return TOKEN_CHAR_LITERAL; }
+
 \/\*([^\*]*|\**[^\/])*\*\/                            { return TOKEN_COMMENT; }
+
+\/\/[^\n]*\n                                          { return TOKEN_COMMENT; }                                
+
 .                                                     { return TOKEN_ERROR; }
 
 %%

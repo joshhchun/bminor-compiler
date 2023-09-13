@@ -20,6 +20,7 @@ typedef enum token {
     TOKEN_WHILE,
 
     // Expr
+    TOKEN_ASSIGN,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
     TOKEN_LBRACE,

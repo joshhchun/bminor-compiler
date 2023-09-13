@@ -1,0 +1,5 @@
+testing expr
+x: integer = 3;
+y: integer = x + 5;
+(paren)
+x++

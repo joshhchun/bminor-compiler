@@ -1,0 +1,13 @@
+/* testing c style comment */
+
+// and this is a c++ style comment
+
+/* ***** a lot of stars ** */
+
+/* comment
+
+with
+
+new lines
+
+*/

@@ -1,0 +1,12 @@
+testing logical ops
+if (x == 2 || x == 3)
+
+if (x == 2 && x == 3) {
+        y = 2;
+} else {
+    y = 5;
+}
+
+if (x <= 2 || x >= 5 && y > 2 || s < 5)
+
+

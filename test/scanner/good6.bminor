@@ -1,0 +1,14 @@
+testing literals
+123456
+543.1
+1231.002
+00002.
+-21.5
+-24
+10e9
+-2e-2
+242552.241
+"This is a string literal with new line\n"
+"Hello world \'Yessir in little quotes \'"
+'\t'
+'z'
