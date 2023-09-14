@@ -7,7 +7,7 @@ LETTER   [a-zA-Z]
 HEX      [0-9a-fA-F]
 
 %%
-(" "|\t|\n|\r)+                                      { /* ignore white space */ }
+(" "|\t|\n|\r)+                                       { /* ignore white space */ }
 
 
 array                                                 { return TOKEN_ARRAY; }
@@ -55,12 +55,16 @@ while                                                 { return TOKEN_WHILE; }
 \|\|                                                  { return TOKEN_OR; }
 \:                                                    { return TOKEN_DEFINE; }
 \;                                                    { return TOKEN_SEMICOLON; }
-
-({LETTER}|_)({DIGIT}|{LETTER}|_){0,254}                         { return TOKEN_IDENT; }
+({LETTER}|_)({DIGIT}|{LETTER}|_)*                     { 
+                                                        if (strlen(yytext) > 255) {
+                                                            return TOKEN_ERROR;
+                                                        } 
+                                                        return TOKEN_IDENT;
+                                                      }
 {DIGIT}+                                              { return TOKEN_INT_LITERAL; }
-[-+]?{DIGIT}*(\.{DIGIT}*|([eE][-+]?{DIGIT}+))         { return TOKEN_FLOAT_LITERAL; }
+{DIGIT}*(\.{DIGIT}*|([eE][-+]?{DIGIT}+))              { return TOKEN_FLOAT_LITERAL; }
 \"([^"\\\n]|\\.){0,255}\"                             { return TOKEN_STRING_LITERAL; }
-'([^\\]|\\[^']|(\\0x{HEX}{HEX}))'                          { return TOKEN_CHAR_LITERAL; }
+'([^\\]|\\[^']|(\\0x{HEX}{HEX}))'                     { return TOKEN_CHAR_LITERAL; }
 
 \/\*([^\*]*|\**[^\/])*\*\/                            { return TOKEN_COMMENT; }
 

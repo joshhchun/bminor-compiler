@@ -17,8 +17,8 @@ scanner.c: scanner.flex
 	flex -o $@ $<
 
 clean: 
-	rm -f *.o bminor scanner.c
+	rm -f *.o bminor scanner.c test/*/*.out
 
 test:
-	./runtest.sh
-
+	./run_encoder_tests.sh
+	./run_scanner_tests.sh

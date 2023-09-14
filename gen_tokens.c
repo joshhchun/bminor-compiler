@@ -11,7 +11,13 @@ extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 
-
+/**
+ *
+ * Function to decode a singular char
+ * Input: encoded char: char*
+ * Output: decoded char: char
+ *
+ */
 char decode_char(char* c) {
     size_t len = strlen(c);
 
@@ -52,6 +58,13 @@ char decode_char(char* c) {
     return (char)strtol(hex_values, NULL, 16);
 }
 
+/**
+ *
+ * Function to scan through source file and generate tokens using Flex.
+ * Input: void
+ * Output: success status: int
+ *
+ */
 int scanner() {
     while(1) {
         token_t t = yylex();
@@ -200,9 +213,14 @@ int scanner() {
             case TOKEN_IDENT:
                 printf("IDENTIFIER     %s\n", yytext);
                 break;
-            case TOKEN_INT_LITERAL:
+            case TOKEN_INT_LITERAL: {
+                int64_t integer;
+                if ((integer = atoi(yytext)) < 0) {
+                    fprintf(stderr, "ERROR: Integer too long\n");
+                    return EXIT_FAILURE;
+                }
                 printf("INT LITERAL    %d\n", atoi(yytext));
-                break;
+            } break;
             case TOKEN_FLOAT_LITERAL:
                 printf("FLOAT LITERAL  %lf\n", atof(yytext));
                 break;
