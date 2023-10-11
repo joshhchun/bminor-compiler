@@ -62,14 +62,13 @@ while                                                 { return TOKEN_WHILE; }
                                                         return TOKEN_IDENT;
                                                       }
 {DIGIT}+                                              { return TOKEN_INT_LITERAL; }
-{DIGIT}*(\.{DIGIT}*|([eE][-+]?{DIGIT}+))              { return TOKEN_FLOAT_LITERAL; }
+({DIGIT}+(\.{DIGIT}*|((\.{DIGIT}+)?[eE][-+]?{DIGIT}+))|\.{DIGIT}+) { return TOKEN_FLOAT_LITERAL; }
 \"([^"\\\n]|\\.){0,255}\"                             { return TOKEN_STRING_LITERAL; }
-'([^\\]|\\[^']|(\\0x{HEX}{HEX}))'                     { return TOKEN_CHAR_LITERAL; }
+
+'([^\\']|\\[^']|(\\0x{HEX}{HEX}))'                    { return TOKEN_CHAR_LITERAL; }
 
 \/\*([^\*]*|\**[^\/])*\*\/                            { return TOKEN_COMMENT; }
-
 \/\/[^\n]*\n                                          { return TOKEN_COMMENT; }                                
-
 .                                                     { return TOKEN_ERROR; }
 
 %%

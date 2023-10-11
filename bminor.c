@@ -67,14 +67,15 @@ int main(int argc, char** argv) {
         if (string_encode((const char*)decoded_line, encoded_line)) return 1;
         fprintf(stdout, "Decoded line: %s\n", decoded_line);
         fprintf(stdout, "Encoded line: %s\n", encoded_line);
-    }
-    else if (same_str(argv[1], "--scan")) {
+    } else if (same_str(argv[1], "--scan")) {
         yyin = fopen(argv[2], "r");
         if (!yyin) {
             fprintf(stderr, "Could not %s\n", argv[2]);
             return 1;
         }
         if (scanner()) return 1;
+    } else if (same_str(argv[1], "--parse")) {
+        return 1;
     }
     else {
         usage(argv[0], 1);
