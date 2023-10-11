@@ -68,7 +68,7 @@ extern int yyerror( char *str );
 %token TOKEN_CHAR_LITERAL
 %token TOKEN_COMMENT
 
-#TODO: Need decl, stmt, (param list?), type
+/* TODO: Need decl, stmt, (param list?), type */
 
 
 %%
@@ -76,117 +76,152 @@ program : decl_list TOKEN_EOF
 | TOKEN_EOF
 ;
 
-# Decl list (TODO: Might have to change)
+/*  Decl list (highest level thing)*/
 decl_list : decl_list decl
 | decl
 ;
 
-# Normal ident decl
-decl : TOKEN_IDENT TOKEN_DEFINE type init expr_val TOKEN_SEMICOLON
+/* func decl and var decls as bodies cannot have func decls */
+decl : var_decl
+| func_decl
+;
+
+/* Variable declarations */
+var_decl:
+/* To declare a normal variable with a type (stmts)*/
+TOKEN_IDENT TOKEN_DEFINE type init expr_val TOKEN_SEMICOLON
 | TOKEN_IDENT TOKEN_DEFINE type TOKEN_SEMICOLON
-# Array decl
+/*  Array decl */
 | TOKEN_IDENT TOKEN_DEFINE TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INT TOKEN_RBRACKET type init TOKEN_LBRACE expr_list TOKEN_RBRACE TOKEN_SEMICOLON
-# Array
+/*  Array */
 | TOKEN_IDENT TOKEN_DEFINE TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INT TOKEN_RBRACKET type TOKEN_SEMICOLON
-# Func prototype
-| TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC type TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON
-# Func assignment
-| TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC type TOKEN_LPAREN param_list TOKEN_RPAREN init fn_body
 ;
 
-# Expr for values
-expr_val: expr TOKEN_PLUS val_literal
-| expr TOKEN_MINUS val_literal
-| expr TOKEN_INEQ  val_literal
-| expr TOKEN_EQ    val_literal
-| expr TOKEN_LT    val_literal
-| expr TOKEN_GT    val_literal
-| expr TOKEN_EQ    val_literal
-| expr TOKEN_LEQ   val_literal
-| expr TOKEN_GEQ   val_literal
-| expr TOKEN_AND   val_literal
-| expr TOKEN_OR    val_literal
-| expr TOKEN_MULT  val_literal
-| expr TOKEN_DIV   val_literal
-| expr TOKEN_ADD   val_literal
-| expr TOKEN_MOD   val_literal
-| expr TOKEN_NEG   val_literal
-| val_literal
-;
-
-# Expr for assignment
-expr_assign: TOKEN_IDENT TOKEN_ASSIGN expr
-| val_literal TOKEN_INC
-| val_literal TOKEN_DEC
-;
-
-# Expr as a whole
-expr : expr_val
-| expr_assign 
+/* Function declarations */
+func_decl: 
+/*  Func prototype */
+TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON
+/*  Func assignment */
+| TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN init fn_body
 ;
 
 
-stmt_list : stmt_list stmt
-| stmt
-;
-
-stmt : decl
-| one_line_body
-| if_condition
-| for_stmt
-;
-
-print_stmt: TOKEN_PRINT expr_list TOKEN_SEMICOLON
-;
-
-return_stmt: TOKEN_RETURN expr_val TOKEN_SEMICOLON
-| TOKEN_RETURN TOKEN_SEMICOLON
-;
-
-for_stmt: TOKEN_FOR for_cond body
-
-while_stmt: TOKEN_WHILE TOKEN_LPAREN expr_val TOKEN_RPAREN body
-
-for_cond: TOKEN_LPAREN expr_assign TOKEN_SEMICOLON expr_val TOKEN_SEMICOLON expr_assign TOKEN_SEMICOLON TOKEN_RPAREN
-
-if_condition: if_stmt else_if_stmt else_stmt condition_recur
-;
-
-condition_recur : if_condition
-|
-;
-
-if_stmt : TOKEN_IF TOKEN_LPAREN expr_val TOKEN_RPAREN body
-;
-
-else_if_stmt: TOKEN_IF TOKEN_ELSE TOKEN_LPAREN expr TOKEN_RPAREN body else_if_stmt
-| 
-;
-
-else_stmt: TOKEN_ELSE body
-|
-;
-
+/* Bodies of code */
 body : fn_body
 | one_line_body
 ;
 
+/* Bodies for functions */
 fn_body : TOKEN_LBRACE stmt_list TOKEN_RBRACE
 ;
 
-# if the body is oneline
+/* One line bodies */
 one_line_body: print_stmt TOKEN_SEMICOLON
 | return_stmt TOKEN_SEMICOLON
 | expr_assign TOKEN_SEMICOLON
 ;
 
+/* Statement lists (inside of bodies) */
+stmt_list : stmt_list stmt
+| stmt
+;
+
+/* Statements (make up body), decls turn into this */
+stmt : var_decl
+| one_line_body
+| if_stmt
+| for_stmt
+;
+
+/* If statements (if, (else if)*, else?) TODO: recursive case? */
+if_stmt: if_cond elif_cond else_cond
+;
+if_cond : TOKEN_IF TOKEN_LPAREN expr_val TOKEN_RPAREN body
+;
+elif_cond: TOKEN_ELSE if_cond elif_cond
+| 
+;
+else_cond: TOKEN_ELSE body
+|
+;
+
+/* Print statement */
+print_stmt: TOKEN_PRINT expr_list TOKEN_SEMICOLON
+;
+
+/* Return statement */
+return_stmt: TOKEN_RETURN expr_val TOKEN_SEMICOLON
+| TOKEN_RETURN TOKEN_SEMICOLON
+;
+
+/* For loop statement */
+for_stmt: TOKEN_FOR for_cond body
+;
+for_cond: TOKEN_LPAREN for_expr TOKEN_SEMICOLON for_expr TOKEN_SEMICOLON for_expr TOKEN_RPAREN
+;
+for_expr: expr
+|
+;
+
+func_call: TOKEN_IDENT TOKEN_LPAREN expr_list TOKEN_RPAREN TOKEN_SEMICOLON
+
+/* Expression list (func calls, print, etc.) */
+expr_list : expr_val expr_next
+|
+;
+expr_next : TOKEN_COMMA expr_list
+|
+;
+
+/*  Expressions */
+expr : expr_val
+| expr_assign 
+/* Assignment values (c = 5) -> 5)
+| TOKEN_LPAREN expr TOKEN_RPAREN
+/* Not values for assignment */
+| TOKEN_NOT TOKEN_LPAREN expr TOKEN_RPAREN
+;
+
+/*  Assignment expressions */
+expr_assign: TOKEN_IDENT TOKEN_ASSIGN expr
+;
+
+/*  Expr for values */
+expr_val: 
+/* Normal operations (3 + 3)
+expr TOKEN_PLUS val_literal
+| expr_val TOKEN_MINUS val_literal
+| expr_val TOKEN_INEQ  val_literal
+| expr_val TOKEN_EQ    val_literal
+| expr_val TOKEN_LT    val_literal
+| expr_val TOKEN_GT    val_literal
+| expr_val TOKEN_EQ    val_literal
+| expr_val TOKEN_LEQ   val_literal
+| expr_val TOKEN_GEQ   val_literal
+| expr_val TOKEN_AND   val_literal
+| expr_val TOKEN_OR    val_literal
+| expr_val TOKEN_MULT  val_literal
+| expr_val TOKEN_DIV   val_literal
+| expr_val TOKEN_ADD   val_literal
+| expr_val TOKEN_MOD   val_literal
+| expr_val TOKEN_NEG   val_literal
+| expr_val TOKEN_EXP   val_literal
+| val_literal
+| TOKEN_IDENT TOKEN_INC
+| TOKEN_IDENT TOKEN_DEC
+;
+
+/* Value literals */
 val_literal : TOKEN_INT_LITERAL
 | TOKEN_CHAR_LITERAL
 | TOKEN_FLOAT_LITERAL
 | TOKEN_STRING_LITERAL
 | bool
+| TOKEN_IDENT
+| func_call
 ;
 
+/* Value types */
 val_type : TOKEN_INT,
 | TOKEN_FLOAT
 | TOKEN_BOOL
@@ -194,22 +229,20 @@ val_type : TOKEN_INT,
 | TOKEN_STR
 ;
 
+/* Function return types */
 return_type : val_type
 | TOKEN_VOID
 ;
 
-expr_list : expr_val expr_next
-;
-
-expr_next : TOKEN_COMMA expr_list
-;
-
+/* Param lists (when declaring function) */
 param_list : TOKEN_IDENT TOKEN_DEFINE type param_next
+|
 ;
 param_next : TOKEN_COMMA param_list
 |
 ;
 
+/* Boolean literal values */
 bool : TOKEN_TRUE
 | TOKEN_FALSE
 ;
