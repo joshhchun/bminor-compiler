@@ -102,7 +102,6 @@ TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RP
 | TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN init fn_body
 ;
 
-
 /* Bodies of code */
 body : fn_body
 | one_line_body
