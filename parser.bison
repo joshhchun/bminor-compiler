@@ -27,7 +27,6 @@ extern int yyerror( char *str );
 %token TOKEN_FOR
 %token TOKEN_FUNC
 %token TOKEN_IF
-%token TOKEN_INT
 %token TOKEN_PRINT
 %token TOKEN_RETURN
 %token TOKEN_STR
@@ -35,7 +34,6 @@ extern int yyerror( char *str );
 %token TOKEN_VOID
 %token TOKEN_WHILE
 %token TOKEN_ASSIGN
-%token TOKEN_LPAREN
 %token TOKEN_RPAREN
 %token TOKEN_LBRACE
 %token TOKEN_RBRACE
@@ -222,7 +220,7 @@ val_literal : TOKEN_INT_LITERAL
 ;
 
 /* Value types */
-val_type : TOKEN_INT,
+val_type : TOKEN_INT
 | TOKEN_FLOAT
 | TOKEN_BOOL
 | TOKEN_CHAR
@@ -235,7 +233,7 @@ return_type : val_type
 ;
 
 /* Param lists (when declaring function) */
-param_list : TOKEN_IDENT TOKEN_DEFINE type param_next
+param_list : TOKEN_IDENT TOKEN_DEFINE val_type param_next
 |
 ;
 param_next : TOKEN_COMMA param_list
