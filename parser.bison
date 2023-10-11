@@ -213,7 +213,8 @@ val_literal : TOKEN_INT_LITERAL
 | TOKEN_CHAR_LITERAL
 | TOKEN_FLOAT_LITERAL
 | TOKEN_STRING_LITERAL
-| bool
+| TOKEN_TRUE
+| TOKEN_FALSE
 | TOKEN_IDENT
 | func_call
 ;
@@ -237,11 +238,6 @@ param_list : TOKEN_IDENT TOKEN_DEFINE val_type param_next
 ;
 param_next : TOKEN_COMMA param_list
 |
-;
-
-/* Boolean literal values */
-bool : TOKEN_TRUE
-| TOKEN_FALSE
 ;
 
 init: TOKEN_ASSIGN
