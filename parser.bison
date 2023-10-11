@@ -1,5 +1,9 @@
 %{
 #include <stdio.h>
+
+extern char *yytext;
+extern int yylex();
+extern int yyerror( char *str );
 %}
 
 %token TOKEN_INT
