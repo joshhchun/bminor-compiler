@@ -96,6 +96,7 @@ TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RP
 /* Bodies of code */
 body : fn_body
 | one_line_body
+| TOKEN_LBRACE TOKEN_RBRACE
 ;
 
 /* Bodies for functions */
@@ -113,23 +114,24 @@ stmt_list : stmt_list stmt
 | stmt
 ;
 
+
+/* If statements (if, (else if)*, else?) TODO: recursive case? */
+if_stmt : if_cond else_cond
+| if_cond
+;
+
+if_cond : TOKEN_IF TOKEN_LPAREN expr_val TOKEN_RPAREN body
+;
+
+else_cond : TOKEN_ELSE if_cond else_cond
+| TOKEN_ELSE body
+;
+
 /* Statements (make up body), decls turn into this */
 stmt : var_decl
 | one_line_body
 | if_stmt
 | for_stmt
-;
-
-/* If statements (if, (else if)*, else?) TODO: recursive case? */
-if_stmt: if_cond elif_cond else_cond
-;
-if_cond : TOKEN_IF TOKEN_LPAREN expr_val TOKEN_RPAREN body
-;
-elif_cond: TOKEN_ELSE if_cond elif_cond
-| 
-;
-else_cond: TOKEN_ELSE body
-|
 ;
 
 /* Print statement */
@@ -175,13 +177,12 @@ expr_assign: TOKEN_IDENT TOKEN_ASSIGN expr
 ;
 
 /*  Expr for values */
-expr_val: expr TOKEN_PLUS val_literal
+expr_val: expr_val TOKEN_PLUS val_literal
 | expr_val TOKEN_MINUS val_literal
 | expr_val TOKEN_INEQ  val_literal
 | expr_val TOKEN_EQ    val_literal
 | expr_val TOKEN_LT    val_literal
 | expr_val TOKEN_GT    val_literal
-| expr_val TOKEN_EQ    val_literal
 | expr_val TOKEN_LEQ   val_literal
 | expr_val TOKEN_GEQ   val_literal
 | expr_val TOKEN_AND   val_literal

@@ -67,7 +67,7 @@ char decode_char(char* c) {
  */
 int scanner() {
     while(1) {
-        token_t t = yylex();
+        enum yytokentype t = yylex();
         switch (t) {
             case TOKEN_EOF:
                 return EXIT_SUCCESS;
