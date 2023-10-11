@@ -1,10 +1,5 @@
 %{
 #include <stdio.h>
-
-extern char *yytext;
-extern int yylex();
-extern int yyerror( char *str );
-
 %}
 
 %token TOKEN_INT
@@ -65,10 +60,8 @@ extern int yyerror( char *str );
 %token TOKEN_CHAR_LITERAL
 %token TOKEN_COMMENT
 
-/* TODO: Need decl, stmt, (param list?), type */
-
-
 %%
+
 program : decl_list TOKEN_EOF
 | TOKEN_EOF
 ;
@@ -160,6 +153,7 @@ for_expr: expr
 ;
 
 func_call: TOKEN_IDENT TOKEN_LPAREN expr_list TOKEN_RPAREN TOKEN_SEMICOLON
+;
 
 /* Expression list (func calls, print, etc.) */
 expr_list : expr_val expr_next
