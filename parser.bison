@@ -39,7 +39,6 @@
 %token TOKEN_ADD
 %token TOKEN_NEG
 %token TOKEN_MULT
-%token TOKEN_DIV
 %token TOKEN_MOD
 %token TOKEN_EXP
 %token TOKEN_INEQ
@@ -59,7 +58,6 @@
 %token TOKEN_STRING_LITERAL
 %token TOKEN_CHAR_LITERAL
 %token TOKEN_COMMENT
-
 %%
 
 program : decl_list TOKEN_EOF
@@ -177,9 +175,7 @@ expr_assign: TOKEN_IDENT TOKEN_ASSIGN expr
 ;
 
 /*  Expr for values */
-expr_val: 
-/* Normal operations (3 + 3)
-expr TOKEN_PLUS val_literal
+expr_val: expr TOKEN_PLUS val_literal
 | expr_val TOKEN_MINUS val_literal
 | expr_val TOKEN_INEQ  val_literal
 | expr_val TOKEN_EQ    val_literal
