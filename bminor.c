@@ -70,12 +70,30 @@ int main(int argc, char** argv) {
     } else if (same_str(argv[1], "--scan")) {
         yyin = fopen(argv[2], "r");
         if (!yyin) {
-            fprintf(stderr, "Could not %s\n", argv[2]);
+            fprintf(stderr, "Could not open %s\n", argv[2]);
             return 1;
         }
         if (scanner()) return 1;
     } else if (same_str(argv[1], "--parse")) {
-        return 1;
+        if (!(yyin = fopen(argv[2], "r"))) {
+            fprintf(stderr, "Could not open %s\n", argv[2]);
+            return 1;
+        };
+        if (scanner()) {
+            fprintf(stderr, "ERROR: Scanning error.\n");
+            return 1;
+        }
+        fclose(yyin);
+        if (!(yyin = fopen(argv[2], "r"))) {
+            fprintf(stderr, "Could not open %s\n", argv[2]);
+            return 1;
+        };
+        if (yyparse()) {
+            return 1;
+        } else {
+            fprintf(stdout, "Program parsed successfully.\n");
+        }
+        fclose(yyin);
     }
     else {
         usage(argv[0], 1);

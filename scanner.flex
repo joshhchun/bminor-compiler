@@ -67,8 +67,9 @@ while                                                 { return TOKEN_WHILE; }
 
 '([^\\']|\\[^']|(\\0x{HEX}{HEX}))'                    { return TOKEN_CHAR_LITERAL; }
 
-\/\*([^\*]*|\**[^\/])*\*\/                            { return TOKEN_COMMENT; }
-\/\/[^\n]*\n                                          { return TOKEN_COMMENT; }                                
+(\/\*([^*]|\*[^\/])*\*\/)|(\/\*([^\*]|\*[^\/])*\*\*\/)                { /* Ignore */ }
+\/\/[^\n]*\n                                          { /* Ignore */ }                                
+<<EOF>>                                               { return TOKEN_EOF; }
 .                                                     { return TOKEN_ERROR; }
 
 %%

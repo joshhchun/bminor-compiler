@@ -64,8 +64,8 @@ extern int yyerror( char *str );
 %token TOKEN_COMMENT
 %%
 
-program : decl_list TOKEN_EOF
-| TOKEN_EOF
+program : decl_list TOKEN_EOF { return 0; }
+| TOKEN_EOF { return 0; }
 ;
 
 /*  Decl list (highest level thing)*/
@@ -84,9 +84,9 @@ var_decl:
 TOKEN_IDENT TOKEN_DEFINE val_type init expr_val TOKEN_SEMICOLON
 | TOKEN_IDENT TOKEN_DEFINE val_type TOKEN_SEMICOLON
 /*  Array decl */
-| TOKEN_IDENT TOKEN_DEFINE TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INT TOKEN_RBRACKET val_type init TOKEN_LBRACE expr_list TOKEN_RBRACE TOKEN_SEMICOLON
+| TOKEN_IDENT TOKEN_DEFINE array_type init TOKEN_LBRACE expr_list TOKEN_RBRACE TOKEN_SEMICOLON
 /*  Array */
-| TOKEN_IDENT TOKEN_DEFINE TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INT TOKEN_RBRACKET val_type TOKEN_SEMICOLON
+| TOKEN_IDENT TOKEN_DEFINE array_type TOKEN_SEMICOLON
 ;
 
 /* Function declarations */
@@ -94,61 +94,49 @@ func_decl:
 /*  Func prototype */
 TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON
 /*  Func assignment */
-| TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN init fn_body
-;
-
-/* Bodies of code */
-body : fn_body
-| one_line_body
-| TOKEN_LBRACE TOKEN_RBRACE
-;
-
-/* Bodies for functions */
-fn_body : TOKEN_LBRACE stmt_list TOKEN_RBRACE
-;
-
-/* One line bodies */
-one_line_body: print_stmt TOKEN_SEMICOLON
-| return_stmt TOKEN_SEMICOLON
-| expr_assign TOKEN_SEMICOLON
+| TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LBRACE stmt_list TOKEN_RBRACE
 ;
 
 /* Statement lists (inside of bodies) */
 stmt_list : stmt_list stmt
-| stmt
+|
 ;
 
-
-/* If statements (if, (else if)*, else?) TODO: recursive case? */
-if_stmt : if_cond else_cond
-| if_cond
+if_dangle: TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN if_dangle TOKEN_ELSE if_dangle
+| var_decl
+| for_stmt dangle_end
+| func_call TOKEN_SEMICOLON
+| TOKEN_LBRACE stmt_list TOKEN_RBRACE
+| expr_assign TOKEN_SEMICOLON
+| TOKEN_RETURN TOKEN_SEMICOLON
+| TOKEN_PRINT expr_list TOKEN_SEMICOLON
+| inc_or_dec TOKEN_SEMICOLON
 ;
 
-if_cond : TOKEN_IF TOKEN_LPAREN expr_val TOKEN_RPAREN body
-;
-
-else_cond : TOKEN_ELSE if_cond else_cond
-| TOKEN_ELSE body
+dangle_end: TOKEN_SEMICOLON
+| if_dangle
 ;
 
 /* Statements (make up body), decls turn into this */
 stmt : var_decl
-| one_line_body
-| if_stmt
-| for_stmt
-;
-
-/* Print statement */
-print_stmt: TOKEN_PRINT expr_list TOKEN_SEMICOLON
-;
-
-/* Return statement */
-return_stmt: TOKEN_RETURN expr_val TOKEN_SEMICOLON
+| TOKEN_LBRACE stmt_list TOKEN_RBRACE
+| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt
+| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN if_dangle TOKEN_ELSE stmt
+| for_stmt reg_end
+| TOKEN_RETURN expr TOKEN_SEMICOLON
 | TOKEN_RETURN TOKEN_SEMICOLON
+| TOKEN_PRINT expr_list TOKEN_SEMICOLON
+| inc_or_dec TOKEN_SEMICOLON
+| expr_assign TOKEN_SEMICOLON
+| func_call TOKEN_SEMICOLON
+;
+
+reg_end: TOKEN_SEMICOLON
+| stmt
 ;
 
 /* For loop statement */
-for_stmt: TOKEN_FOR for_cond body
+for_stmt: TOKEN_FOR for_cond
 ;
 for_cond: TOKEN_LPAREN for_expr TOKEN_SEMICOLON for_expr TOKEN_SEMICOLON for_expr TOKEN_RPAREN
 ;
@@ -156,7 +144,7 @@ for_expr: expr
 |
 ;
 
-func_call: TOKEN_IDENT TOKEN_LPAREN expr_list TOKEN_RPAREN TOKEN_SEMICOLON
+func_call: TOKEN_IDENT TOKEN_LPAREN expr_list TOKEN_RPAREN
 ;
 
 /* Expression list (func calls, print, etc.) */
@@ -170,14 +158,10 @@ expr_next : TOKEN_COMMA expr_list
 /*  Expressions */
 expr : expr_val
 | expr_assign 
-/* Assignment values (c = 5) -> 5)
-| TOKEN_LPAREN expr TOKEN_RPAREN
-/* Not values for assignment */
-| TOKEN_NOT TOKEN_LPAREN expr TOKEN_RPAREN
 ;
 
 /*  Assignment expressions */
-expr_assign: TOKEN_IDENT TOKEN_ASSIGN expr
+expr_assign: mut TOKEN_ASSIGN expr
 ;
 
 /*  Expr for values */
@@ -198,7 +182,10 @@ expr_val: expr_val TOKEN_PLUS val_literal
 | expr_val TOKEN_NEG   val_literal
 | expr_val TOKEN_EXP   val_literal
 | val_literal
-| TOKEN_IDENT TOKEN_INC
+| inc_or_dec
+;
+
+inc_or_dec: TOKEN_IDENT TOKEN_INC
 | TOKEN_IDENT TOKEN_DEC
 ;
 
@@ -209,11 +196,34 @@ val_literal : TOKEN_INT_LITERAL
 | TOKEN_STRING_LITERAL
 | TOKEN_TRUE
 | TOKEN_FALSE
-| TOKEN_IDENT
+| TOKEN_NOT val_literal
+| TOKEN_NEG val_literal
 | func_call
+| TOKEN_LPAREN expr TOKEN_RPAREN
+| mut
+;
+
+mut : TOKEN_IDENT
+| array_access
+;
+
+array_access : TOKEN_IDENT TOKEN_LBRACKET expr_val TOKEN_RBRACKET array_access_next
+
+array_access_next : TOKEN_LBRACKET expr_val TOKEN_RBRACKET array_access_next
+|
 ;
 
 /* Value types */
+array_type : TOKEN_ARRAY TOKEN_LBRACKET array_size TOKEN_RBRACKET all_types
+
+array_size : expr_val
+|
+;
+
+all_types: val_type
+| array_type
+;
+
 val_type : TOKEN_INT
 | TOKEN_FLOAT
 | TOKEN_BOOL
@@ -227,12 +237,13 @@ return_type : val_type
 ;
 
 /* Param lists (when declaring function) */
-param_list : TOKEN_IDENT TOKEN_DEFINE val_type param_next
+param_list : TOKEN_IDENT TOKEN_DEFINE all_types param_next
 |
 ;
-param_next : TOKEN_COMMA param_list
+param_next : TOKEN_COMMA TOKEN_IDENT TOKEN_DEFINE all_types param_next
 |
 ;
+
 
 init: TOKEN_ASSIGN
 ;

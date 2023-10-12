@@ -17,7 +17,7 @@ scanner.c: scanner.flex
 	flex -o $@ $<
 
 parser.c token.h: parser.bison
-	bison --defines=token.h --output=parser.c $^
+	bison --defines=token.h --output=parser.c $^ -v
 
 parser.o: parser.c token.h
 	$(CC) $(CFLAGS) -c $^
@@ -29,3 +29,4 @@ clean:
 test:
 	./run_encoder_tests.sh
 	./run_scanner_tests.sh
+	./run_parser_tests.sh
