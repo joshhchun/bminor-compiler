@@ -1,8 +1,6 @@
-#include "encode.c"
-#include "gen_tokens.c"
+#include "../include/bminor.h"
 
-#define MAX_CHAR_LENGTH 255
-#define same_str(s1, s2) (!strcmp(s1, s2) ? 1 : 0)
+int DEBUG = 0;
 
 /**
  *
@@ -46,6 +44,31 @@ int read_input(const char* file_name, char* encoded_line) {
     return 0;
 }
 
+void scan(const char* file_name) {
+    if (!(yyin = fopen(file_name, "r"))) {
+        printf("Could not open %s\n", file_name);
+        exit(1);
+    };
+    if (scanner()) {
+        printf("Program did not scan successfully.\n");
+        exit(1);
+    } else printf("Program scanned successfully.\n");
+    fclose(yyin);
+}
+
+void parse(const char* file_name) {
+        if (!(yyin = fopen(file_name, "r"))) {
+            printf("Could not open %s\n", file_name);
+            exit(1);
+        };
+        if (yyparse()) {
+            printf("Program did not parse successfully.\n");
+            exit(1);
+        } else printf("Program parsed successfully.\n");
+        fclose(yyin);
+
+}
+
 int main(int argc, char** argv) {
     /* Usage */
     if (argc != 3) usage(argv[0], 1);
@@ -68,32 +91,11 @@ int main(int argc, char** argv) {
         fprintf(stdout, "Decoded line: %s\n", decoded_line);
         fprintf(stdout, "Encoded line: %s\n", encoded_line);
     } else if (same_str(argv[1], "--scan")) {
-        yyin = fopen(argv[2], "r");
-        if (!yyin) {
-            fprintf(stderr, "Could not open %s\n", argv[2]);
-            return 1;
-        }
-        if (scanner()) return 1;
+        DEBUG = 1;
+        scan(argv[2]);
     } else if (same_str(argv[1], "--parse")) {
-        if (!(yyin = fopen(argv[2], "r"))) {
-            fprintf(stderr, "Could not open %s\n", argv[2]);
-            return 1;
-        };
-        if (scanner()) {
-            fprintf(stderr, "ERROR: Scanning error.\n");
-            return 1;
-        }
-        fclose(yyin);
-        if (!(yyin = fopen(argv[2], "r"))) {
-            fprintf(stderr, "Could not open %s\n", argv[2]);
-            return 1;
-        };
-        if (yyparse()) {
-            return 1;
-        } else {
-            fprintf(stdout, "Program parsed successfully.\n");
-        }
-        fclose(yyin);
+        scan(argv[2]);
+        parse(argv[2]);
     }
     else {
         usage(argv[0], 1);

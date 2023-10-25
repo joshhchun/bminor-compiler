@@ -1,17 +1,4 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include "token.h"
-#include "decode.c"
-
-#define MAX_CHAR_LENGTH 255
-
-extern FILE *yyin;
-extern int yylex();
-extern char *yytext;
-extern int yyparse();
-extern int yyerror(char *s);
+#include "../include/gen_tokens.h"
 
 /**
  *
@@ -74,174 +61,174 @@ int scanner() {
             case TOKEN_EOF:
                 return EXIT_SUCCESS;
             case TOKEN_ARRAY:
-                printf("ARRAY          %s\n", yytext);
+                debug_print("ARRAY          %s\n", yytext);
                 break;
             case TOKEN_AUTO:
-                printf("AUTO           %s\n", yytext);
+                debug_print("AUTO           %s\n", yytext);
                 break;
             case TOKEN_BOOL:
-                printf("BOOL           %s\n", yytext);
+                debug_print("BOOL           %s\n", yytext);
                 break;
             case TOKEN_CHAR:
-                printf("CHAR           %s\n", yytext);
+                debug_print("CHAR           %s\n", yytext);
                 break;
             case TOKEN_ELSE:
-                printf("ELSE           %s\n", yytext);
+                debug_print("ELSE           %s\n", yytext);
                 break;
             case TOKEN_FALSE:
-                printf("FALSE          %s\n", yytext);
+                debug_print("FALSE          %s\n", yytext);
                 break;
             case TOKEN_FLOAT:
-                printf("FLOAT          %s\n", yytext);
+                debug_print("FLOAT          %s\n", yytext);
                 break;
             case TOKEN_FOR:
-                printf("FOR            %s\n", yytext);
+                debug_print("FOR            %s\n", yytext);
                 break;
             case TOKEN_FUNC:
-                printf("FOR            %s\n", yytext);
+                debug_print("FOR            %s\n", yytext);
                 break;
             case TOKEN_IF:
-                printf("IF             %s\n", yytext);
+                debug_print("IF             %s\n", yytext);
                 break;
             case TOKEN_INT:
-                printf("INT            %s\n", yytext);
+                debug_print("INT            %s\n", yytext);
                 break;
             case TOKEN_PRINT:
-                printf("PRINT          %s\n", yytext);
+                debug_print("PRINT          %s\n", yytext);
                 break;
             case TOKEN_RETURN:
-                printf("RETURN         %s\n", yytext);
+                debug_print("RETURN         %s\n", yytext);
                 break;
             case TOKEN_STR:
-                printf("STRING         %s\n", yytext);
+                debug_print("STRING         %s\n", yytext);
                 break;
             case TOKEN_TRUE:
-                printf("TRUE           %s\n", yytext);
+                debug_print("TRUE           %s\n", yytext);
                 break;
             case TOKEN_VOID:
-                printf("VOID           %s\n", yytext);
+                debug_print("VOID           %s\n", yytext);
                 break;
             case TOKEN_WHILE:
-                printf("WHILE          %s\n", yytext);
+                debug_print("WHILE          %s\n", yytext);
                 break;
             case TOKEN_ADD:
-                printf("ADD            %s\n", yytext);
+                debug_print("ADD            %s\n", yytext);
                 break;
             case TOKEN_NEG:
-                printf("NEGATIVE       %s\n", yytext);
+                debug_print("NEGATIVE       %s\n", yytext);
                 break;
             case TOKEN_MULT:
-                printf("MULTIPLY       %s\n", yytext);
+                debug_print("MULTIPLY       %s\n", yytext);
                 break;
             case TOKEN_DIV:
-                printf("DIVISION       %s\n", yytext);
+                debug_print("DIVISION       %s\n", yytext);
                 break;
             case TOKEN_MOD:
-                printf("MODULO         %s\n", yytext);
+                debug_print("MODULO         %s\n", yytext);
                 break;
             case TOKEN_EXP:
-                printf("EXPONENT       %s\n", yytext);
+                debug_print("EXPONENT       %s\n", yytext);
                 break;
             case TOKEN_LPAREN:
-                printf("LEFT PAREN     %s\n", yytext);
+                debug_print("LEFT PAREN     %s\n", yytext);
                 break;
             case TOKEN_RPAREN:
-                printf("RIGHT PAREN    %s\n", yytext);
+                debug_print("RIGHT PAREN    %s\n", yytext);
                 break;
             case TOKEN_ASSIGN:
-                printf("ASSIGN         %s\n", yytext);
+                debug_print("ASSIGN         %s\n", yytext);
                 break;
             case TOKEN_LBRACE:
-                printf("LEFT BRACE     %s\n", yytext);
+                debug_print("LEFT BRACE     %s\n", yytext);
                 break;
             case TOKEN_RBRACE:
-                printf("RIGHT BRACE    %s\n", yytext);
+                debug_print("RIGHT BRACE    %s\n", yytext);
                 break;
             case TOKEN_LBRACKET:
-                printf("LEFT BRACKET   %s\n", yytext);
+                debug_print("LEFT BRACKET   %s\n", yytext);
                 break;
             case TOKEN_RBRACKET:
-                printf("RIGHT BRACKET  %s\n", yytext);
+                debug_print("RIGHT BRACKET  %s\n", yytext);
                 break;
             case TOKEN_INEQ:
-                printf("INEQUALITY     %s\n", yytext);
+                debug_print("INEQUALITY     %s\n", yytext);
                 break;
             case TOKEN_EQ:
-                printf("EQUALITY       %s\n", yytext);
+                debug_print("EQUALITY       %s\n", yytext);
                 break;
             case TOKEN_NOT:
-                printf("NOT            %s\n", yytext);
+                debug_print("NOT            %s\n", yytext);
                 break;
             case TOKEN_LT:
-                printf("LESS THAN      %s\n", yytext);
+                debug_print("LESS THAN      %s\n", yytext);
                 break;
             case TOKEN_GT:
-                printf("GREATER THAN   %s\n", yytext);
+                debug_print("GREATER THAN   %s\n", yytext);
                 break;
             case TOKEN_AND:
-                printf("AND            %s\n", yytext);
+                debug_print("AND            %s\n", yytext);
                 break;
             case TOKEN_OR:
-                printf("OR             %s\n", yytext);
+                debug_print("OR             %s\n", yytext);
                 break;
             case TOKEN_DEFINE:
-                printf("DEFINE         %s\n", yytext);
+                debug_print("DEFINE         %s\n", yytext);
                 break;
             case TOKEN_SEMICOLON:
-                printf("SEMICOLON      %s\n", yytext);
+                debug_print("SEMICOLON      %s\n", yytext);
                 break;
             case TOKEN_COMMA:
-                printf("COMMA          %s\n", yytext);
+                debug_print("COMMA          %s\n", yytext);
                 break;
             case TOKEN_INC:
-                printf("INCREMENT      %s\n", yytext);
+                debug_print("INCREMENT      %s\n", yytext);
                 break;
             case TOKEN_DEC:
-                printf("DECREMENT      %s\n", yytext);
+                debug_print("DECREMENT      %s\n", yytext);
                 break;
             case TOKEN_COMMENT:
-                printf("COMMENT        %s\n", yytext);
+                debug_print("COMMENT        %s\n", yytext);
                 break;
             case TOKEN_ERROR:
-                printf("ERROR          %s\n", yytext);
+                debug_print("ERROR          %s\n", yytext);
                 return EXIT_FAILURE;
                 break;
             case TOKEN_LEQ:
-                printf("LEQ            %s\n", yytext);
+                debug_print("LEQ            %s\n", yytext);
                 break;
             case TOKEN_GEQ:
-                printf("GEQ            %s\n", yytext);
+                debug_print("GEQ            %s\n", yytext);
                 break;
             case TOKEN_IDENT:
-                printf("IDENTIFIER     %s\n", yytext);
+                debug_print("IDENTIFIER     %s\n", yytext);
                 break;
             case TOKEN_INT_LITERAL: {
                 int64_t integer;
                 if ((integer = atoi(yytext)) < 0) {
-                    fprintf(stderr, "ERROR: Integer too long\n");
+                    debug_print("ERROR: Integer too long\n");
                     return EXIT_FAILURE;
                 }
-                printf("INT LITERAL    %d\n", atoi(yytext));
+                debug_print("INT LITERAL    %d\n", atoi(yytext));
             } break;
             case TOKEN_FLOAT_LITERAL:
-                printf("FLOAT LITERAL  %lf\n", atof(yytext));
+                debug_print("FLOAT LITERAL  %lf\n", atof(yytext));
                 break;
             case TOKEN_STRING_LITERAL: {
                 char decoded[MAX_CHAR_LENGTH + 1] = {0};
                 if (string_decode(yytext, decoded)) return EXIT_FAILURE;
-                printf("STRING LITERAL %s\n", decoded);
+                debug_print("STRING LITERAL %s\n", decoded);
             } break;
             case TOKEN_CHAR_LITERAL: {
                 char c;
                 if (!(c = decode_char(yytext))) {
-                    fprintf(stderr, "ERROR: Invalid char literal");
+                    debug_print("ERROR: Invalid char literal");
                     return EXIT_FAILURE;
                 }
-                printf("CHAR LITERAL   %s %c\n", yytext, c);
+                debug_print("CHAR LITERAL   %s %c\n", yytext, c);
             } break;
 
             default:
-                printf("Scan Error: %d is not a valid character.\n", t);
+                debug_print("Scan Error: %d is not a valid character.\n", t);
                 return EXIT_FAILURE;
                 break;
         }

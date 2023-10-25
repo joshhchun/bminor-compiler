@@ -1,32 +1,29 @@
 CC=      gcc
 LD=      gcc
-CFLAGS=  -g -Wall -std=gnu99 
+CFLAGS=  -g -Wall -std=c99
+
+HEADERS   = $(wildcard include/*.h) include/token.h
+SOURCES   = $(wildcard src/*.c) src/scanner.c src/parser.c
+OBJECTS   = $(SOURCES:.c=.o)
+TESTS     = $(wildcard run_tests/*.sh)
 
 .PHONY: test
 
-bminor : bminor.o scanner.o parser.o
+bminor : $(OBJECTS)
 	$(LD) -o $@ $^
 
-scanner.o: scanner.c token.h
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-bminor.o : bminor.c token.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-scanner.c: scanner.flex
+src/scanner.c: scanner.flex
 	flex -o $@ $<
 
-parser.c token.h: parser.bison
-	bison --defines=token.h --output=parser.c $^ -v
+src/parser.c include/token.h : parser.bison
+	bison --defines=include/token.h --output=src/parser.c $^ -v
 
-parser.o: parser.c token.h
-	$(CC) $(CFLAGS) -c $^
-
+test: $(TESTS)
+	echo $^ | xargs -n 1 sh
 
 clean: 
-	rm -f *.o bminor scanner.c test/*/*.out
+	rm -f src/*.o bminor src/scanner.c test/*/*.out parser.output
 
-test:
-	./run_encoder_tests.sh
-	./run_scanner_tests.sh
-	./run_parser_tests.sh
