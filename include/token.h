@@ -159,7 +159,22 @@
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+#line 68 "parser.bison"
+{
+        char* string_literal;
+        int int_literal;
+        char char_literal;
+
+        struct decl *decl;
+        struct stmt *stmt;
+        struct expr *expr;
+        struct param_list* param_list;
+        struct type *type;
+}
+/* Line 1529 of yacc.c.  */
+#line 177 "include/token.h"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

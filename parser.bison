@@ -1,9 +1,11 @@
 %{
 #include <stdio.h>
+#include "../include/decl.h"
 
 extern char *yytext;
 extern int yylex();
 extern int yyerror( char *str );
+struct decl* parser_result = 0;
 %}
 
 %token TOKEN_INT
@@ -62,225 +64,284 @@ extern int yyerror( char *str );
 %token TOKEN_STRING_LITERAL
 %token TOKEN_CHAR_LITERAL
 %token TOKEN_COMMENT
-%%
 
-program : decl_list TOKEN_EOF { return 0; }
-| TOKEN_EOF { return 0; }
+%union {
+        char* string_literal;
+        int int_literal;
+        char char_literal;
+
+        struct decl *decl;
+        struct stmt *stmt;
+        struct expr *expr;
+        struct param_list* param_list;
+        struct type *type;
+}
+
+%type <decl> program decl decl_list func_decl var_decl
+
+%type <param_list> param_list param_next
+
+%type <expr> expr expr2 expr3 expr4 expr5 expr6 expr7 expr8 expr_list expr_next opt_expr_list mut array_init inc_or_dec expr_assign func_call if_expr for_expr ident_expr array_init_next val_literal array_access array_size
+
+%type <stmt> stmt stmt_list for_stmt cmpd_stmt simp_stmt if_dangle reg_end dangle_end for_cond
+
+%type <type> val_type all_types array_type return_type 
+
+%type <string_literal> ident
+
+
+%%
+program : decl_list TOKEN_EOF { parser_result = $1; return 0;}
+| TOKEN_EOF { parser_result = 0; return 0;}
 ;
 
 /*  Decl list (highest level thing)*/
-decl_list : decl_list decl
-| decl
+decl_list : decl decl_list
+{
+        $1->next = $2;
+        $$ = $1;
+}
+| decl { $$ = $1; }
 ;
 
 /* Variable decls and Function decls */
-decl : var_decl
-| func_decl
+decl : var_decl { $$ = $1; }
+| func_decl { $$ = $1; }
 ;
 
 /* Variable declarations */
 var_decl:
 /* To declare a normal variable with a type (stmts)*/
-TOKEN_IDENT TOKEN_DEFINE val_type init expr TOKEN_SEMICOLON
-| TOKEN_IDENT TOKEN_DEFINE val_type TOKEN_SEMICOLON
+ident TOKEN_DEFINE val_type init expr TOKEN_SEMICOLON { $$ = decl_create($1, $3, $5, 0, 0); }
+| ident TOKEN_DEFINE val_type TOKEN_SEMICOLON         { $$ = decl_create($1, $3, 0, 0, 0); }
 /*  Array decl */
-| TOKEN_IDENT TOKEN_DEFINE array_type init TOKEN_LBRACE array_init TOKEN_RBRACE TOKEN_SEMICOLON
+| ident TOKEN_DEFINE array_type init TOKEN_LBRACE array_init TOKEN_RBRACE TOKEN_SEMICOLON { $$ = decl_create($1, $3, $6, 0, 0); }
 /*  Array */
-| TOKEN_IDENT TOKEN_DEFINE array_type TOKEN_SEMICOLON
+| ident TOKEN_DEFINE array_type TOKEN_SEMICOLON { $$ = decl_create($1, $3, 0, 0, 0); }
 ;
 
 /* Function declarations */
 func_decl: 
 /*  Func prototype */
-TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON
+ident TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON { $$ = decl_create($1, type_create(TYPE_FUNC, $4, $6), 0, 0, 0); }
 /*  Func assignment */
-| TOKEN_IDENT TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN init TOKEN_LBRACE stmt_list TOKEN_RBRACE
+| ident TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN init TOKEN_LBRACE stmt_list TOKEN_RBRACE { $$ = decl_create($1, type_create(TYPE_FUNC, $4, $6), 0, $10, 0); }
 ;
 
 /* Statement lists */
-stmt_list : stmt_list stmt
-|
+stmt_list : stmt stmt_list 
+{
+        $1->next = $2;
+        $$ = $1;
+}
+| { $$ = 0; }
 ;
 
 /* Statements (make up decls) */
-stmt: simp_stmt
-| cmpd_stmt
+stmt: simp_stmt { $$ = $1; }
+| cmpd_stmt { $$ = $1; }
 ;
 
 /* Non right recursive statements */
-simp_stmt : TOKEN_LBRACE stmt_list TOKEN_RBRACE
-| var_decl
-| TOKEN_RETURN expr TOKEN_SEMICOLON
-| TOKEN_RETURN TOKEN_SEMICOLON
-| TOKEN_PRINT opt_expr_list TOKEN_SEMICOLON
-| inc_or_dec TOKEN_SEMICOLON
-| expr_assign TOKEN_SEMICOLON
-| func_call TOKEN_SEMICOLON
+simp_stmt : TOKEN_LBRACE stmt_list TOKEN_RBRACE { $$ = $2; } 
+| var_decl                                  { $$ = stmt_create(STMT_DECL, $1, 0, 0, 0, 0, 0, 0); }
+| TOKEN_RETURN expr TOKEN_SEMICOLON         { $$ = stmt_create(STMT_RETURN, 0, 0, $2, 0, 0, 0, 0); }
+| TOKEN_RETURN TOKEN_SEMICOLON              { $$ = stmt_create(STMT_RETURN, 0, 0, 0, 0, 0, 0, 0); }
+| TOKEN_PRINT opt_expr_list TOKEN_SEMICOLON { $$ = stmt_create(STMT_PRINT, 0, 0, $2, 0, 0, 0, 0); }
+| inc_or_dec TOKEN_SEMICOLON                { $$ = stmt_create(STMT_EXPR, 0, 0, $1, 0, 0, 0, 0); }
+| expr_assign TOKEN_SEMICOLON               { $$ = stmt_create(STMT_EXPR, 0, 0, $1, 0, 0, 0, 0); }
+| func_call TOKEN_SEMICOLON                 { $$ = stmt_create(STMT_EXPR, 0, 0, $1, 0, 0, 0, 0); }
 ;
 
 /* If and for statements */
-cmpd_stmt : if_expr stmt
-| if_expr if_dangle TOKEN_ELSE stmt
-| for_stmt reg_end
+cmpd_stmt : if_expr stmt                    { $$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, 0, 0); }
+| if_expr if_dangle TOKEN_ELSE stmt 
+{
+        $$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, $4, 0);
+}
+| for_stmt reg_end 
+{ 
+        $1->body = $2;
+        $$ = $1;
+}
 ;
 
 /* Non dangling if statement */
 if_dangle: if_expr if_dangle TOKEN_ELSE if_dangle
-| for_stmt dangle_end
-| simp_stmt
+{
+        $$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, $4, 0);
+}
+| for_stmt dangle_end { $1->body = $2; }
+| simp_stmt { $$ = $1; }
 ;
 
 /* If statement expression condition */
-if_expr: TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN 
+if_expr: TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN  { $$ = $3; } 
 ;
 
 /* For loop statement */
-for_stmt: TOKEN_FOR for_cond
+for_stmt: TOKEN_FOR for_cond { $$ = $2; }
 ;
-for_cond: TOKEN_LPAREN for_expr TOKEN_SEMICOLON for_expr TOKEN_SEMICOLON for_expr TOKEN_RPAREN
+for_cond: TOKEN_LPAREN for_expr TOKEN_SEMICOLON for_expr TOKEN_SEMICOLON for_expr TOKEN_RPAREN {$$ = stmt_create(STMT_FOR, 0, $2, $4, $6, 0, 0, 0);}
 ;
-for_expr: expr
-|
+for_expr: expr { $$ = $1; }
+| { $$ = 0; }
 ;
 
 /* For loop end if non dangling if statement */
-dangle_end: TOKEN_SEMICOLON
-| if_dangle
+dangle_end: TOKEN_SEMICOLON { $$ = 0; }
+| if_dangle { $$ = $1; }
 ;
 
 /* For loop end if regular if statement */
-reg_end: TOKEN_SEMICOLON
-| stmt
+reg_end: TOKEN_SEMICOLON { $$ = 0; }
+| stmt { $$ = $1; }
 ;
 
 /* Calling a function */
-func_call: TOKEN_IDENT TOKEN_LPAREN opt_expr_list TOKEN_RPAREN
+func_call: ident_expr TOKEN_LPAREN opt_expr_list TOKEN_RPAREN { $$ = expr_create(EXPR_FUNC, $1, $3); }
 ;
 
 /* Array inits, cannot be empty but can be nested */
-array_init : TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next
-| expr_list
+array_init : TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARG, $2, $4); }
+| expr_list { $$ = expr_create(EXPR_ARG, $1, NULL); }
 ;
-array_init_next : TOKEN_COMMA TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next
-|
+array_init_next : TOKEN_COMMA TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARG, $3, $5); }
+| { $$ = 0; }
 ;
 
 /* Expression list (func calls, print, etc.) */
-expr_list : expr expr_next
+expr_list : expr expr_next { $$ = expr_create(EXPR_ARG, $1, $2); }
 ;
 
 /* Optional expression list (can be empty) */
-opt_expr_list : expr_list
-|
+opt_expr_list : expr_list { $$ = $1; }
+| { $$ = 0; } 
 ;
-expr_next : TOKEN_COMMA expr_list
-|
+expr_next : TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $2, 0); }
+| { $$ = 0; }
 ;
 
 /*  Expressions */
 /*  Assignment expressions */
-expr_assign: mut init expr
+expr_assign: mut init expr { $$ = expr_create(EXPR_ASSIGN, $1, $3); }
 ;
 /* Expressions in order of lowest precedence to highest */
 /* assign */
-expr : expr_assign
-| expr2
+expr : expr_assign { $$ = $1; }
+| expr2 { $$ = $1; }
 ;
 /* logical or */
-expr2: expr2 TOKEN_OR expr3
-| expr3
+expr2: expr2 TOKEN_OR expr3 { $$ = expr_create(EXPR_OR, $1, $3); }
+| expr3 { $$ = $1; }
 ;
 /* logical and */
-expr3: expr3 TOKEN_AND expr4
-| expr4
+expr3: expr3 TOKEN_AND expr4 { $$ = expr_create(EXPR_AND, $1, $3); }
+| expr4 { $$ = $1; }
 ;
 /* equality */
-expr4: expr4 TOKEN_EQ expr5
-| expr4 TOKEN_NOT TOKEN_EQ expr5
-| expr5
+expr4: expr4 TOKEN_EQ expr5 { $$ = expr_create(EXPR_EQ, $1, $3); }
+| expr4 TOKEN_NOT TOKEN_EQ expr5 { $$ = expr_create(EXPR_NEQ, $1, $4); }
+| expr5 { $$ = $1; }
 ;
 /* equalities */
-expr5: expr5 TOKEN_LT expr6
-| expr5 TOKEN_GT expr6
-| expr5 TOKEN_LEQ expr6
-| expr5 TOKEN_GEQ expr6
-| expr6
+expr5: expr5 TOKEN_LT expr6 { $$ = expr_create(EXPR_LT, $1, $3); }
+| expr5 TOKEN_GT expr6      { $$ = expr_create(EXPR_GT, $1, $3); }
+| expr5 TOKEN_LEQ expr6     { $$ = expr_create(EXPR_LEQ, $1, $3); }
+| expr5 TOKEN_GEQ expr6     { $$ = expr_create(EXPR_GEQ, $1, $3); }
+| expr6 { $$ = $1; }
 ;
 /* addition and subtraction */
-expr6: expr6 TOKEN_ADD expr7
-| expr6 TOKEN_NEG expr7
-| expr7
+expr6: expr6 TOKEN_ADD expr7 { $$ = expr_create(EXPR_ADD, $1, $3); }
+| expr6 TOKEN_NEG expr7 { $$ = expr_create(EXPR_NEG, $1, $3); }
+| expr7 { $$ = $1; }
 ;
 /* mult and div */
-expr7: expr7 TOKEN_MULT expr8
-| expr7 TOKEN_DIV expr8
-| expr7 TOKEN_MOD expr8
-| expr8
+expr7: expr7 TOKEN_MULT expr8 { $$ = expr_create(EXPR_MULT, $1, $3); }
+| expr7 TOKEN_DIV expr8 { $$ = expr_create(EXPR_DIV, $1, $3); }
+| expr7 TOKEN_MOD expr8 { $$ = expr_create(EXPR_MOD, $1, $3); }
+| expr8 { $$ = $1; }
 ;
 /* Not (!) and unary minus and plus */
-expr8: TOKEN_NOT val_literal
-| TOKEN_NEG val_literal
-| TOKEN_PLUS val_literal
-| expr8 TOKEN_EXP val_literal
-| val_literal
+expr8: TOKEN_NOT val_literal  { $$ = expr_create(EXPR_NOT, $2, 0); }
+| TOKEN_NEG val_literal       { $$ = expr_create(EXPR_NEG, $2, 0); }
+| TOKEN_PLUS val_literal      { $$ = expr_create(EXPR_PLUS, $2, 0); }
+| expr8 TOKEN_EXP val_literal { $$ = expr_create(EXPR_EXP, $1, $3); }
+| val_literal { $$ = $1; }
 ;
 /* Highest precedence (Post increment (5++), function calls, array sub (a[5]), parenthesis grouping ((5*2) + 2))*/
-val_literal : TOKEN_INT_LITERAL
-| inc_or_dec
-| TOKEN_CHAR_LITERAL
-| TOKEN_FLOAT_LITERAL
-| TOKEN_STRING_LITERAL
-| TOKEN_TRUE
-| TOKEN_FALSE
-| func_call
-| TOKEN_LPAREN expr TOKEN_RPAREN
-| mut
+val_literal : TOKEN_INT_LITERAL { $$ = expr_create_integer_literal(atoi(yytext)); }
+| inc_or_dec { $$ = $1; }
+| TOKEN_CHAR_LITERAL { $$ = expr_create_char_literal(*yytext); }
+| TOKEN_FLOAT_LITERAL { $$ = expr_create_float_literal(atof(yytext)); }
+| TOKEN_STRING_LITERAL { $$ = expr_create_string_literal(yytext); }
+| TOKEN_TRUE { $$ = expr_create_bool_literal(1); }
+| TOKEN_FALSE { $$ = expr_create_bool_literal(0); }
+| func_call { $$ = $1; }
+| TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
+| mut { $$ = $1; }
 ;
 
-inc_or_dec: TOKEN_IDENT TOKEN_INC
-| TOKEN_IDENT TOKEN_DEC
+inc_or_dec: ident_expr TOKEN_INC { $$ = expr_create(EXPR_INC, $1, 0); }
+| ident_expr TOKEN_DEC           { $$ = expr_create(EXPR_DEC, $1, 0); }
 ;
 
-mut : TOKEN_IDENT
-| array_access
+ident: TOKEN_IDENT
+{ 
+        char *s;
+        if (!(s = strdup(yytext))) {
+                fprintf(stderr, "ERROR: Could not allocate enough space for ident.\n");
+                exit(EXIT_FAILURE);
+        }
+        $$ = s;
+}
 ;
 
-array_access : TOKEN_IDENT TOKEN_LBRACKET expr TOKEN_RBRACKET array_access_next
+mut : ident_expr { $$ = $1; }
+| ident_expr array_access { $$ = expr_create(EXPR_ARRAY_SUB, $1, $2); }
+;
 
-array_access_next : TOKEN_LBRACKET expr TOKEN_RBRACKET array_access_next
-|
+ident_expr : ident { $$ = expr_create_ident($1); }
+;
+
+array_access : TOKEN_LBRACKET expr TOKEN_RBRACKET array_access { $$ = expr_create(EXPR_ARG, $2, $4); }
+| TOKEN_LBRACKET expr TOKEN_RBRACKET { $$ = expr_create(EXPR_ARG, $2, 0); }
 ;
 
 /* Array types (can be recursive) */
 array_type : TOKEN_ARRAY TOKEN_LBRACKET array_size TOKEN_RBRACKET all_types
+           { 
+                $$ = type_create(TYPE_ARRAY, $5, 0);
+                $$->array_size = $3;
+           }
 ;
 
-array_size : expr
-|
+array_size : expr { $$ = $1; }
+| { $$ = 0; }
 ;
 
-all_types: val_type
-| array_type
+all_types: val_type { $$ = $1; }
+| array_type { $$ = $1; }
 ;
 
-val_type : TOKEN_INT
-| TOKEN_FLOAT
-| TOKEN_BOOL
-| TOKEN_CHAR
-| TOKEN_STR
+val_type : TOKEN_INT { $$ = type_create(TYPE_INT, 0, 0); }
+| TOKEN_FLOAT  { $$ = type_create(TYPE_FLOAT, 0, 0); }
+| TOKEN_BOOL { $$ = type_create(TYPE_BOOL, 0, 0); }
+| TOKEN_CHAR { $$ = type_create(TYPE_CHAR, 0, 0); }
+| TOKEN_STR { $$ = type_create(TYPE_STR, 0, 0); }
 ;
 
 /* Function return types */
-return_type : val_type
-| TOKEN_VOID
+return_type : val_type { $$ = $1; }
+| TOKEN_VOID { $$ = type_create(TYPE_VOID, 0, 0); }
 ;
 
 /* Param lists (when declaring function) */
-param_list : TOKEN_IDENT TOKEN_DEFINE all_types param_next
-|
+param_list : ident TOKEN_DEFINE all_types param_next { $$ = param_list_create($1, $3, $4); }
+| { $$ = 0; }
 ;
-param_next : TOKEN_COMMA TOKEN_IDENT TOKEN_DEFINE all_types param_next
-|
+param_next : TOKEN_COMMA ident TOKEN_DEFINE all_types param_next { $$ = param_list_create($2, $4, $5); }
+| { $$ = 0; }
 ;
 
 init: TOKEN_ASSIGN

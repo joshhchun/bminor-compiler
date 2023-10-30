@@ -49,7 +49,7 @@ void scan(const char* file_name) {
         printf("Could not open %s\n", file_name);
         exit(1);
     };
-    if (scanner()) {
+    if (scanner()) { 
         printf("Program did not scan successfully.\n");
         exit(1);
     } else printf("Program scanned successfully.\n");
@@ -66,7 +66,10 @@ void parse(const char* file_name) {
             exit(1);
         } else printf("Program parsed successfully.\n");
         fclose(yyin);
+}
 
+void pprint(const char* file_name, struct decl* parser_result) {
+    printf("%s\n", parser_result->ident);
 }
 
 int main(int argc, char** argv) {
@@ -96,6 +99,11 @@ int main(int argc, char** argv) {
     } else if (same_str(argv[1], "--parse")) {
         scan(argv[2]);
         parse(argv[2]);
+    } else if (same_str(argv[1], "--print")) {
+        scan(argv[2]);
+        parse(argv[2]);
+        struct decl* parser_result = 0;
+        pprint(argv[2], parser_result);
     }
     else {
         usage(argv[0], 1);

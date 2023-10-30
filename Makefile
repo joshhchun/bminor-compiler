@@ -1,6 +1,6 @@
 CC=      gcc
 LD=      gcc
-CFLAGS=  -g -Wall -std=c99
+CFLAGS=  -g -Wall -std=gnu99
 
 HEADERS   = $(wildcard include/*.h) include/token.h
 SOURCES   = $(wildcard src/*.c) src/scanner.c src/parser.c
