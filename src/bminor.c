@@ -1,6 +1,7 @@
 #include "../include/bminor.h"
 
 int DEBUG = 0;
+struct decl* parser_result;
 
 /**
  *
@@ -14,6 +15,10 @@ void usage(const char* program_name, int status) {
     fprintf(stderr, "\t--encode : Encode string if valid\n");
     fprintf(stderr, "\t--scan   : Scan a file and print out tokens\n");
     exit(status);
+}
+
+void indent(int indents){
+    for(int i = 0; i < indents; i++) fprintf(stdout, "    ");
 }
 
 /**
@@ -69,7 +74,7 @@ void parse(const char* file_name) {
 }
 
 void pprint(const char* file_name, struct decl* parser_result) {
-    printf("%s\n", parser_result->ident);
+    decl_print(parser_result, 0);
 }
 
 int main(int argc, char** argv) {
@@ -102,7 +107,6 @@ int main(int argc, char** argv) {
     } else if (same_str(argv[1], "--print")) {
         scan(argv[2]);
         parse(argv[2]);
-        struct decl* parser_result = 0;
         pprint(argv[2], parser_result);
     }
     else {

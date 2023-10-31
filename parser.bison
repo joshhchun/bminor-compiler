@@ -83,7 +83,7 @@ struct decl* parser_result = 0;
 
 %type <expr> expr expr2 expr3 expr4 expr5 expr6 expr7 expr8 expr_list expr_next opt_expr_list mut array_init inc_or_dec expr_assign func_call if_expr for_expr ident_expr array_init_next val_literal array_access array_size
 
-%type <stmt> stmt stmt_list for_stmt cmpd_stmt simp_stmt if_dangle reg_end dangle_end for_cond
+%type <stmt> stmt stmt_list for_stmt cmpd_stmt simp_stmt if_dangle reg_end dangle_end for_cond stmt_next
 
 %type <type> val_type all_types array_type return_type 
 
@@ -129,11 +129,15 @@ ident TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN T
 ;
 
 /* Statement lists */
-stmt_list : stmt stmt_list 
+stmt_list : stmt stmt_next
 {
         $1->next = $2;
-        $$ = $1;
+        $$ = stmt_create(STMT_BLOCK, 0, 0, 0, 0, $1, 0, 0) 
 }
+| { $$ = 0; }
+;
+
+stmt_next: stmt stmt_next { $1->next = $2; }
 | { $$ = 0; }
 ;
 

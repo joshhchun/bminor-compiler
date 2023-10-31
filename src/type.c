@@ -1,4 +1,5 @@
 #include "../include/type.h"
+#include "../include/expr.h"
 
 type* type_create( type_t kind, struct type *subtype, struct param_list *params ) {
     type* t;
@@ -12,3 +13,26 @@ type* type_create( type_t kind, struct type *subtype, struct param_list *params 
     return t;    
 }
 
+void type_print( struct type *t ) {
+    if (!t) return;
+
+    char *kind_to_str[] = {"void", "boolean", "char", "float", "integer", "string", "array", "function"};
+    printf("%s", kind_to_str[t->kind - TYPE_VOID]);
+    switch(t->kind){
+        case TYPE_ARRAY:
+            fputs(" [", stdout);
+            expr_print(t->array_size);
+            fputs("] ", stdout);
+            type_print(t->subtype);
+            break;
+        case TYPE_FUNC:
+            fputs(" ", stdout);
+            type_print(t->subtype);
+            fputs(" ( ", stdout);
+            param_list_print(t->params);
+            fputs(" )", stdout);
+            break;
+        default:
+            break;
+    }
+}

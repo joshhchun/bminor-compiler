@@ -2,6 +2,7 @@
 #define EXPR_H
 
 #include "symbol.h"
+#include "encode.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
@@ -50,7 +51,6 @@ typedef enum {
 
     /* Args */
     EXPR_ARG,
-    EXPR_PARAM,
 } expr_t;
 
 struct expr {
@@ -60,7 +60,7 @@ struct expr {
 	struct expr *right;
 
 	/* used by various leaf exprs */
-	const char *name;
+	const char *ident;
 	int int_literal;
 	const char * string_literal;
 	float float_literal;

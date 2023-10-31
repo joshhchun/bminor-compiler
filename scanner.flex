@@ -59,6 +59,8 @@ while                                                 { return TOKEN_WHILE; }
                                                         if (strlen(yytext) > 255) {
                                                             return TOKEN_ERROR;
                                                         } 
+                                                        char *s = strdup(yytext);
+                                                        yylval.string_literal = s;
                                                         return TOKEN_IDENT;
                                                       }
 {DIGIT}+                                              { return TOKEN_INT_LITERAL; }

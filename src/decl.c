@@ -13,3 +13,27 @@ struct decl* decl_create(char *ident, struct type *type, struct expr *value, str
     d->next = next;
     return d;
 }
+
+
+void decl_print(struct decl *d, int indents) {
+    extern void indent(int indents);
+    if (!d) return;
+    fprintf(stdout, "%s: ", d->ident);
+    type_print(d->type);
+
+    if (d->value){
+        fprintf(stdout, " = ");
+        expr_print(d->value);
+    }
+
+    if (d->code){
+        fprintf(stdout, " = ");
+        stmt_print(d->code, indents);
+        indent(indents);
+    } else {
+        fprintf(stdout, ";\n");
+    }
+    if (d->next) {
+        decl_print(d->next, indents);
+    }
+}
