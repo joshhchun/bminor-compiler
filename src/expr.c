@@ -84,7 +84,7 @@ void expr_print( struct expr *e ) {
             fprintf(stdout, "%f", e->float_literal);
             break;
         case EXPR_BOOL:
-            fprintf(stdout, "%s", e->bool_literal ? "true" : "false", stdout);
+            fprintf(stdout, "%s", e->bool_literal ? "true" : "false");
             break;
         case EXPR_ARRAY_INIT:
             fprintf(stdout, "{");
