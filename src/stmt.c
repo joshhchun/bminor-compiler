@@ -42,7 +42,12 @@ void stmt_print( struct stmt *s, int indents, bool start_indent) {
             fprintf(stdout, "%s", has_block ? " " : "\n");
             stmt_print(s->body, indents + !has_block, !has_block);
             if(!s->else_body) break;
-            fprintf(stdout, " else");
+            // If its a one line if statement with no block with an else, then new line and indent
+            if (!has_block) {
+                fprintf(stdout, "\n");
+                indent(indents);
+                fprintf(stdout, "else");
+            } else fprintf(stdout, " else");
             has_block = (s->else_body->kind == STMT_BLOCK);
             fprintf(stdout, "%s", has_block ? " " : "\n");
             stmt_print(s->else_body, indents + !has_block, !has_block);
@@ -61,7 +66,7 @@ void stmt_print( struct stmt *s, int indents, bool start_indent) {
             break;
         case STMT_PRINT:
             fprintf(stdout, "print ");
-            expr_print(s->expr);
+            expr_print_list(s->expr, ", ");
             fprintf(stdout, ";");
             break;
         case STMT_RETURN:

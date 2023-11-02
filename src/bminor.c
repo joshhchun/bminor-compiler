@@ -62,15 +62,15 @@ void scan(const char* file_name) {
 }
 
 void parse(const char* file_name) {
-        if (!(yyin = fopen(file_name, "r"))) {
-            printf("Could not open %s\n", file_name);
-            exit(1);
-        };
-        if (yyparse()) {
-            debug_print("Program did not parse successfully.\n");
-            exit(1);
-        } else debug_print("Program parsed successfully.\n");
-        fclose(yyin);
+    if (!(yyin = fopen(file_name, "r"))) {
+        printf("Could not open %s\n", file_name);
+        exit(1);
+    };
+    if (yyparse()) {
+        debug_print("Program did not parse successfully.\n");
+        exit(1);
+    } else debug_print("Program parsed successfully.\n");
+    fclose(yyin);
 }
 
 void pprint(const char* file_name, struct decl* parser_result) {

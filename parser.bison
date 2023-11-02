@@ -81,7 +81,7 @@ struct decl* parser_result = 0;
 
 %type <param_list> param_list param_next
 
-%type <expr> expr expr2 expr3 expr4 expr5 expr6 expr7 expr8 expr_list expr_next opt_expr_list mut array_init inc_or_dec expr_assign func_call if_expr for_expr ident_expr array_init_next val_literal array_access array_size
+%type <expr> expr expr2 expr3 expr4 expr5 expr6 expr7 expr8 expr_list opt_expr_list mut inc_or_dec expr_assign func_call if_expr for_expr ident_expr val_literal array_access array_size array_init array_content nested_array_content nested_array_next
 
 %type <stmt> stmt stmt_list for_stmt cmpd_stmt simp_stmt if_dangle reg_end dangle_end for_cond stmt_next
 
@@ -115,7 +115,7 @@ var_decl:
 ident TOKEN_DEFINE val_type init expr TOKEN_SEMICOLON { $$ = decl_create($1, $3, $5, 0, 0); }
 | ident TOKEN_DEFINE val_type TOKEN_SEMICOLON         { $$ = decl_create($1, $3, 0, 0, 0); }
 /*  Array decl */
-| ident TOKEN_DEFINE array_type init TOKEN_LBRACE array_init TOKEN_RBRACE TOKEN_SEMICOLON { $$ = decl_create($1, $3, $6, 0, 0); }
+| ident TOKEN_DEFINE array_type init array_init TOKEN_SEMICOLON { $$ = decl_create($1, $3, $5, 0, 0); }
 /*  Array */
 | ident TOKEN_DEFINE array_type TOKEN_SEMICOLON { $$ = decl_create($1, $3, 0, 0, 0); }
 ;
@@ -207,23 +207,26 @@ func_call: ident_expr TOKEN_LPAREN opt_expr_list TOKEN_RPAREN { $$ = expr_create
 ;
 
 /* Array inits, cannot be empty but can be nested */
-array_init : TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARRAY_INIT, $2, $4); }
-| expr_list { $$ = expr_create(EXPR_ARRAY_INIT, $1, 0); }
+array_init : TOKEN_LBRACE array_content TOKEN_RBRACE { $$ = expr_create(EXPR_ARRAY_INIT, $2, 0); }
 ;
-array_init_next : TOKEN_COMMA TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARRAY_INIT, $3, $5); }
+
+array_content : expr_list { $$ = $1; }
+|  nested_array_content  { $$ = $1; }
+;
+nested_array_content : TOKEN_LBRACE expr_list TOKEN_RBRACE nested_array_next { $$ = expr_create(EXPR_ARRAY_INIT, $2, $4); }
+;
+nested_array_next : TOKEN_COMMA TOKEN_LBRACE expr_list TOKEN_RBRACE nested_array_next { $$ = expr_create(EXPR_ARRAY_INIT, $3, $5); }
 | { $$ = 0; }
 ;
 
 /* Expression list (func calls, print, etc.) */
-expr_list : expr expr_next { $$ = expr_create(EXPR_ARG, $1, $2); }
+expr_list : expr { $$ = $1; }
+| expr TOKEN_COMMA expr_list { $1->right = $3; $$ = $1; }
 ;
 
 /* Optional expression list (can be empty) */
 opt_expr_list : expr_list { $$ = $1; }
 | { $$ = 0; } 
-;
-expr_next : TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $2, 0); }
-| { $$ = 0; }
 ;
 
 /*  Expressions */

@@ -83,5 +83,6 @@ struct expr * expr_create_float_literal( float c );
 struct expr * expr_create_string_literal( const char *str );
 
 void expr_print( struct expr *e );
+void expr_print_list(struct expr* e, char* delim);
 
 #endif

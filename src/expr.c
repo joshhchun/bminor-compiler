@@ -88,8 +88,9 @@ void expr_print( struct expr *e ) {
             break;
         case EXPR_ARRAY_INIT:
             fprintf(stdout, "{");
-            expr_print_list(e, ", ");
+            expr_print_list(e->left, ", ");
             fprintf(stdout, "}");
+            break;
         case EXPR_ARRAY_SUB:
             fprintf(stdout, "%s", e->left->ident);
             fprintf(stdout, "[");
@@ -216,7 +217,7 @@ void expr_print( struct expr *e ) {
 
 void expr_print_list(struct expr* e, char *delim) {
     if (!e) return;
-    expr_print(e->left);
+    expr_print(e);
     if (e->right) fprintf(stdout, "%s", delim);
     expr_print_list(e->right, delim);
 }
