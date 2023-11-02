@@ -55,9 +55,9 @@ void scan(const char* file_name) {
         exit(1);
     };
     if (scanner()) { 
-        printf("Program did not scan successfully.\n");
+        debug_print("Program did not scan successfully.\n");
         exit(1);
-    } else printf("Program scanned successfully.\n");
+    } else debug_print("Program scanned successfully.\n");
     fclose(yyin);
 }
 
@@ -67,14 +67,14 @@ void parse(const char* file_name) {
             exit(1);
         };
         if (yyparse()) {
-            printf("Program did not parse successfully.\n");
+            debug_print("Program did not parse successfully.\n");
             exit(1);
-        } else printf("Program parsed successfully.\n");
+        } else debug_print("Program parsed successfully.\n");
         fclose(yyin);
 }
 
 void pprint(const char* file_name, struct decl* parser_result) {
-    decl_print(parser_result, 0);
+    decl_print_list(parser_result, 0, "\n");
 }
 
 int main(int argc, char** argv) {

@@ -164,7 +164,7 @@ typedef union YYSTYPE
 {
         char* string_literal;
         int int_literal;
-        char char_literal;
+        char* char_literal;
 
         struct decl *decl;
         struct stmt *stmt;

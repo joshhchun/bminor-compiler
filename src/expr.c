@@ -36,9 +36,13 @@ struct expr* expr_create_float_literal(float c) {
     e->float_literal = c;
     return e;
 }
-struct expr* expr_create_char_literal(char c) {
+struct expr* expr_create_char_literal(char* c) {
     struct expr* e = expr_create(EXPR_CHAR_LITERAL, 0, 0);
-    e->char_literal = c;
+    char *dup_string = strdup(c);
+    if (!dup_string) {
+        fprintf(stderr, "ERROR: Not enough space to allocate char literal.\n");
+    }
+    e->char_literal = dup_string;
     return e;
 }
 struct expr* expr_create_string_literal(const char *str) {
@@ -74,7 +78,7 @@ void expr_print( struct expr *e ) {
             fprintf(stdout, "%s", e->string_literal);
             break;
         case EXPR_CHAR_LITERAL:
-            fprintf(stdout, "%c", e->char_literal);
+            fprintf(stdout, "%s", e->char_literal);
             break;
         case EXPR_FLOAT_LITERAL:
             fprintf(stdout, "%f", e->float_literal);
@@ -82,15 +86,19 @@ void expr_print( struct expr *e ) {
         case EXPR_BOOL:
             fprintf(stdout, "%s", e->bool_literal ? "true" : "false", stdout);
             break;
+        case EXPR_ARRAY_INIT:
+            fprintf(stdout, "{");
+            expr_print_list(e, ", ");
+            fprintf(stdout, "}");
         case EXPR_ARRAY_SUB:
             fprintf(stdout, "%s", e->left->ident);
             fprintf(stdout, "[");
             expr_print(e->right);
             fprintf(stdout, "%s", "]");
-            struct expr* c = e->right;
+            struct expr* c = e->right->right;
             while (c) {
                 fprintf(stdout, "[");
-                expr_print(e->right);
+                expr_print(c);
                 fprintf(stdout, "%s", "]");
                 c = c->right;    
             }
@@ -113,16 +121,9 @@ void expr_print( struct expr *e ) {
             break;
         case EXPR_FUNC:
             expr_print(e->left);
-            fputs("(", stdout);
-            struct expr* a = e->right;
-            while (a) {
-                expr_print(a);
-                if (a->right) {
-                    printf(", ");
-                }
-                a = a->right;
-            }
-            fputs(")", stdout);
+            fprintf(stdout, "(");
+            expr_print_list(e->right, ", ");
+            fprintf(stdout, ")");
             break;
         case EXPR_IDENT:
             fprintf(stdout, "%s", e->ident);
@@ -212,3 +213,10 @@ void expr_print( struct expr *e ) {
     }
 }
 
+
+void expr_print_list(struct expr* e, char *delim) {
+    if (!e) return;
+    expr_print(e->left);
+    if (e->right) fprintf(stdout, "%s", delim);
+    expr_print_list(e->right, delim);
+}

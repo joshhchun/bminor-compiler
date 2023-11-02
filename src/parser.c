@@ -221,7 +221,7 @@ typedef union YYSTYPE
 {
         char* string_literal;
         int int_literal;
-        char char_literal;
+        char* char_literal;
 
         struct decl *decl;
         struct stmt *stmt;
@@ -584,10 +584,10 @@ static const yytype_uint16 yyrline[] =
      223,   225,   226,   231,   235,   236,   239,   240,   243,   244,
      247,   248,   249,   252,   253,   254,   255,   256,   259,   260,
      261,   264,   265,   266,   267,   270,   271,   272,   273,   274,
-     277,   278,   279,   280,   281,   282,   283,   284,   285,   286,
-     289,   290,   293,   304,   305,   308,   311,   312,   316,   323,
-     324,   327,   328,   331,   332,   333,   334,   335,   339,   340,
-     344,   345,   347,   348,   351
+     277,   278,   279,   283,   284,   285,   286,   287,   288,   289,
+     292,   293,   296,   307,   308,   311,   314,   315,   319,   326,
+     327,   330,   331,   334,   335,   336,   337,   338,   342,   343,
+     347,   348,   350,   351,   354
 };
 #endif
 
@@ -1882,17 +1882,17 @@ yyreduce:
 
   case 44:
 #line 210 "parser.bison"
-    { (yyval.expr) = expr_create(EXPR_ARG, (yyvsp[(2) - (4)].expr), (yyvsp[(4) - (4)].expr)); ;}
+    { (yyval.expr) = expr_create(EXPR_ARRAY_INIT, (yyvsp[(2) - (4)].expr), (yyvsp[(4) - (4)].expr)); ;}
     break;
 
   case 45:
 #line 211 "parser.bison"
-    { (yyval.expr) = expr_create(EXPR_ARG, (yyvsp[(1) - (1)].expr), NULL); ;}
+    { (yyval.expr) = expr_create(EXPR_ARRAY_INIT, (yyvsp[(1) - (1)].expr), 0); ;}
     break;
 
   case 46:
 #line 213 "parser.bison"
-    { (yyval.expr) = expr_create(EXPR_ARG, (yyvsp[(3) - (5)].expr), (yyvsp[(5) - (5)].expr)); ;}
+    { (yyval.expr) = expr_create(EXPR_ARRAY_INIT, (yyvsp[(3) - (5)].expr), (yyvsp[(5) - (5)].expr)); ;}
     break;
 
   case 47:
@@ -2071,57 +2071,59 @@ yyreduce:
     break;
 
   case 82:
-#line 279 "parser.bison"
-    { (yyval.expr) = expr_create_char_literal(*yytext); ;}
+#line 280 "parser.bison"
+    { 
+        (yyval.expr) = expr_create_char_literal(yytext);
+;}
     break;
 
   case 83:
-#line 280 "parser.bison"
+#line 283 "parser.bison"
     { (yyval.expr) = expr_create_float_literal(atof(yytext)); ;}
     break;
 
   case 84:
-#line 281 "parser.bison"
+#line 284 "parser.bison"
     { (yyval.expr) = expr_create_string_literal(yytext); ;}
     break;
 
   case 85:
-#line 282 "parser.bison"
+#line 285 "parser.bison"
     { (yyval.expr) = expr_create_bool_literal(1); ;}
     break;
 
   case 86:
-#line 283 "parser.bison"
+#line 286 "parser.bison"
     { (yyval.expr) = expr_create_bool_literal(0); ;}
     break;
 
   case 87:
-#line 284 "parser.bison"
+#line 287 "parser.bison"
     { (yyval.expr) = (yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 88:
-#line 285 "parser.bison"
+#line 288 "parser.bison"
     { (yyval.expr) = (yyvsp[(2) - (3)].expr); ;}
     break;
 
   case 89:
-#line 286 "parser.bison"
+#line 289 "parser.bison"
     { (yyval.expr) = (yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 90:
-#line 289 "parser.bison"
+#line 292 "parser.bison"
     { (yyval.expr) = expr_create(EXPR_INC, (yyvsp[(1) - (2)].expr), 0); ;}
     break;
 
   case 91:
-#line 290 "parser.bison"
+#line 293 "parser.bison"
     { (yyval.expr) = expr_create(EXPR_DEC, (yyvsp[(1) - (2)].expr), 0); ;}
     break;
 
   case 92:
-#line 294 "parser.bison"
+#line 297 "parser.bison"
     { 
         char *s;
         if (!(s = strdup(yytext))) {
@@ -2133,32 +2135,32 @@ yyreduce:
     break;
 
   case 93:
-#line 304 "parser.bison"
+#line 307 "parser.bison"
     { (yyval.expr) = (yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 94:
-#line 305 "parser.bison"
+#line 308 "parser.bison"
     { (yyval.expr) = expr_create(EXPR_ARRAY_SUB, (yyvsp[(1) - (2)].expr), (yyvsp[(2) - (2)].expr)); ;}
     break;
 
   case 95:
-#line 308 "parser.bison"
+#line 311 "parser.bison"
     { (yyval.expr) = expr_create_ident((yyvsp[(1) - (1)].string_literal)); ;}
     break;
 
   case 96:
-#line 311 "parser.bison"
+#line 314 "parser.bison"
     { (yyval.expr) = expr_create(EXPR_ARG, (yyvsp[(2) - (4)].expr), (yyvsp[(4) - (4)].expr)); ;}
     break;
 
   case 97:
-#line 312 "parser.bison"
+#line 315 "parser.bison"
     { (yyval.expr) = expr_create(EXPR_ARG, (yyvsp[(2) - (3)].expr), 0); ;}
     break;
 
   case 98:
-#line 317 "parser.bison"
+#line 320 "parser.bison"
     { 
                 (yyval.type) = type_create(TYPE_ARRAY, (yyvsp[(5) - (5)].type), 0);
                 (yyval.type)->array_size = (yyvsp[(3) - (5)].expr);
@@ -2166,83 +2168,83 @@ yyreduce:
     break;
 
   case 99:
-#line 323 "parser.bison"
+#line 326 "parser.bison"
     { (yyval.expr) = (yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 100:
-#line 324 "parser.bison"
+#line 327 "parser.bison"
     { (yyval.expr) = 0; ;}
     break;
 
   case 101:
-#line 327 "parser.bison"
+#line 330 "parser.bison"
     { (yyval.type) = (yyvsp[(1) - (1)].type); ;}
     break;
 
   case 102:
-#line 328 "parser.bison"
+#line 331 "parser.bison"
     { (yyval.type) = (yyvsp[(1) - (1)].type); ;}
     break;
 
   case 103:
-#line 331 "parser.bison"
+#line 334 "parser.bison"
     { (yyval.type) = type_create(TYPE_INT, 0, 0); ;}
     break;
 
   case 104:
-#line 332 "parser.bison"
+#line 335 "parser.bison"
     { (yyval.type) = type_create(TYPE_FLOAT, 0, 0); ;}
     break;
 
   case 105:
-#line 333 "parser.bison"
+#line 336 "parser.bison"
     { (yyval.type) = type_create(TYPE_BOOL, 0, 0); ;}
     break;
 
   case 106:
-#line 334 "parser.bison"
+#line 337 "parser.bison"
     { (yyval.type) = type_create(TYPE_CHAR, 0, 0); ;}
     break;
 
   case 107:
-#line 335 "parser.bison"
+#line 338 "parser.bison"
     { (yyval.type) = type_create(TYPE_STR, 0, 0); ;}
     break;
 
   case 108:
-#line 339 "parser.bison"
+#line 342 "parser.bison"
     { (yyval.type) = (yyvsp[(1) - (1)].type); ;}
     break;
 
   case 109:
-#line 340 "parser.bison"
+#line 343 "parser.bison"
     { (yyval.type) = type_create(TYPE_VOID, 0, 0); ;}
     break;
 
   case 110:
-#line 344 "parser.bison"
+#line 347 "parser.bison"
     { (yyval.param_list) = param_list_create((yyvsp[(1) - (4)].string_literal), (yyvsp[(3) - (4)].type), (yyvsp[(4) - (4)].param_list)); ;}
     break;
 
   case 111:
-#line 345 "parser.bison"
+#line 348 "parser.bison"
     { (yyval.param_list) = 0; ;}
     break;
 
   case 112:
-#line 347 "parser.bison"
+#line 350 "parser.bison"
     { (yyval.param_list) = param_list_create((yyvsp[(2) - (5)].string_literal), (yyvsp[(4) - (5)].type), (yyvsp[(5) - (5)].param_list)); ;}
     break;
 
   case 113:
-#line 348 "parser.bison"
+#line 351 "parser.bison"
     { (yyval.param_list) = 0; ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2246 "src/parser.c"
+#line 2248 "src/parser.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2456,7 +2458,7 @@ yyreturn:
 }
 
 
-#line 354 "parser.bison"
+#line 357 "parser.bison"
 
 
 int yyerror(char *s) {

@@ -68,7 +68,7 @@ struct decl* parser_result = 0;
 %union {
         char* string_literal;
         int int_literal;
-        char char_literal;
+        char* char_literal;
 
         struct decl *decl;
         struct stmt *stmt;
@@ -207,10 +207,10 @@ func_call: ident_expr TOKEN_LPAREN opt_expr_list TOKEN_RPAREN { $$ = expr_create
 ;
 
 /* Array inits, cannot be empty but can be nested */
-array_init : TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARG, $2, $4); }
-| expr_list { $$ = expr_create(EXPR_ARG, $1, NULL); }
+array_init : TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARRAY_INIT, $2, $4); }
+| expr_list { $$ = expr_create(EXPR_ARRAY_INIT, $1, 0); }
 ;
-array_init_next : TOKEN_COMMA TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARG, $3, $5); }
+array_init_next : TOKEN_COMMA TOKEN_LBRACE expr_list TOKEN_RBRACE array_init_next { $$ = expr_create(EXPR_ARRAY_INIT, $3, $5); }
 | { $$ = 0; }
 ;
 
@@ -276,7 +276,10 @@ expr8: TOKEN_NOT val_literal  { $$ = expr_create(EXPR_NOT, $2, 0); }
 /* Highest precedence (Post increment (5++), function calls, array sub (a[5]), parenthesis grouping ((5*2) + 2))*/
 val_literal : TOKEN_INT_LITERAL { $$ = expr_create_integer_literal(atoi(yytext)); }
 | inc_or_dec { $$ = $1; }
-| TOKEN_CHAR_LITERAL { $$ = expr_create_char_literal(*yytext); }
+| TOKEN_CHAR_LITERAL
+{ 
+        $$ = expr_create_char_literal(yytext);
+}
 | TOKEN_FLOAT_LITERAL { $$ = expr_create_float_literal(atof(yytext)); }
 | TOKEN_STRING_LITERAL { $$ = expr_create_string_literal(yytext); }
 | TOKEN_TRUE { $$ = expr_create_bool_literal(1); }

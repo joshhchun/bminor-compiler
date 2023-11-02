@@ -28,9 +28,9 @@ void type_print( struct type *t ) {
         case TYPE_FUNC:
             fputs(" ", stdout);
             type_print(t->subtype);
-            fputs(" ( ", stdout);
+            fputs(" (", stdout);
             param_list_print(t->params);
-            fputs(" )", stdout);
+            fputs(")", stdout);
             break;
         default:
             break;

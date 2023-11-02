@@ -28,12 +28,16 @@ void decl_print(struct decl *d, int indents) {
 
     if (d->code){
         fprintf(stdout, " = ");
-        stmt_print(d->code, indents);
+        stmt_print(d->code, indents, true);
         indent(indents);
     } else {
-        fprintf(stdout, ";\n");
+        fprintf(stdout, ";");
     }
-    if (d->next) {
-        decl_print(d->next, indents);
-    }
+}
+
+void decl_print_list(struct decl *d, int indents, char *delim){
+    if (!d) return;
+    decl_print(d, indents);
+    fprintf(stdout, "%s", delim);
+    decl_print_list(d->next, indents, delim);
 }

@@ -50,6 +50,7 @@ typedef enum {
     EXPR_PLUS,
 
     /* Args */
+    EXPR_ARRAY_INIT,
     EXPR_ARG,
 } expr_t;
 
@@ -64,7 +65,7 @@ struct expr {
 	int int_literal;
 	const char * string_literal;
 	float float_literal;
-	char char_literal;
+	char* char_literal;
 	bool bool_literal;
 	struct symbol *symbol;
 };
@@ -77,7 +78,7 @@ struct expr* expr_create_ident(const char *n);
 
 struct expr * expr_create_integer_literal( int c );
 struct expr * expr_create_bool_literal( int c );
-struct expr * expr_create_char_literal( char c );
+struct expr * expr_create_char_literal( char* c );
 struct expr * expr_create_float_literal( float c );
 struct expr * expr_create_string_literal( const char *str );
 
