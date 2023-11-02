@@ -132,7 +132,7 @@ ident TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN T
 stmt_list : stmt stmt_next
 {
         $1->next = $2;
-        $$ = stmt_create(STMT_BLOCK, 0, 0, 0, 0, $1, 0, 0) 
+        $$ = stmt_create(STMT_BLOCK, 0, 0, 0, 0, $1, 0, 0);
 }
 | { $$ = 0; }
 ;
