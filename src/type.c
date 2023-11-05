@@ -1,7 +1,7 @@
 #include "../include/type.h"
 #include "../include/expr.h"
 
-type* type_create( type_t kind, struct type *subtype, struct param_list *params ) {
+type* type_create(type_t kind, struct type* subtype, struct param_list* params) {
     type* t;
     if (!(t = calloc(1, sizeof(type)))) {
         fprintf(stderr, "ERROR: Could not allocate enough memory for expr_create.\n");
@@ -13,11 +13,11 @@ type* type_create( type_t kind, struct type *subtype, struct param_list *params 
     return t;    
 }
 
-void type_print( struct type *t ) {
+void type_print(struct type* t) {
     if (!t) return;
 
-    char *kind_to_str[] = {"void", "boolean", "char", "float", "integer", "string", "array", "function"};
-    printf("%s", kind_to_str[t->kind - TYPE_VOID]);
+    char *type_s [] = {"void", "boolean", "char", "float", "integer", "string", "array", "function"};
+    fprintf(stdout, "%s", type_s[t->kind - TYPE_VOID]);
     switch(t->kind){
         case TYPE_ARRAY:
             fputs(" [", stdout);

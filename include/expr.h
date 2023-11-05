@@ -27,7 +27,6 @@ typedef enum {
     EXPR_FUNC,
     EXPR_ARRAY_SUB,
     EXPR_IDENT,
-    /* TODO: What to do with parenthesis? */
 
     /* Inequaliies */
     EXPR_LT,
@@ -57,32 +56,30 @@ typedef enum {
 struct expr {
 	/* used by all kinds of exprs */
 	expr_t kind;
-	struct expr *left;
-	struct expr *right;
+	struct expr* left;
+	struct expr* right;
 
 	/* used by various leaf exprs */
-	const char *ident;
-	int int_literal;
-	const char * string_literal;
-	float float_literal;
-	char* char_literal;
-	bool bool_literal;
-	struct symbol *symbol;
+	const char*    ident;
+	int            int_literal;
+	const char*    string_literal;
+	float          float_literal;
+	char*          char_literal;
+	bool           bool_literal;
+	struct symbol* symbol;
 };
 
-struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
-
+struct expr* expr_create(expr_t kind, struct expr* left, struct expr* right);
 
 struct expr* expr_create_array_sub(struct expr* ident, struct expr* index);
-struct expr* expr_create_ident(const char *n);
+struct expr* expr_create_ident(const char* n);
+struct expr* expr_create_integer_literal(int c);
+struct expr* expr_create_bool_literal(int c);
+struct expr* expr_create_char_literal(char* c);
+struct expr* expr_create_float_literal(float c);
+struct expr* expr_create_string_literal(const char* str);
 
-struct expr * expr_create_integer_literal( int c );
-struct expr * expr_create_bool_literal( int c );
-struct expr * expr_create_char_literal( char* c );
-struct expr * expr_create_float_literal( float c );
-struct expr * expr_create_string_literal( const char *str );
-
-void expr_print( struct expr *e );
-void expr_print_list(struct expr* e, char* delim);
+void expr_print(struct expr* e);
+void expr_print_list(struct expr* e);
 
 #endif

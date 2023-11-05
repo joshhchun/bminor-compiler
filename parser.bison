@@ -220,8 +220,11 @@ nested_array_next : TOKEN_COMMA TOKEN_LBRACE expr_list TOKEN_RBRACE nested_array
 ;
 
 /* Expression list (func calls, print, etc.) */
-expr_list : expr { $$ = $1; }
-| expr TOKEN_COMMA expr_list { $1->right = $3; $$ = $1; }
+expr_list : expr { $$ = expr_create(EXPR_ARG, $1, 0); }
+| expr TOKEN_COMMA expr_list
+{ 
+        $$ = expr_create(EXPR_ARG, $1, $3);
+}
 ;
 
 /* Optional expression list (can be empty) */

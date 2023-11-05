@@ -8,17 +8,17 @@
 #include <stdio.h>
 
 struct decl {
-	char *ident;
-	struct type* type;
-	struct expr *value;
-	struct stmt *code;
-	struct symbol *symbol;
-	struct decl *next;
+    char*          ident;
+    struct type*   type;
+    struct expr*   value;
+    struct stmt*   code;
+    struct symbol* symbol;
+    struct decl*   next;
 };
 
-struct decl* decl_create(char *ident, struct type* type, struct expr *value, struct stmt *code, struct decl *next );
-void decl_print(struct decl *d, int indent);
-void decl_print_list(struct decl *d, int indents, char *delim);
+struct decl* decl_create(char* ident, struct type* type, struct expr* value, struct stmt* code, struct decl* next);
+void decl_print(struct decl* d, int indent);
+void decl_print_list(struct decl* d, int indents);
 
 #endif
 

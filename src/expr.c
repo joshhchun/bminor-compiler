@@ -1,7 +1,5 @@
 #include "../include/expr.h"
-
-
-void expr_print_list(struct expr *e, char *delim);
+#include <stdlib.h>
 
 struct expr*  expr_create( expr_t kind, struct expr* left,struct expr* right ) {
     struct expr* e;
@@ -41,6 +39,7 @@ struct expr* expr_create_char_literal(char* c) {
     char *dup_string = strdup(c);
     if (!dup_string) {
         fprintf(stderr, "ERROR: Not enough space to allocate char literal.\n");
+        exit(EXIT_FAILURE);
     }
     e->char_literal = dup_string;
     return e;
@@ -50,6 +49,7 @@ struct expr* expr_create_string_literal(const char *str) {
     char *dup_string = strdup(str);
     if (!dup_string) {
         fprintf(stderr, "ERROR: Not enough space to allocate string literal.\n");
+        exit(EXIT_FAILURE);
     }
     e->string_literal = dup_string;
     return e;
@@ -63,14 +63,11 @@ struct expr* expr_create_array_sub(struct expr* ident, struct expr* index) {
     return e;
 }
 
-
-
-/* print */
-
-
+/* Printing expressions */
 void expr_print( struct expr *e ) {
     if (!e) return;
     switch(e->kind){
+        /* Literals */
         case EXPR_INT_LITERAL:
             printf("%d", e->int_literal);
             break;
@@ -86,11 +83,13 @@ void expr_print( struct expr *e ) {
         case EXPR_BOOL:
             fprintf(stdout, "%s", e->bool_literal ? "true" : "false");
             break;
+        /* Array inits */
         case EXPR_ARRAY_INIT:
             fprintf(stdout, "{");
-            expr_print_list(e->left, ", ");
+            expr_print_list(e->left);
             fprintf(stdout, "}");
             break;
+        /* Array subscripts */
         case EXPR_ARRAY_SUB:
             fprintf(stdout, "%s", e->left->ident);
             fprintf(stdout, "[");
@@ -104,9 +103,11 @@ void expr_print( struct expr *e ) {
                 c = c->right;    
             }
             break;
+        /* Arguments for expr_lists */
         case EXPR_ARG:
             expr_print(e->left);
             break;
+        /* Inc and decs */
         case EXPR_INC:
             expr_print(e->left);
             fprintf(stdout, "++");
@@ -115,20 +116,24 @@ void expr_print( struct expr *e ) {
             expr_print(e->left);
             fprintf(stdout, "--");
             break;
+        /* Assignment */
         case EXPR_ASSIGN:
             expr_print(e->left);
             fprintf(stdout, "=");
             expr_print(e->right);
             break;
+        /* Function calls */
         case EXPR_FUNC:
             expr_print(e->left);
             fprintf(stdout, "(");
-            expr_print_list(e->right, ", ");
+            expr_print_list(e->right);
             fprintf(stdout, ")");
             break;
+        /* Identifiers */
         case EXPR_IDENT:
             fprintf(stdout, "%s", e->ident);
             break;
+        /* Operations */
         case EXPR_ADD:
             expr_print(e->left);
             fprintf(stdout, "+");
@@ -199,6 +204,7 @@ void expr_print( struct expr *e ) {
             fprintf(stdout, "||");
             expr_print(e->right);
             break;
+        /* Unary */
         case EXPR_NOT:
             fprintf(stdout, "!");
             expr_print(e->left);
@@ -214,10 +220,10 @@ void expr_print( struct expr *e ) {
     }
 }
 
-
-void expr_print_list(struct expr* e, char *delim) {
+/* Printing expression lists */
+void expr_print_list(struct expr* e) {
     if (!e) return;
     expr_print(e);
-    if (e->right) fprintf(stdout, "%s", delim);
-    expr_print_list(e->right, delim);
+    if (e->right) fprintf(stdout, "%s", ", ");
+    expr_print_list(e->right);
 }

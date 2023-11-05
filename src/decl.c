@@ -1,6 +1,6 @@
 #include "../include/decl.h"
 
-struct decl* decl_create(char *ident, struct type *type, struct expr *value, struct stmt *code, struct decl *next) {
+struct decl* decl_create(char* ident, struct type* type, struct expr* value, struct stmt* code, struct decl* next) {
     struct decl* d;
     if (!(d = calloc(1, sizeof(struct decl)))) {
         fprintf(stderr, "ERROR: Could not allocate enough memory for expr_create.\n");
@@ -15,7 +15,7 @@ struct decl* decl_create(char *ident, struct type *type, struct expr *value, str
 }
 
 
-void decl_print(struct decl *d, int indents) {
+void decl_print(struct decl* d, int indents) {
     extern void indent(int indents);
     if (!d) return;
     fprintf(stdout, "%s: ", d->ident);
@@ -35,9 +35,9 @@ void decl_print(struct decl *d, int indents) {
     }
 }
 
-void decl_print_list(struct decl *d, int indents, char *delim){
+void decl_print_list(struct decl *d, int indents){
     if (!d) return;
     decl_print(d, indents);
-    fprintf(stdout, "%s", delim);
-    decl_print_list(d->next, indents, delim);
+    fprintf(stdout, "%s", "\n");
+    decl_print_list(d->next, indents);
 }

@@ -1,10 +1,7 @@
 #include "../include/stmt.h"
 #include "../include/bminor.h"
 
-
-void stmt_print_list(struct stmt *s, int indents, char *delim);
-
-struct stmt* stmt_create(stmt_t kind, struct decl* decl, struct expr* init_expr, struct expr* expr, struct expr* next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
+struct stmt* stmt_create(stmt_t kind, struct decl* decl, struct expr* init_expr, struct expr* expr, struct expr* next_expr, struct stmt* body, struct stmt* else_body, struct stmt* next) {
     struct stmt* s;
     if (!(s = calloc(1, sizeof(struct stmt)))) {
         fprintf(stderr, "ERROR: Could not allocate enough memory for expr_create.\n");
@@ -21,7 +18,7 @@ struct stmt* stmt_create(stmt_t kind, struct decl* decl, struct expr* init_expr,
     return s;
 }
 
-void stmt_print( struct stmt *s, int indents, bool start_indent) {
+void stmt_print(struct stmt* s, int indents, bool start_indent) {
     if (!s) return;
     if (start_indent) indent(indents);
     bool has_block;
@@ -66,7 +63,7 @@ void stmt_print( struct stmt *s, int indents, bool start_indent) {
             break;
         case STMT_PRINT:
             fprintf(stdout, "print ");
-            expr_print_list(s->expr, ", ");
+            expr_print_list(s->expr);
             fprintf(stdout, ";");
             break;
         case STMT_RETURN:
@@ -76,16 +73,18 @@ void stmt_print( struct stmt *s, int indents, bool start_indent) {
             break;
 	    case STMT_BLOCK:
 	        fprintf(stdout, "{\n");
-	        stmt_print_list(s->body, indents + 1, "\n");
+	        stmt_print_list(s->body, indents + 1);
 	        indent(indents);
 	        printf("}");
 	        break;
     }
 }
-void stmt_print_list(struct stmt *s, int indents, char *delim){
+
+/* Printing stmt lists */
+void stmt_print_list(struct stmt* s, int indents){
     if (!s) return;
 
     stmt_print(s, indents, true);
-    fprintf(stdout, "%s", delim);
-    stmt_print_list(s->next, indents, delim);
+    fprintf(stdout, "%s", "\n");
+    stmt_print_list(s->next, indents);
 }

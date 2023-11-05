@@ -74,7 +74,7 @@ void parse(const char* file_name) {
 }
 
 void pprint(const char* file_name, struct decl* parser_result) {
-    decl_print_list(parser_result, 0, "\n");
+    decl_print_list(parser_result, 0);
 }
 
 int main(int argc, char** argv) {
