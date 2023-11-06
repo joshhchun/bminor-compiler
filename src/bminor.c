@@ -1,6 +1,7 @@
 #include "../include/bminor.h"
 
 int DEBUG = 0;
+p_type PROGRAM_TYPE;
 struct decl* parser_result;
 
 /**
@@ -14,6 +15,7 @@ void usage(const char* program_name, int status) {
     fprintf(stderr, "Usage: %s [options] file_name\n", program_name);
     fprintf(stderr, "\t--encode : Encode string if valid\n");
     fprintf(stderr, "\t--scan   : Scan a file and print out tokens\n");
+    fprintf(stderr, "\t--print  : Build the AST and pretty print source code\n");
     exit(status);
 }
 
@@ -51,30 +53,37 @@ int read_input(const char* file_name, char* encoded_line) {
 
 void scan(const char* file_name) {
     if (!(yyin = fopen(file_name, "r"))) {
-        printf("Could not open %s\n", file_name);
-        exit(1);
+        fprintf(stderr, "Could not open %s\n", file_name);
+        exit(EXIT_FAILURE);
     };
     if (scanner()) { 
-        debug_print("Program did not scan successfully.\n");
-        exit(1);
-    } else debug_print("Program scanned successfully.\n");
+        exit(EXIT_FAILURE);
+    } else 
+        if (PROGRAM_TYPE == T_SCAN || PROGRAM_TYPE == T_PARSE) 
+            fprintf(stdout, "Program scanned successfully.\n");
+        
     fclose(yyin);
 }
 
 void parse(const char* file_name) {
     if (!(yyin = fopen(file_name, "r"))) {
-        printf("Could not open %s\n", file_name);
-        exit(1);
+        fprintf(stderr, "Could not open %s\n", file_name);
+        exit(EXIT_FAILURE);
     };
     if (yyparse()) {
-        debug_print("Program did not parse successfully.\n");
-        exit(1);
-    } else debug_print("Program parsed successfully.\n");
+        exit(EXIT_FAILURE);
+    } else 
+        if (PROGRAM_TYPE == T_PARSE)
+            fprintf(stdout, "Program parsed successfully.\n");
     fclose(yyin);
 }
 
-void pprint(const char* file_name, struct decl* parser_result) {
+void pprint(struct decl* parser_result) {
     decl_print_list(parser_result, 0);
+}
+
+void resolve(struct decl* parser_result) {
+    decl_resolve(parser_result);
 }
 
 int main(int argc, char** argv) {
@@ -99,15 +108,23 @@ int main(int argc, char** argv) {
         fprintf(stdout, "Decoded line: %s\n", decoded_line);
         fprintf(stdout, "Encoded line: %s\n", encoded_line);
     } else if (same_str(argv[1], "--scan")) {
+        PROGRAM_TYPE = T_SCAN;
         DEBUG = 1;
         scan(argv[2]);
     } else if (same_str(argv[1], "--parse")) {
+        PROGRAM_TYPE = T_PARSE;
         scan(argv[2]);
         parse(argv[2]);
     } else if (same_str(argv[1], "--print")) {
+        PROGRAM_TYPE = T_PRINT;
         scan(argv[2]);
         parse(argv[2]);
-        pprint(argv[2], parser_result);
+        pprint(parser_result);
+    } else if (same_str(argv[1], "--resolve")) {
+        scan(argv[2]);
+        parse(argv[2]);
+        pprint(parser_result);
+        resolve(parser_result);
     }
     else {
         usage(argv[0], 1);

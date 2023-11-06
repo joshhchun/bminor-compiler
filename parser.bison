@@ -291,7 +291,7 @@ val_literal : TOKEN_INT_LITERAL { $$ = expr_create_integer_literal(atoi(yytext))
 | TOKEN_TRUE { $$ = expr_create_bool_literal(1); }
 | TOKEN_FALSE { $$ = expr_create_bool_literal(0); }
 | func_call { $$ = $1; }
-| TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
+| TOKEN_LPAREN expr TOKEN_RPAREN { $$ = expr_create(EXPR_PAREN, 0, $2); }
 | mut { $$ = $1; }
 ;
 

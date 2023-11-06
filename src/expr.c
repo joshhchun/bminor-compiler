@@ -63,6 +63,13 @@ struct expr* expr_create_array_sub(struct expr* ident, struct expr* index) {
     return e;
 }
 
+struct expr* shave_parens(struct expr* e) {
+    while (e && e->kind == EXPR_PAREN) {
+        e = e->right;
+    }
+    return e;
+}
+
 /* Printing expressions */
 void expr_print( struct expr *e ) {
     if (!e) return;
@@ -82,6 +89,12 @@ void expr_print( struct expr *e ) {
             break;
         case EXPR_BOOL:
             fprintf(stdout, "%s", e->bool_literal ? "true" : "false");
+            break;
+        case EXPR_PAREN:
+            e = shave_parens(e->right);
+            fprintf(stdout, "(");
+            expr_print(e);
+            fprintf(stdout, ")");
             break;
         /* Array inits */
         case EXPR_ARRAY_INIT:
@@ -226,4 +239,21 @@ void expr_print_list(struct expr* e) {
     expr_print(e);
     if (e->right) fprintf(stdout, "%s", ", ");
     expr_print_list(e->right);
+}
+
+/* Name resolution for expr */
+void expr_resolve (struct expr* e) {
+    if (!e) return;
+    if (e->kind == EXPR_IDENT) {
+        if (!(e->symbol = scope_lookup(e->ident))) {
+            fprintf(stderr, "Resolve Error: Unknown ident: %s.\n", e->ident);
+            exit(EXIT_FAILURE);
+        } else {
+            char* kind[] = {"local", "param", "global"};
+            fprintf(stdout, "%s resolves to %s: %d.\n", e->symbol->ident, kind[e->symbol->kind - SYMBOL_LOCAL], e->symbol->which);
+        }
+    } else {
+        expr_resolve(e->left);
+        expr_resolve(e->right);
+    }
 }

@@ -27,6 +27,7 @@ typedef enum {
     EXPR_FUNC,
     EXPR_ARRAY_SUB,
     EXPR_IDENT,
+    EXPR_PAREN,
 
     /* Inequaliies */
     EXPR_LT,
@@ -81,5 +82,8 @@ struct expr* expr_create_string_literal(const char* str);
 
 void expr_print(struct expr* e);
 void expr_print_list(struct expr* e);
+
+
+void expr_resolve (struct expr* e);
 
 #endif
