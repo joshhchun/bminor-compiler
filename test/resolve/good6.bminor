@@ -5,6 +5,8 @@ simplefunc: function void (r: integer, s: integer, t: integer ) = {
     i: integer;
 
     for( i=0; i<r; i++ ) {
+        // redeclaring in for loop
+        i: integer = 3;
         print i,"\n";
     }
 

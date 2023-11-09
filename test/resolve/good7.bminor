@@ -15,6 +15,9 @@ testit: function boolean ( x: integer, y: integer ) = {
 
         if( x>y ) {
               i: integer;
+              // redeclaring in if block
+              x: integer = 3;
+              y = 3 + x;
               for(i=0;i<x;i++) print i, "\n";
         } else {
               i: integer;
