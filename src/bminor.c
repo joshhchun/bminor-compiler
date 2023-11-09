@@ -1,6 +1,6 @@
 #include "../include/bminor.h"
+#include <stdlib.h>
 
-int DEBUG = 0;
 int ERR_COUNT = 0;
 p_type PROGRAM_TYPE;
 struct decl* parser_result;
@@ -8,18 +8,26 @@ struct decl* parser_result;
 /**
  *
  * Usage helper
- * Input:  program name: const char*, exit code status: int
+ * Input:  exit code status: int
  * Output: void
  *
  */
-void usage(const char* program_name, int status) {
-    fprintf(stderr, "Usage: %s [options] file_name\n", program_name);
-    fprintf(stderr, "\t--encode : Encode string if valid\n");
-    fprintf(stderr, "\t--scan   : Scan a file and print out tokens\n");
-    fprintf(stderr, "\t--print  : Build the AST and pretty print source code\n");
+void usage(int status) {
+    fprintf(stderr, "Usage: bminor [options] file_name\n");
+    fprintf(stderr, "\t--encode  : Encode string if valid\n");
+    fprintf(stderr, "\t--scan    : Scan a file and print out tokens\n");
+    fprintf(stderr, "\t--print   : Build the AST and pretty print source code\n");
+    fprintf(stderr, "\t--resolve : Build the AST and perform name resolution\n");
     exit(status);
 }
 
+/**
+ *
+ * Function to indent
+ * Input:  # of indents: int
+ * Output: void
+ *
+ */
 void indent(int indents){
     for(int i = 0; i < indents; i++) fprintf(stdout, "    ");
 }
@@ -52,6 +60,39 @@ int read_input(const char* file_name, char* encoded_line) {
     return 0;
 }
 
+/**
+ *
+ * Function to decode and encode a line.
+ * Input:  file name: const char*
+ * Output: void
+ *
+ */
+void encode(const char* file_name) {
+    /* Read in encoded line */
+    char encoded_line[BUFSIZ] = {0};
+    if (read_input(file_name, encoded_line)) exit(EXIT_FAILURE);
+
+    /* Decode line */
+    char decoded_line[MAX_CHAR_LENGTH + 1] = {0};
+    if (string_decode((const char *)encoded_line, decoded_line)) exit(EXIT_FAILURE);
+    
+    /* Clear the encoded line */
+    char* end_ptr = encoded_line + strlen(encoded_line);
+    for (char *p = encoded_line; (*p = 0) || p < end_ptr; ++p);
+    
+    /* Encode the line */
+    if (string_encode((const char*)decoded_line, encoded_line)) exit(EXIT_FAILURE);
+    fprintf(stdout, "Decoded line: %s\n", decoded_line);
+    fprintf(stdout, "Encoded line: %s\n", encoded_line);
+}
+
+/**
+ *
+ * Function to scan a file for its tokens
+ * Input:  file name: const char*
+ * Output: void
+ *
+ */
 void scan(const char* file_name) {
     if (!(yyin = fopen(file_name, "r"))) {
         fprintf(stderr, "Could not open %s\n", file_name);
@@ -66,6 +107,13 @@ void scan(const char* file_name) {
     fclose(yyin);
 }
 
+/**
+ *
+ * Function to parse the tokens
+ * Input:  file name: const char*
+ * Output: void
+ *
+ */
 void parse(const char* file_name) {
     if (!(yyin = fopen(file_name, "r"))) {
         fprintf(stderr, "Could not open %s\n", file_name);
@@ -79,10 +127,24 @@ void parse(const char* file_name) {
     fclose(yyin);
 }
 
+/**
+ *
+ * Function to pretty print the AST
+ * Input:  parser result: struct decl*
+ * Output: void
+ *
+ */
 void pprint(struct decl* parser_result) {
     decl_print_list(parser_result, 0);
 }
 
+/**
+ *
+ * Function to do name resolution on the AST
+ * Input:  parser result: struct decl*
+ * Output: void
+ *
+ */
 void resolve(struct decl* parser_result) {
     create_symbol_table();
     scope_enter();
@@ -90,51 +152,59 @@ void resolve(struct decl* parser_result) {
     scope_exit();
 }
 
+/**
+ *
+ * Helper function to set the program type (more for debugging purposes)
+ * Input:  flag: const char*
+ * Output: void
+ *
+ */
+void set_program_type (const char* flag) {
+    if (same_str(flag, "--encode")) {
+        PROGRAM_TYPE = T_ENCODE;
+    } else if (same_str(flag, "--scan")) {
+        PROGRAM_TYPE = T_SCAN;
+    } else if (same_str(flag, "--parse")) {
+        PROGRAM_TYPE = T_PARSE;
+    } else if (same_str(flag, "--print")) {
+        PROGRAM_TYPE = T_PRINT;
+    } else if (same_str(flag, "--resolve")) {
+        PROGRAM_TYPE = T_RESOLVE;
+    } else if (same_str(flag, "--help")) {
+        usage(0);
+    }
+    else {
+        usage(1);
+    }
+}
+
 int main(int argc, char** argv) {
     /* Usage */
-    if (argc != 3) usage(argv[0], 1);
-    if (same_str(argv[1], "--help")) usage(argv[0], 0);
-    else if (same_str(argv[1], "--encode")) {
-        /* Read in encoded line */
-        char encoded_line[BUFSIZ] = {0};
-        if (read_input(argv[2], encoded_line)) return 1;
+    if (argc != 3) usage(1);
 
-        /* Decode line */
-        char decoded_line[MAX_CHAR_LENGTH + 1] = {0};
-        if (string_decode((const char *)encoded_line, decoded_line)) return 1;
-        
-        /* Clear the encoded line */
-        char* end_ptr = encoded_line + strlen(encoded_line);
-        for (char *p = encoded_line; (*p = 0) || p < end_ptr; ++p);
-        
-        /* Encode the line */
-        if (string_encode((const char*)decoded_line, encoded_line)) return 1;
-        fprintf(stdout, "Decoded line: %s\n", decoded_line);
-        fprintf(stdout, "Encoded line: %s\n", encoded_line);
-    } else if (same_str(argv[1], "--scan")) {
-        PROGRAM_TYPE = T_SCAN;
-        DEBUG = 1;
+    set_program_type(argv[1]);
+    switch (PROGRAM_TYPE) {
+    case T_ENCODE:
+        encode(argv[2]);
+        break;
+    case T_SCAN:
         scan(argv[2]);
-    } else if (same_str(argv[1], "--parse")) {
-        PROGRAM_TYPE = T_PARSE;
+        break;
+    case T_PARSE:
         scan(argv[2]);
         parse(argv[2]);
-    } else if (same_str(argv[1], "--print")) {
-        PROGRAM_TYPE = T_PRINT;
+        break;
+    case T_PRINT:
         scan(argv[2]);
         parse(argv[2]);
         pprint(parser_result);
-    } else if (same_str(argv[1], "--resolve")) {
-        PROGRAM_TYPE = T_RESOLVE;
+        break;
+    case T_RESOLVE:
         scan(argv[2]);
         parse(argv[2]);
         resolve(parser_result);
         return (ERR_COUNT) ? 1 : 0;
     }
-    else {
-        usage(argv[0], 1);
-    }
-
     return 0;
 }
 

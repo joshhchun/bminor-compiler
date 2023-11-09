@@ -8,6 +8,7 @@
 
 
 typedef enum p_type {
+    T_ENCODE,
     T_SCAN,
     T_PARSE,
     T_PRINT,
