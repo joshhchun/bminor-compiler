@@ -46,6 +46,16 @@ void stmt_print(struct stmt* s, int indents, bool start_indent) {
                 fprintf(stdout, "else");
             } else fprintf(stdout, " else");
             has_block = (s->else_body->kind == STMT_BLOCK);
+            /* Check if its an else if statement 
+             * 
+             * If a else statement has no body && the body == STMT_IF_ELSE, then its a if else statement
+             * 
+             * */
+            if (!has_block && s->else_body->kind == STMT_IF_ELSE) {
+                fprintf(stdout, " ");
+                stmt_print(s->else_body, indents, 0);
+                break;
+            }
             fprintf(stdout, "%s", has_block ? " " : "\n");
             stmt_print(s->else_body, indents + !has_block, !has_block);
             break;
