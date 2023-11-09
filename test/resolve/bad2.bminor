@@ -1,0 +1,5 @@
+// Redeclare functions
+main: function integer(x: integer);
+main: function integer () = {
+    return 2;
+}

@@ -1,0 +1,8 @@
+foo: function integer () = {
+    print test(1, 2);
+}
+
+test: function char (y: integer, y: char) = {
+    x: char = 'c';
+    return x;
+}

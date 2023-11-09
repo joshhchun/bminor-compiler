@@ -10,7 +10,8 @@
 typedef enum p_type {
     T_SCAN,
     T_PARSE,
-    T_PRINT
+    T_PRINT,
+    T_RESOLVE,
 } p_type;
 
 extern p_type PROGRAM_TYPE;

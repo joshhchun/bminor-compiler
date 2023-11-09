@@ -1,8 +1,8 @@
 #!/bin/sh
 
-for testfile in test/scanner/good*.bminor
+for testfile in test/resolve/good*.bminor
 do
-	if ./bminor --scan $testfile &> $testfile.out
+	if ./bminor --resolve $testfile &> $testfile.out
 	then
 		echo "$testfile success (as expected)"
 	else
@@ -10,9 +10,9 @@ do
 	fi
 done
 
-for testfile in test/scanner/bad*.bminor
+for testfile in test/resolve/bad*.bminor
 do
-	if ./bminor --scan $testfile &> $testfile.out
+	if ./bminor --resolve $testfile &> $testfile.out
 	then
 		echo "$testfile success (INCORRECT)"
 	else

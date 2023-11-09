@@ -1,5 +1,7 @@
 #include "../include/param_list.h"
 
+extern int ERR_COUNT;
+
 param_list* param_list_create(char* ident, struct type* type, struct param_list* next) {
     param_list* p;
     if (!(p = calloc(1, sizeof(param_list)))) {
@@ -29,10 +31,9 @@ void param_list_resolve(struct param_list *l) {
         // Check for duplicate parameters
         if (scope_lookup_current(p->ident)) {
             fprintf(stderr, "Resolve Error: Duplicate param %s.\n", p->ident);
+            ERR_COUNT++;
         }
         p->symbol = symbol_create(SYMBOL_PARAM, p->type, p->ident);
-        // Position of current param
-        p->symbol->which = param_count;
         // Bind the param to the current func scope
         scope_bind(p->ident, p->symbol);
     }

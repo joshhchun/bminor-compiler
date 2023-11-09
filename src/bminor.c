@@ -1,6 +1,7 @@
 #include "../include/bminor.h"
 
 int DEBUG = 0;
+int ERR_COUNT = 0;
 p_type PROGRAM_TYPE;
 struct decl* parser_result;
 
@@ -83,7 +84,10 @@ void pprint(struct decl* parser_result) {
 }
 
 void resolve(struct decl* parser_result) {
+    create_symbol_table();
+    scope_enter();
     decl_resolve(parser_result);
+    scope_exit();
 }
 
 int main(int argc, char** argv) {
@@ -121,10 +125,11 @@ int main(int argc, char** argv) {
         parse(argv[2]);
         pprint(parser_result);
     } else if (same_str(argv[1], "--resolve")) {
+        PROGRAM_TYPE = T_RESOLVE;
         scan(argv[2]);
         parse(argv[2]);
-        pprint(parser_result);
         resolve(parser_result);
+        return (ERR_COUNT) ? 1 : 0;
     }
     else {
         usage(argv[0], 1);

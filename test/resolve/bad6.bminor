@@ -1,0 +1,9 @@
+// Redeclare
+main: function integer () = {
+    x: integer = 5;
+    for (;;) {
+        print "hi\n";
+        x: integer = 7;
+    }
+    x: integer = 4;
+}

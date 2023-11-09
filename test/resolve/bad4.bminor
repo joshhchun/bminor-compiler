@@ -1,0 +1,6 @@
+// Undeclared
+main: function integer () = {
+    c: integer = 3;
+    y = c + 4;
+
+}

@@ -1,0 +1,3 @@
+main: function integer (z: char) = {
+    y: integer = 3 + x; 
+}

@@ -1,0 +1,14 @@
+/* Test multiple functions decls */
+
+test: function integer (z: integer, y: char, t: float) = {
+    foo: integer = z + 2 + 3;
+    return 2;
+}
+
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);

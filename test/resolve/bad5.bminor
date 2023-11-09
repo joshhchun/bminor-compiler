@@ -1,0 +1,7 @@
+// Defining function twice
+main: function integer () = {
+    return 5;
+}
+main: function integer () = {
+    return 5;
+}

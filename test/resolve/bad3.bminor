@@ -1,0 +1,5 @@
+// Redeclare in a non-block if statementr
+main: function integer () = {
+    x: integer = 3;
+    if (1) x: integer = 5;
+}

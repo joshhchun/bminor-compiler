@@ -1,0 +1,5 @@
+// Undeclared variable
+
+main: function integer ()  = {
+    x = y + 2;
+}

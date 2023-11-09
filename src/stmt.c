@@ -1,5 +1,4 @@
 #include "../include/stmt.h"
-#include "../include/bminor.h"
 
 struct stmt* stmt_create(stmt_t kind, struct decl* decl, struct expr* init_expr, struct expr* expr, struct expr* next_expr, struct stmt* body, struct stmt* else_body, struct stmt* next) {
     struct stmt* s;
@@ -19,6 +18,7 @@ struct stmt* stmt_create(stmt_t kind, struct decl* decl, struct expr* init_expr,
 }
 
 void stmt_print(struct stmt* s, int indents, bool start_indent) {
+    extern void indent(int indents);
     if (!s) return;
     if (start_indent) indent(indents);
     bool has_block;

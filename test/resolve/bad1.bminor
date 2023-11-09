@@ -1,0 +1,5 @@
+// Redeclare variable
+main: function integer () = {
+    y: integer = 4;
+    y: integer = 3;
+}

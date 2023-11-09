@@ -1,0 +1,5 @@
+// non matching return types for functions
+test: function char (c: integer, d: integer);
+test: function integer (c: integer, d: integer) = {
+    print "should fail\n";
+}

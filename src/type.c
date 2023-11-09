@@ -1,5 +1,4 @@
 #include "../include/type.h"
-#include "../include/expr.h"
 
 type* type_create(type_t kind, struct type* subtype, struct param_list* params) {
     type* t;
@@ -35,4 +34,28 @@ void type_print(struct type* t) {
         default:
             break;
     }
+}
+
+/* Check if two types are same (and subtypes) */
+int type_same(struct type* t1, struct type* t2) {
+    struct type *t = t1, *s = t2;
+    for (; t || s; t = t->subtype, s = s->subtype) {
+        if ((!t || !s) || t->kind != s->kind) return 1;
+    }
+    return 0;
+}
+
+/* Check if two func types are same (including param list) */
+int type_func_same(struct type* t1, struct type* t2) {
+    // Check if the types and subtypes are same
+    if (type_same(t1, t2)) {
+        printf("TYPE SAME FAILED - before params\n");
+        return 1;
+    }
+    // Check if param lists are same
+    struct param_list *p1 = t1->params, *p2 = t2->params;
+    for (; p1 || p2; p1 = p1->next, p2 = p2->next) {
+        if ((!p1 || !p2) || strcmp(p1->ident, p2->ident) || type_same(p1->type, p2->type)) return 1;
+    }
+    return 0;
 }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 struct symbol_table* sym_t = NULL;
+extern int ERR_COUNT;
 
 void create_symbol_table() {
     if (sym_t) return;
@@ -39,13 +40,64 @@ void scope_exit() {
     sym_t->level -= 1;
 }
 
+/* Returns what level of scope we are currently in */
 int scope_level() {
     return sym_t->level;
 }
 
+int scope_insert(struct symbol* s) {
+    // No redeclaration conflicts
+    if (hash_table_insert(sym_t->top->table, s->ident, s)) return 0;
+    struct symbol* lookup_s = scope_lookup_current(s->ident);
+
+    /* Function prototypes can be repeated unlimited times (and wherever) but func def can only happen once.
+     *
+     * How to check for func
+     * 1. Should be on level 1 (parsing should handle this)
+     * 2. symbol->type->kind == TYPE_FUNC
+     * 3. lookup_s->type->kind == TYPE_FUNC
+     * 4. if lookup_s->func_defined == true, then symbol->func_defined != true
+     * 4.1 if that is true, don't overwrite symbol, need to keep func_defined
+     * 5. Content of prototype(s) and func def have to be the same (happens in typechecker?)
+    */
+
+    /* Not a func redecl, just an error */
+    if (s->type->kind != TYPE_FUNC ||
+        lookup_s->type->kind != TYPE_FUNC ||
+        (lookup_s->func_defined && s->func_defined) ||
+        type_func_same(s->type, lookup_s->type)
+        ) {
+        /* TODO: Just keeping prev decl for now, but should exit program here. */
+        return 1;
+    }
+
+    /* Func redecl, need to be careful */
+    // If one of the symbols has a func def then we need to mark that for future func redecls.
+    lookup_s->func_defined = lookup_s->func_defined || s->func_defined;
+    return 0;
+    
+}
+
 /* Adds entry to top scope, mapping name to symbol struct */
 void scope_bind(const char* name, struct symbol* s) {
-    hash_table_insert(sym_t->top->table, name, s);
+    /* Check for redeclarations */
+    if (scope_insert(s)) {
+        fprintf(stderr, "Resolve Error: Redeclaration of %s.\n", s->ident);
+        ERR_COUNT++;
+    };
+    
+    /* Set the which */
+    switch (s->kind) {
+    case SYMBOL_PARAM:
+        s->which = sym_t->top->param_count++;
+        break;
+    case SYMBOL_LOCAL:
+        s->which = sym_t->top->local_count++;
+        break;
+    case SYMBOL_GLOBAL:
+        s->which = 0;
+        break;
+    }
 }
 
 /* Searches the symbol table for the first entry that matches ident exactly */

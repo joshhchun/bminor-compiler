@@ -1,5 +1,6 @@
 #include "../include/expr.h"
-#include <stdlib.h>
+
+extern int ERR_COUNT;
 
 struct expr*  expr_create( expr_t kind, struct expr* left,struct expr* right ) {
     struct expr* e;
@@ -247,10 +248,9 @@ void expr_resolve (struct expr* e) {
     if (e->kind == EXPR_IDENT) {
         if (!(e->symbol = scope_lookup(e->ident))) {
             fprintf(stderr, "Resolve Error: Unknown ident: %s.\n", e->ident);
-            exit(EXIT_FAILURE);
+            ERR_COUNT++;
         } else {
-            char* kind[] = {"local", "param", "global"};
-            fprintf(stdout, "%s resolves to %s: %d.\n", e->symbol->ident, kind[e->symbol->kind - SYMBOL_LOCAL], e->symbol->which);
+            symbol_print(e->symbol);
         }
     } else {
         expr_resolve(e->left);

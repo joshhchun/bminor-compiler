@@ -42,28 +42,27 @@ void decl_print_list(struct decl *d, int indents){
     decl_print_list(d->next, indents);
 }
 
-void decl_redecl(struct decl* d) {
-    struct symbol* s = scope_lookup_current(d->ident);
-    if (!s) return;
-    /* Only redecl allowed is func impl of prototype (TODO: Might have to check subtype(s)?)*/
-    if (d->type->kind != TYPE_FUNC || d->type->kind != s->type->kind || !d->code) {
-        fprintf(stderr, "Resolve Error: Redeclaration of %s.\n", d->ident);
-        exit(EXIT_FAILURE);
-    }
-}
 
+/* TODO: Can repeat func prototypes but can't repeat assigned functions... */
 void decl_resolve(struct decl* d) {
     if (!d) return;
-    // Check for re-declaration
-    decl_redecl(d);
     // Create a new symbol
     symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL; 
+
     // Bind it to the name of the decl in curr scope (top)
     d->symbol = symbol_create(kind, d->type, d->ident);
+
+    // Try to resolve the value
     expr_resolve(d->value);
+
+    // Set if the decl is a function definition
+    d->symbol->func_defined = (d->code) ? 1 : 0;
+
+    // Bind the name to the symbol
     scope_bind(d->ident, d->symbol);
+
     // If decl == func (d->code != null) then create new scope, resolve params, and code
-    if (d->code) {
+    if (d->symbol->func_defined) {
         scope_enter();
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);
