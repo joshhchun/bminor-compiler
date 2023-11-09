@@ -26,4 +26,4 @@ int scanner();
 #define scan_print(...) \
             do { \
                 if (PROGRAM_TYPE == T_SCAN) printf(__VA_ARGS__); \
-            } while (0) \
+            } while (0)
