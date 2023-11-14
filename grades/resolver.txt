@@ -1,0 +1,1464 @@
+=====STUDENT TESTS=====
+====Good Tests====
+===[good0.bminor Input]===
+/* Test multiple functions decls */
+
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+
+test: function integer (z: integer, y: char, t: float) = {
+    foo: integer = z + 2 + 3;
+    return 2;
+}
+
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+
+===[good0.bminor Output]===
+Success!
+
+z resolves to param: 0.
+
+
+return code: 0
+
+
+===[good1.bminor Input]===
+
+/* Try accesssing arrays of various sizes; */
+
+a: array [10] integer = {100,200,300,400,500,600,700,800,900};
+b: array [10] integer;
+c: array [10] array [10] integer;
+
+testfunc: function void () = {
+    i: integer;
+    j: integer;
+
+    for(i=0;i<10;i++) {
+        b[i] = a[i] * 10;
+    }
+
+    for(i=0;i<5;i++) {
+        b[i*2] = a[i] + b[i];
+    }
+
+    for(j=0;j<10;i++) {
+        for(i=0;i<10;i++) {
+            c[i][j] = i*j;
+        }
+    }
+
+    for(j=0;j<10;i++) {
+        for(i=0;i<10;i++) {
+            print c[i][j];
+            print " ";
+        }
+        print "\n";
+    }
+}
+
+
+===[good1.bminor Output]===
+Success!
+
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+b resolves to global: b.
+i resolves to local: 0.
+a resolves to global: a.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+b resolves to global: b.
+i resolves to local: 0.
+a resolves to global: a.
+i resolves to local: 0.
+b resolves to global: b.
+i resolves to local: 0.
+j resolves to local: 1.
+j resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+c resolves to global: c.
+i resolves to local: 0.
+j resolves to local: 1.
+i resolves to local: 0.
+j resolves to local: 1.
+j resolves to local: 1.
+j resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+c resolves to global: c.
+i resolves to local: 0.
+j resolves to local: 1.
+
+
+return code: 0
+
+
+===[good10.bminor Input]===
+
+/* single statement ifs */
+
+x: integer = 65;
+s: string = "hello";
+b: boolean = false;
+
+min: function integer ( a: integer, b: integer ) =
+{
+	if(a > b) return a;
+	else return b;
+}
+
+testfunc: function void ( z: integer ) =
+{
+	print "minimum", min(10, 5), "\n";
+}
+
+
+
+===[good10.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+b resolves to param: 1.
+min resolves to global: min.
+
+
+return code: 0
+
+
+===[good2.bminor Input]===
+/* string format expr */
+
+x: integer = 65;
+s: string = "hello";
+b: boolean = false;
+
+min: function integer ( a: integer, b: integer ) =
+{
+	if(a > b) return a;
+	else return b;
+}
+
+testfunc: function void ( z: integer ) =
+{
+	print "minimum", min(10, 5), "\n", z=10, z==10;
+}
+
+
+
+===[good2.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+b resolves to param: 1.
+min resolves to global: min.
+z resolves to param: 0.
+z resolves to param: 0.
+
+
+return code: 0
+
+
+===[good3.bminor Input]===
+
+/* returning various expressions */
+
+testfunc: function void ( x: integer, y:integer, z:integer ) = {
+	return x;
+	return "hello";
+	return x = 10;
+	return x == 10;
+	return x > 5;
+	return testfunc(x, y, z);
+}
+
+
+
+===[good3.bminor Output]===
+Success!
+
+x resolves to param: 0.
+x resolves to param: 0.
+x resolves to param: 0.
+x resolves to param: 0.
+testfunc resolves to global: testfunc.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+
+
+return code: 0
+
+
+===[good4.bminor Input]===
+
+
+/* code blocks */
+
+testfunc: function void ( x: integer, y:integer, z:integer ) = {
+	{
+		return x;
+		return "hello";
+		return x = 10;
+	}
+	{
+		return x == 10;
+		{
+			return x > 5;
+			return testfunc(x, y, z);
+		}
+	}
+}
+
+
+
+===[good4.bminor Output]===
+Success!
+
+x resolves to param: 0.
+x resolves to param: 0.
+x resolves to param: 0.
+x resolves to param: 0.
+testfunc resolves to global: testfunc.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+
+
+return code: 0
+
+
+===[good5.bminor Input]===
+/* A function contains a sequence of statements */
+/* Try decls and stmts and exprs together. */
+/* Add some float */
+
+simplefunc: function boolean ( x: integer, y: integer ) = {
+     // Redeclaring a param
+     x: integer = 9;
+     // A declaration
+     z: integer = x * y;
+
+     // A float declaration
+     q: float = 10e9;
+
+     // another float
+     v: float = 2.10e2;
+
+     // a float operation
+     return v;
+
+}
+
+
+
+===[good5.bminor Output]===
+Success!
+
+x resolves to local: 0.
+y resolves to param: 1.
+v resolves to local: 3.
+
+
+return code: 0
+
+
+===[good6.bminor Input]===
+/* Try several variations of for-loops */
+
+simplefunc: function void (r: integer, s: integer, t: integer ) = {
+
+    i: integer;
+
+    for( i=0; i<r; i++ ) {
+        // redeclaring in for loop
+        i: integer = 3;
+        print i,"\n";
+    }
+
+    i=0;
+    for( ; i<s; i++ ) {
+        print i,"\n";
+    }
+
+    i=0;
+    for( ; i<r; ) {
+        print i,"\n";
+        i++;
+    }
+
+    for(;;) print "forever!\n";
+}
+
+
+
+===[good6.bminor Output]===
+Success!
+
+i resolves to local: 0.
+i resolves to local: 0.
+r resolves to param: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+s resolves to param: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+r resolves to param: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+
+
+return code: 0
+
+
+===[good7.bminor Input]===
+/* Test various nestings of if-else statements */
+
+testit: function boolean ( x: integer, y: integer ) = {
+
+	/* If statement without braces */
+	if( x<y ) print "less\n"; else print "low\n";
+
+	/* If statement with braces */
+	if( x<y ) { print "less\n"; } else { print "low\n"; }
+
+	/* This statement should print nothing */
+        if(20<10) if(10<20) print "incorrect!"; else print "dangling else!";
+
+	/* statements and decls inside of if-else */
+
+        if( x>y ) {
+              i: integer;
+              // redeclaring in if block
+              x: integer = 3;
+              y = 3 + x;
+              for(i=0;i<x;i++) print i, "\n";
+        } else {
+              i: integer;
+              for(i=0;i<y;i++) print i, "\n";
+        }
+
+	/* A decl can come after a few statements */
+	i: integer;
+
+	/* try the other way around */
+	for(i=0;i<x;i++) {
+              if( i<x ) print "small"; else print "large";
+        }
+
+        return true;
+}
+
+
+
+===[good7.bminor Output]===
+Success!
+
+x resolves to param: 0.
+y resolves to param: 1.
+x resolves to param: 0.
+y resolves to param: 1.
+x resolves to param: 0.
+y resolves to param: 1.
+y resolves to param: 1.
+x resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+x resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+y resolves to param: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+x resolves to param: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+x resolves to param: 0.
+
+
+return code: 0
+
+
+===[good8.bminor Input]===
+/* Now try some expressions */
+
+x: integer = 65;
+s: string = "hello";
+b: boolean = false;
+
+min: function integer ( a: integer, b: integer ) =
+{
+	if( a<b ) return a; else return b;
+}
+
+testfunc: function void ( z: integer ) =
+{
+	// Nested integer operators.
+	y: integer = x*(x*10 + 55%6 + z/10);
+	print "y: ", y, "\n";
+
+	// Nested boolean operations.
+	c: boolean = ( x<100 && y>200 ) || !(b=true);
+	print "c: ", c, "\n";
+
+	// Boolean operations on strings?
+	d: boolean = (s == "goodbye");
+	print "d: ", d, "\n";
+
+	// Can we stack up assignments?
+	z = y = x;
+
+	a: array [100] integer;
+
+	// Function calls and array accesses:
+	y = min(a[10],a[20]);
+}
+
+
+
+===[good8.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+x resolves to global: x.
+z resolves to param: 0.
+y resolves to local: 0.
+x resolves to global: x.
+y resolves to local: 0.
+b resolves to global: b.
+c resolves to local: 1.
+s resolves to global: s.
+d resolves to local: 2.
+z resolves to param: 0.
+y resolves to local: 0.
+x resolves to global: x.
+y resolves to local: 0.
+min resolves to global: min.
+a resolves to local: 3.
+a resolves to local: 3.
+
+
+return code: 0
+
+
+===[good9.bminor Input]===
+/* Check for minimum use of parentheses. */
+
+testfunc: function void ( x: integer, y:integer, z:integer ) = {
+
+          r: integer;
+	  b: boolean;
+
+          // Parens required
+	  r = (x+y)/z;
+	  r = x+(y+z);
+	  b = (true||false) && (false||true);
+
+          // Parens not required
+	  r = x+(y/z);
+	  r = (x+y)+z;
+	  b = (x+y) < (x+z);
+	  b = (true&&false) || (false&&true);
+
+}
+
+
+
+===[good9.bminor Output]===
+Success!
+
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+b resolves to local: 1.
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+b resolves to local: 1.
+x resolves to param: 0.
+y resolves to param: 1.
+x resolves to param: 0.
+z resolves to param: 2.
+b resolves to local: 1.
+
+
+return code: 0
+
+
+====Bad Tests====
+===[bad0.bminor Input]===
+// Undeclared variable
+
+main: function integer ()  = {
+    x = y + 2;
+}
+
+===[bad0.bminor Output]===
+Success!
+
+
+Resolve Error: Unknown ident: x.
+Resolve Error: Unknown ident: y.
+
+return code: 1
+
+
+===[bad1.bminor Input]===
+// Redeclare variable
+main: function integer () = {
+    y: integer = 4;
+    y: integer = 3;
+}
+
+===[bad1.bminor Output]===
+Success!
+
+
+Resolve Error: Redeclaration of y.
+
+return code: 1
+
+
+===[bad10.bminor Input]===
+main: function integer (z: char) = {
+    y: integer = 3 + x; 
+}
+
+===[bad10.bminor Output]===
+Success!
+
+
+Resolve Error: Unknown ident: x.
+
+return code: 1
+
+
+===[bad2.bminor Input]===
+// Redeclare functions
+main: function integer(x: integer);
+main: function integer () = {
+    return 2;
+}
+
+===[bad2.bminor Output]===
+Success!
+
+
+Resolve Error: Redeclaration of main.
+
+return code: 1
+
+
+===[bad3.bminor Input]===
+// Redeclare in a non-block if statementr
+main: function integer () = {
+    x: integer = 3;
+    if (1) x: integer = 5;
+}
+
+===[bad3.bminor Output]===
+Success!
+
+
+Resolve Error: Redeclaration of x.
+
+return code: 1
+
+
+===[bad4.bminor Input]===
+// Undeclared
+main: function integer () = {
+    c: integer = 3;
+    y = c + 4;
+
+}
+
+===[bad4.bminor Output]===
+Success!
+
+c resolves to local: 0.
+
+Resolve Error: Unknown ident: y.
+
+return code: 1
+
+
+===[bad5.bminor Input]===
+// Defining function twice
+main: function integer () = {
+    return 5;
+}
+main: function integer () = {
+    return 5;
+}
+
+===[bad5.bminor Output]===
+Success!
+
+
+Resolve Error: Redeclaration of main.
+
+return code: 1
+
+
+===[bad6.bminor Input]===
+// Redeclare
+main: function integer () = {
+    x: integer = 5;
+    for (;;) {
+        print "hi\n";
+        x: integer = 7;
+    }
+    x: integer = 4;
+}
+
+===[bad6.bminor Output]===
+Success!
+
+
+Resolve Error: Redeclaration of x.
+
+return code: 1
+
+
+===[bad7.bminor Input]===
+main: function integer () = {
+    for (i=0; i<5; i++) {
+        return 3;
+    }
+}
+
+===[bad7.bminor Output]===
+Success!
+
+
+Resolve Error: Unknown ident: i.
+Resolve Error: Unknown ident: i.
+Resolve Error: Unknown ident: i.
+
+return code: 1
+
+
+===[bad8.bminor Input]===
+// non matching return types for functions
+test: function char (c: integer, d: integer);
+test: function integer (c: integer, d: integer) = {
+    print "should fail\n";
+}
+
+===[bad8.bminor Output]===
+Success!
+
+TYPE SAME FAILED - before params
+
+Resolve Error: Redeclaration of test.
+
+return code: 1
+
+
+===[bad9.bminor Input]===
+foo: function integer () = {
+    print test(1, 2);
+}
+
+test: function char (y: integer, y: char) = {
+    x: char = 'c';
+    return x;
+}
+
+===[bad9.bminor Output]===
+Success!
+
+x resolves to local: 0.
+
+Resolve Error: Unknown ident: test.
+Resolve Error: Duplicate param y.
+Resolve Error: Redeclaration of y.
+
+return code: 1
+
+
+=====HIDDEN TESTS=====
+====Good Tests====
+===[good1.bminor Input]===
+/* Correct: x used but not defined. */
+
+x: integer = 10;
+
+===[good1.bminor Output]===
+Success!
+
+
+
+return code: 0
+
+
+===[good10.bminor Input]===
+/* Correct: Many variables to resolve. */
+
+D: function integer() = {
+        d1: integer = 5;
+        d2: integer = d1 + 1; //6
+        {
+                d3: integer = 9;
+                d2: integer = d3 + d1 - 3; //11
+                d4: integer = -1;
+                d2 = d2 + d3; //20
+                print d2 - d4, "\n";
+        }
+        d4: integer = 16;
+        print d2 - d4, '\n';
+        {
+                d4: integer = -2;
+                d3: integer = 1000;
+                print d3 + 10;
+                print "\n";
+                print d4;
+                print '\n';
+        }
+        print d4;
+        return 3;
+}
+
+main: function integer () = {
+        return D();
+}
+
+===[good10.bminor Output]===
+Success!
+
+d1 resolves to local: 0.
+d3 resolves to local: 0.
+d1 resolves to local: 0.
+d2 resolves to local: 1.
+d2 resolves to local: 1.
+d3 resolves to local: 0.
+d2 resolves to local: 1.
+d4 resolves to local: 2.
+d2 resolves to local: 1.
+d4 resolves to local: 2.
+d3 resolves to local: 1.
+d4 resolves to local: 0.
+d4 resolves to local: 2.
+D resolves to global: D.
+
+
+return code: 0
+
+
+===[good2.bminor Input]===
+/* Correct: redefining a name at the local scope. */
+
+x: integer = 10;
+
+f: function void () = {
+     x: integer = 20;
+     print x, "\n";
+}
+
+
+===[good2.bminor Output]===
+Success!
+
+x resolves to local: 0.
+
+
+return code: 0
+
+
+===[good3.bminor Input]===
+/* Correct: redefining a name at the local scope. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer ) = {
+     x: integer = 20;
+     if(a<b) {
+          x: integer = 30;
+          print x, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+
+
+===[good3.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to local: 0.
+
+
+return code: 0
+
+
+===[good4.bminor Input]===
+/* Correct: Accessing names in different scopes. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+
+}
+
+
+===[good4.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+z resolves to local: 0.
+
+
+return code: 0
+
+
+===[good5.bminor Input]===
+/* Correct: f is called multiple times from main. */
+/* (Should resolve the expression before adding the decl of y. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = a * 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+main: function integer ( argc: integer, argv: array [] string ) = {
+     f(10,20);
+     f(40,30);
+}
+
+
+
+===[good5.bminor Output]===
+Success!
+
+a resolves to param: 0.
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+z resolves to local: 0.
+f resolves to global: f.
+f resolves to global: f.
+
+
+return code: 0
+
+
+===[good6.bminor Input]===
+/* Correct: f is prototyped, then defined, then called. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer );
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = a * 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+main: function integer ( argc: integer, argv: array [] string ) = {
+     f(10,20);
+     f(40,30);
+}
+
+
+
+
+===[good6.bminor Output]===
+Success!
+
+a resolves to param: 0.
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+z resolves to local: 0.
+f resolves to global: f.
+f resolves to global: f.
+
+
+return code: 0
+
+
+===[good7.bminor Input]===
+/* Correct: f is prototyped, then called, then defined. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer );
+
+main: function integer ( argc: integer, argv: array [] string ) = {
+     f(10,20);
+     f(40,30);
+}
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = a * 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+
+
+===[good7.bminor Output]===
+Success!
+
+f resolves to global: f.
+f resolves to global: f.
+a resolves to param: 0.
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+z resolves to local: 0.
+
+
+return code: 0
+
+
+===[good8.bminor Input]===
+/* Correct: Resolver should work all the way down the tree. */
+
+f: function void ( n:integer, s: string ) =
+{
+	i:integer;
+
+	for(i=0;i<n;i++) { 
+		if( i%2 == 0 ) {
+			print i, "is even\n";
+		} else {
+			print i, "is odd\n";
+		}
+	}
+
+	/* We can open a new scope with braces */
+	{
+		i: integer;
+		j: integer;
+		for(i=0;i<n;i++) {
+			for(j=0;j<n;j++) {
+				print i, ":", j, " -> ", i*j, " ", s, "\n";
+			}
+		}
+	}
+}
+
+===[good8.bminor Output]===
+Success!
+
+i resolves to local: 0.
+i resolves to local: 0.
+n resolves to param: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+n resolves to param: 0.
+i resolves to local: 0.
+j resolves to local: 1.
+j resolves to local: 1.
+n resolves to param: 0.
+j resolves to local: 1.
+i resolves to local: 0.
+j resolves to local: 1.
+i resolves to local: 0.
+j resolves to local: 1.
+s resolves to param: 1.
+
+
+return code: 0
+
+
+===[good9.bminor Input]===
+/* Correct: Different functions can define variables with same params and locals. */
+
+x: integer = 10;
+
+f: function integer ( x: integer ) =
+{
+	y: integer = 20;
+	return x*y;
+}
+
+g: function void ( x: integer ) =
+{
+	y: integer = 30;
+	return x*y;
+}
+
+main: function integer ( argc: integer, argv: array [] string ) =
+{
+	return f(x) + g(x);
+}
+
+===[good9.bminor Output]===
+Success!
+
+x resolves to param: 0.
+y resolves to local: 0.
+x resolves to param: 0.
+y resolves to local: 0.
+f resolves to global: f.
+x resolves to global: x.
+g resolves to global: g.
+x resolves to global: x.
+
+
+return code: 0
+
+
+===[good11.bminor Input]===
+e: function integer () = {
+        e: integer = 100;
+	return e;
+}
+
+main: function integer () = {
+        return e();
+}
+
+===[good11.bminor Output]===
+Success!
+
+e resolves to local: 0.
+e resolves to global: e.
+
+
+return code: 0
+
+
+====Bad Tests====
+===[bad1.bminor Input]===
+/* Error: name already used in the global scope. */
+x: integer = 10;
+x: integer = 20;
+
+
+===[bad1.bminor Output]===
+Success!
+
+
+Resolve Error: Redeclaration of x.
+
+return code: 1
+
+
+===[bad10.bminor Input]===
+/* Error: Function has the same name as a declared variable. */
+
+str: string = "hello";
+
+str: function string ( s: string ) = 
+{
+	return "goodbye";
+}
+
+
+===[bad10.bminor Output]===
+Success!
+
+
+Resolve Error: Redeclaration of str.
+
+return code: 1
+
+
+===[bad2.bminor Input]===
+/* Error: Variable z went out of scope. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = 20;
+     if(a<b) {
+          z: integer = 30;
+	  print "a<b\n";
+     }
+     print x, " ", y, " ", z, "\n";
+}
+
+
+===[bad2.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+
+Resolve Error: Unknown ident: z.
+
+return code: 1
+
+
+===[bad3.bminor Input]===
+/* Error: Cannot refer to variable y in its own definition. */
+/* (Should resolve the expression before adding the decl of y. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = y * 20;
+     if(a<b) {
+          z: integer = 30;
+	  print "a<b\n";
+     } else {
+          print "a>=b\n";
+     }
+     print x, " ", y, " ", z, "\n";
+}
+
+
+===[bad3.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+
+Resolve Error: Unknown ident: y.
+Resolve Error: Unknown ident: z.
+
+return code: 1
+
+
+===[bad4.bminor Input]===
+/* Error: f has multiple definitions. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = y * 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+f: function string ( s: string ) = {
+    print "hello";
+    return "goodbye";
+}
+
+
+===[bad4.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+z resolves to local: 0.
+
+Resolve Error: Unknown ident: y.
+Resolve Error: Redeclaration of f.
+
+return code: 1
+
+
+===[bad5.bminor Input]===
+/* Error: f is called prior to definition. */
+
+x: integer = 10;
+
+main: function integer ( argc: integer, argv: array [] string ) = {
+     f(10,20);
+     f(40,30);
+}
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = y * 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+
+
+===[bad5.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+z resolves to local: 0.
+
+Resolve Error: Unknown ident: f.
+Resolve Error: Unknown ident: f.
+Resolve Error: Unknown ident: y.
+
+return code: 1
+
+
+===[bad6.bminor Input]===
+/* Error: g is not defined. */
+
+x: integer = 10;
+
+f: function void ( a: integer, b: integer ) = {
+     y: integer = y * 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+main: function integer ( argc: integer, argv: array [] string ) = {
+     f(10,20);
+     g(40,30);
+}
+
+
+===[bad6.bminor Output]===
+Success!
+
+a resolves to param: 0.
+b resolves to param: 1.
+x resolves to global: x.
+y resolves to local: 0.
+z resolves to local: 0.
+f resolves to global: f.
+
+Resolve Error: Unknown ident: y.
+Resolve Error: Unknown ident: g.
+
+return code: 1
+
+
+===[bad7.bminor Input]===
+/* Error: Two parameters have the same name */
+/* Also, b is not defined. */
+
+f: function void ( a: integer, a: integer ) = {
+     y: integer = y * 20;
+     if(a<b) {
+          z: integer = 30;
+          print x, " ", y, " ", z, "\n";
+     } else {
+          print "a>=b\n";
+     }
+}
+
+===[bad7.bminor Output]===
+Success!
+
+a resolves to param: 0.
+y resolves to local: 0.
+z resolves to local: 0.
+
+Resolve Error: Duplicate param a.
+Resolve Error: Redeclaration of a.
+Resolve Error: Unknown ident: y.
+Resolve Error: Unknown ident: b.
+Resolve Error: Unknown ident: x.
+
+return code: 1
+
+
+===[bad8.bminor Input]===
+/* Error: x not defined, deep down in the expression. */
+
+a: integer;
+
+f: function integer ( b: integer ) =
+{
+	c: integer;
+	for(c=0;c<b;c++) {
+		if(a<b) {
+			print a + b * (c / (a+x)), "\n"; 
+		}
+	}
+	return b;
+}
+
+===[bad8.bminor Output]===
+Success!
+
+c resolves to local: 0.
+c resolves to local: 0.
+b resolves to param: 0.
+c resolves to local: 0.
+a resolves to global: a.
+b resolves to param: 0.
+a resolves to global: a.
+b resolves to param: 0.
+c resolves to local: 0.
+a resolves to global: a.
+b resolves to param: 0.
+
+Resolve Error: Unknown ident: x.
+
+return code: 1
+
+
+===[bad9.bminor Input]===
+/* Error: x redefined after several intervening scopes. */
+
+a: integer;
+
+f: function integer ( b: integer ) =
+{
+	x: integer = 20;
+	{
+		i: integer;
+		for(i=0;i<x;i++) print i;
+	}
+	{
+		j: integer;
+		for(j=0;j<x;j++) print j;
+	}
+	x: integer = 30;
+
+	return x;
+}
+
+===[bad9.bminor Output]===
+Success!
+
+i resolves to local: 0.
+i resolves to local: 0.
+x resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+j resolves to local: 0.
+j resolves to local: 0.
+x resolves to local: 0.
+j resolves to local: 0.
+j resolves to local: 0.
+x resolves to local: 0.
+
+Resolve Error: Redeclaration of x.
+
+return code: 1
+
+
+===== SUMMARIZED PARSER RESULTS =====
+{
+  "student_tests": {
+    "Good": {
+      "correct": 11,
+      "incorrect": 0
+    },
+    "Bad": {
+      "correct": 11,
+      "incorrect": 0
+    }
+  },
+  "hidden_tests": {
+    "Good": {
+      "correct": 11,
+      "incorrect": 0
+    },
+    "Bad": {
+      "correct": 10,
+      "incorrect": 0
+    }
+  }
+}
+
+Resolver Project Grade
+-------------------
+
+General Structure: 25/25
+---------------------------------
+Overall structure is correct.
+
+Resolver - Manual Checks 20/25 
+--------------------------------------------
+Local variables, regardless of scope, should
+increment the which counter. eg in case bad9.bminor
+x should be local 0, i local 1
+
+Student Tests: 20/20
+---------------------------
+Passes all your tests.
+
+Hidden Tests: 20/20
+---------------------------
+Passes all hidden tests
+
+Code Style: 10/10
+------------------------
+Looks good. Nice work
+
+Total: 95/100
+------------------------------------------
