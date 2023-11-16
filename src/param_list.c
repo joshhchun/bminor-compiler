@@ -41,11 +41,8 @@ void param_list_resolve(struct param_list *l) {
 
 /* Function to duplicate a param_list */
 struct param_list* param_list_copy(struct param_list* l) {
-    struct param_list *p = {0};
-    for (struct param_list *n = p; l; l = l->next, n = n->next) {
-        n = param_list_create(l->ident, type_copy(l->type), 0);
-    }
-    return p;
+    if (!l) return 0;
+    return param_list_create(strdup(l->ident), type_copy(l->type), param_list_copy(l->next));
 }
 
 /* Function to determine if two param lists are the same recursively */

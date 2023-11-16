@@ -46,20 +46,22 @@ int _type_same(struct type* t1, struct type* t2) {
 
 /* Function to check if two types are the same types are same */
 int type_same(struct type* t1, struct type* t2) {
-    if (t1->kind != t2->kind) return 1;
+    if (t1->kind != t2->kind) return 0;
     if (t1->kind == TYPE_FUNC) {
         if (type_same(t1->subtype, t2->subtype) || param_list_same(t1->params, t2->params))
-            return 1;
+            return 0;
     } else if (t1->kind == TYPE_ARRAY) {
         return type_same(t1->subtype, t2->subtype);
     }
-    return 0;
+    return 1;
 }
 
 /* Function to duplicate a type recursively */
 struct type* type_copy(struct type *t) {
-    if (!t) return t;
-    return type_create(t->kind, type_create(t->subtype->kind, 0, 0), param_list_copy(t->params));
+    if (!t) return 0;
+    struct type* new = type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params));
+    new->array_size = t->array_size;
+    return new;
 }
 
 void type_delete(struct type* t) {

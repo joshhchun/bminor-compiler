@@ -263,30 +263,30 @@ void expr_arith_error(expr_t kind, struct expr* e, struct type* lt, struct type*
     char* operations[] = {"add", "subtract", "multiply", "divide", "exponentiate", "modulo"};
     char* op = operations[kind - EXPR_ADD];
 
-    fprintf(stderr, "Type Error: Cannot %s ", op);
+    fprintf(stdout, "Type Error: Cannot %s ", op);
     type_print(lt);
-    fprintf(stderr, " (");
+    fprintf(stdout, " (");
     expr_print(e->left);
-    fprintf(stderr, ") to ");
+    fprintf(stdout, ") to ");
     type_print(rt);
-    fprintf(stderr, " (");
+    fprintf(stdout, " (");
     expr_print(e->right);
-    fprintf(stderr, ")\n");
+    fprintf(stdout, ")\n");
 }
 
 void expr_comp_error(expr_t kind, struct expr* e, struct type* lt, struct type* rt) {
     char* comparisons[] = {"<", ">", "<=", ">=", "==", "!="};
     char* comp = comparisons[kind - EXPR_LT];
 
-    fprintf(stderr, "Type Error: Cannot compare (%s) between ", comp);
+    fprintf(stdout, "Type Error: Cannot compare (%s) between ", comp);
     type_print(lt);
-    fprintf(stderr, " (");
+    fprintf(stdout, " (");
     expr_print(e->left);
-    fprintf(stderr, " ) and ");
+    fprintf(stdout, ") and ");
     type_print(rt);
-    fprintf(stderr, " (");
+    fprintf(stdout, " (");
     expr_print(e->right);
-    fprintf(stderr, ")\n");
+    fprintf(stdout, ")\n");
 }
 
 struct type* expr_typecheck(struct expr* e) {
@@ -299,7 +299,7 @@ struct type* expr_typecheck(struct expr* e) {
     switch (e->kind) {
         case EXPR_ADD:
             /* Can only do arithmetic operation on floats and ints */
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT ) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_arith_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
                 /* TODO: Default type to INT if there was an error? */
@@ -308,14 +308,7 @@ struct type* expr_typecheck(struct expr* e) {
                 result = type_create(lt->kind, 0, 0);
             break;
         case EXPR_SUB:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
-                expr_arith_error(e->kind, e, lt, rt);
-                ERR_COUNT++;
-                result = type_create(TYPE_INT, 0, 0);
-            } else
-                result = type_create(lt->kind, 0, 0);
-            break;
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_arith_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
                 result = type_create(TYPE_INT, 0, 0);
@@ -323,7 +316,7 @@ struct type* expr_typecheck(struct expr* e) {
                 result = type_create(lt->kind, 0, 0);
             break;
         case EXPR_MULT:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_arith_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
                 result = type_create(TYPE_INT, 0, 0);
@@ -331,7 +324,7 @@ struct type* expr_typecheck(struct expr* e) {
                 result = type_create(lt->kind, 0, 0);
             break;
         case EXPR_DIV:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_arith_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
                 result = type_create(TYPE_INT, 0, 0);
@@ -339,7 +332,7 @@ struct type* expr_typecheck(struct expr* e) {
                 result = type_create(lt->kind, 0, 0);
             break;
         case EXPR_EXP:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_arith_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
                 result = type_create(TYPE_INT, 0, 0);
@@ -369,17 +362,17 @@ struct type* expr_typecheck(struct expr* e) {
             break;
         case EXPR_INC:
             if (lt->kind != TYPE_INT) {
-                fprintf(stderr, "Type Error: Can only postfix increment with integers, given: ");
+                fprintf(stdout, "Type Error: Can only postfix increment with integers, given: ");
                 type_print(lt);
-                fprintf(stderr, " (%s)\n", e->left->ident);
+                fprintf(stdout, " (%s)\n", e->left->ident);
             }
             result = type_create(TYPE_INT, 0, 0);
             break;
         case EXPR_DEC:
             if (lt->kind != TYPE_INT) {
-                fprintf(stderr, "Type Error: Can only postfix decrement with integers, given: ");
+                fprintf(stdout, "Type Error: Can only postfix decrement with integers, given: ");
                 type_print(lt);
-                fprintf(stderr, " (%s)\n", e->left->ident);
+                fprintf(stdout, " (%s)\n", e->left->ident);
             }
             result = type_create(TYPE_INT, 0, 0);
             break;
@@ -389,12 +382,12 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_FUNC:
             // Check if the ident is a valid function
             if (lt->kind != TYPE_FUNC) {
-                fprintf(stderr, "Type Error: Unknown function: (%s)\n", e->left->ident);
+                fprintf(stdout, "Type Error: Unknown function: (%s)\n", e->left->ident);
                 ERR_COUNT++;
                 // TODO: Default func type if func does not exist? For now we just copy ident type.
                 result = type_copy(lt);
             } else if (!e->left->symbol->func_defined) {
-                fprintf(stderr, "Type Error: Function not declared: (%s)\n", e->left->ident);
+                fprintf(stdout, "Type Error: Function not declared: (%s)\n", e->left->ident);
                 ERR_COUNT++;
                 // TODO: Default func type if func is not defined. For now just copy the subtype of the func.
                 result = type_copy(lt->subtype);
@@ -404,19 +397,19 @@ struct type* expr_typecheck(struct expr* e) {
                 struct param_list* param = lt->params;
                 struct type *arg_type, *param_type;
                 for (; arg || param; arg = arg->right, param = param->next) {
-                    if (!arg   && ERR_COUNT++) fprintf(stderr, "Type Error: Not enough arguments to function (%s)\n", e->left->ident);
-                    if (!param && ERR_COUNT++) fprintf(stderr, "Type Error: Too many arguments to function (%s)\n", e->left->ident);
-                    arg_type   = expr_typecheck(arg);
+                    if (!arg   && ERR_COUNT++) fprintf(stdout, "Type Error: Not enough arguments to function (%s)\n", e->left->ident);
+                    if (!param && ERR_COUNT++) fprintf(stdout, "Type Error: Too many arguments to function (%s)\n", e->left->ident);
+                    arg_type   = expr_typecheck(arg->left);
                     param_type = param->type;
                     if (!type_same(arg_type, param_type)) {
-                        fprintf(stderr, "Type Error: Argument of type ");
+                        fprintf(stdout, "Type Error: Argument of type ");
                         type_print(arg_type);
-                        fprintf(stderr, " (");
+                        fprintf(stdout, " (");
                         expr_print(arg);
-                        fprintf(stderr, ") ");
-                        fprintf(stderr, " does not match parameter %d type of ", param->symbol->which);
+                        fprintf(stdout, ") ");
+                        fprintf(stdout, " does not match parameter type of ");
                         type_print(param_type);
-                        fprintf(stderr, " in function (%s)\n", e->left->ident);
+                        fprintf(stdout, " (%s) in function (%s)\n", param->ident, e->left->ident);
                         ERR_COUNT++;
                     }
                 }
@@ -425,11 +418,11 @@ struct type* expr_typecheck(struct expr* e) {
             break; 
         case EXPR_ARRAY_SUB:
             if (lt->kind != TYPE_ARRAY) {
-                fprintf(stderr, "Type Error: Cannot subscript into a non array type, given: ");
+                fprintf(stdout, "Type Error: Cannot subscript into a non array type, given: ");
                 type_print(lt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->left);
-                fprintf(stderr, ")\n");
+                fprintf(stdout, ")\n");
                 ERR_COUNT++;
                 result = type_copy(lt);
             } else {
@@ -439,17 +432,17 @@ struct type* expr_typecheck(struct expr* e) {
                 for (lt = lt->subtype; arg; final_type = lt, arg = arg->right, lt = lt->subtype)  {
                     // Need to make sure that the index is type integer
                     if (expr_typecheck(arg)->kind != TYPE_INT) {
-                        fprintf(stderr, "Type Error: Must use integer to subscript into array, given: ");
+                        fprintf(stdout, "Type Error: Must use integer to subscript into array, given: ");
                         type_print(lt);
-                        fprintf(stderr, " (");
+                        fprintf(stdout, " (");
                         expr_print(e->left);
-                        fprintf(stderr, ")\n");
+                        fprintf(stdout, ")\n");
                         ERR_COUNT++;
                     }
 
                     if (!lt) {
                         // Too many subs, error message
-                        fprintf(stderr, "Type Error: Too many subscripts into array (%s)\n", e->left->ident);
+                        fprintf(stdout, "Type Error: Too many subscripts into array (%s)\n", e->left->ident);
                         ERR_COUNT++;
                     }
                 }
@@ -464,42 +457,42 @@ struct type* expr_typecheck(struct expr* e) {
             result = type_copy(rt);
             break;
         case EXPR_LT:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_comp_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_GT:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_comp_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_LEQ:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_comp_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_GEQ:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
                 expr_comp_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_EQ:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || lt->kind == TYPE_VOID || lt->kind == TYPE_FUNC || lt->kind == TYPE_ARRAY) {
                 expr_comp_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_NEQ:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
+            if (lt->kind != rt->kind || lt->kind == TYPE_VOID || lt->kind == TYPE_FUNC || lt->kind == TYPE_ARRAY) {
                 expr_comp_error(e->kind, e, lt, rt);
                 ERR_COUNT++;
             }
@@ -507,76 +500,76 @@ struct type* expr_typecheck(struct expr* e) {
             break;
         case EXPR_ASSIGN:
             if (lt->kind != rt->kind) {
-                fprintf(stderr, "Type Error: Cannot assign ");
+                fprintf(stdout, "Type Error: Cannot assign ");
                 type_print(rt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->right);
-                fprintf(stderr, ") ");
-                fprintf(stderr, "to ");
+                fprintf(stdout, ") ");
+                fprintf(stdout, "to ");
                 type_print(lt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->left);
-                fprintf(stderr, ")\n");
+                fprintf(stdout, ")\n");
             }
             result = type_copy(lt);
             break;
         case EXPR_AND:
             if (lt->kind != rt->kind || lt->kind != TYPE_BOOL) {
-                fprintf(stderr, "Type Error: Cannot do logical comparison (&&) between ");
+                fprintf(stdout, "Type Error: Cannot do logical comparison (&&) between ");
                 type_print(lt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->left);
-                fprintf(stderr, ") and ");
+                fprintf(stdout, ") and ");
                 type_print(rt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->right);
-                fprintf(stderr, ")\n");
+                fprintf(stdout, ")\n");
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_OR:
             if (lt->kind != rt->kind || lt->kind != TYPE_BOOL) {
-                fprintf(stderr, "Type Error: Cannot do logical comparison (||) between ");
+                fprintf(stdout, "Type Error: Cannot do logical comparison (||) between ");
                 type_print(lt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->left);
-                fprintf(stderr, ") and ");
+                fprintf(stdout, ") and ");
                 type_print(rt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->right);
-                fprintf(stderr, ")\n");
+                fprintf(stdout, ")\n");
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_NOT:
             // TODO: Just doing boolean for now, but what can you do not op on?
-            if (lt->kind != rt->kind || lt->kind != TYPE_BOOL) {
-                fprintf(stderr, "Type Error: Cannot use logical not (!) on ");
+            if (lt->kind != TYPE_BOOL) {
+                fprintf(stdout, "Type Error: Cannot use logical not (!) on ");
                 type_print(lt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->left);
-                fprintf(stderr, ")\n");
+                fprintf(stdout, ")\n");
             }
             result = type_create(TYPE_BOOL, 0, 0);
             break;
         case EXPR_NEG:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
-                fprintf(stderr, "Type Error: Cannot use unary operator (-) on ");
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
+                fprintf(stdout, "Type Error: Cannot use unary operator (-) on ");
                 type_print(lt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->left);
-                fprintf(stderr, ")\n");
+                fprintf(stdout, ")\n");
                 result = type_create(TYPE_INT, 0, 0);
             } else
                 result = type_create(lt->kind, 0, 0);
             break;
         case EXPR_PLUS:
-            if (lt->kind != rt->kind || lt->kind != TYPE_INT || lt->kind != TYPE_FLOAT) {
-                fprintf(stderr, "Type Error: Cannot use unary operator (+) on ");
+            if (lt->kind != rt->kind || (lt->kind != TYPE_INT && lt->kind != TYPE_FLOAT)) {
+                fprintf(stdout, "Type Error: Cannot use unary operator (+) on ");
                 type_print(lt);
-                fprintf(stderr, " (");
+                fprintf(stdout, " (");
                 expr_print(e->left);
-                fprintf(stderr, ")\n");
+                fprintf(stdout, ")\n");
                 result = type_create(TYPE_INT, 0, 0);
             } else
                 result = type_create(lt->kind, 0, 0);
@@ -587,7 +580,6 @@ struct type* expr_typecheck(struct expr* e) {
             // {1, 2, 3, 4, 5} expr_args? just iterate through
             // TODO: Going down back tree calling expr_typecheck? Doesn't this already happen?
             // Would have to go back down the tree, makes more sense to do this in decl_typecheck
-            result = type_create(TYPE_ARRAY, 0, 0);
             break;
         case EXPR_ARG:
             result = type_create(lt->kind, 0, 0);
