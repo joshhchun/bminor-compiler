@@ -18,7 +18,10 @@ typedef struct param_list {
 } param_list;
 
 struct param_list* param_list_create(char* ident, struct type* type, struct param_list* next);
-void param_list_print(struct param_list* l);
-void param_list_resolve(struct param_list* l);
+struct param_list* param_list_copy(struct param_list* l);
+void               param_list_print(struct param_list* l);
+void               param_list_resolve(struct param_list* l);
+void               param_list_delete(struct param_list *p);
+int                param_list_same(struct param_list* p1, struct param_list* p2);
 
 #endif

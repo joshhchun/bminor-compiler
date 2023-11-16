@@ -38,3 +38,28 @@ void param_list_resolve(struct param_list *l) {
         scope_bind(p->ident, p->symbol);
     }
 }
+
+/* Function to duplicate a param_list */
+struct param_list* param_list_copy(struct param_list* l) {
+    struct param_list *p = {0};
+    for (struct param_list *n = p; l; l = l->next, n = n->next) {
+        n = param_list_create(l->ident, type_copy(l->type), 0);
+    }
+    return p;
+}
+
+/* Function to determine if two param lists are the same recursively */
+int param_list_same(struct param_list* p1, struct param_list* p2) {
+    for (; p1 || p2; p1 = p1->next, p2 = p2->next) {
+        if ((!p1 || !p2) || strcmp(p1->ident, p2->ident) || type_same(p1->type, p2->type)) return 1;
+    }
+    return 0;
+}
+
+void param_list_delete(struct param_list *p) {
+    if (!p) return;
+    param_list_delete(p->next);
+    type_delete(p->type);
+    if (p->ident) free(p->ident);
+    free(p);
+}

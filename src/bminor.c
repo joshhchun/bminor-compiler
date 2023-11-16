@@ -154,6 +154,17 @@ void resolve(struct decl* parser_result) {
 
 /**
  *
+ * Function to do name resolution on the AST
+ * Input:  parser result: struct decl*
+ * Output: void
+ *
+ */
+void typecheck(struct decl* parser_result) {
+    decl_typecheck(parser_result);
+}
+
+/**
+ *
  * Helper function to set the program type (more for debugging purposes)
  * Input:  flag: const char*
  * Output: void
@@ -170,10 +181,11 @@ void set_program_type (const char* flag) {
         PROGRAM_TYPE = T_PRINT;
     } else if (same_str(flag, "--resolve")) {
         PROGRAM_TYPE = T_RESOLVE;
+    } else if (same_str(flag, "--typecheck")) {
+        PROGRAM_TYPE = T_TYPECHECK;
     } else if (same_str(flag, "--help")) {
         usage(0);
-    }
-    else {
+    } else {
         usage(1);
     }
 }
@@ -204,6 +216,13 @@ int main(int argc, char** argv) {
         parse(argv[2]);
         resolve(parser_result);
         return (ERR_COUNT) ? 1 : 0;
+    case T_TYPECHECK:
+        scan(argv[2]);
+        parse(argv[2]);
+        resolve(parser_result);
+        typecheck(parser_result);
+        return (ERR_COUNT) ? 1 : 0;
+        break;
     }
     return 0;
 }

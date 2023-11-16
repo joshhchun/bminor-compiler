@@ -1,4 +1,5 @@
 #include "../include/stmt.h"
+extern int ERR_COUNT;
 
 struct stmt* stmt_create(stmt_t kind, struct decl* decl, struct expr* init_expr, struct expr* expr, struct expr* next_expr, struct stmt* body, struct stmt* else_body, struct stmt* next) {
     struct stmt* s;
@@ -99,7 +100,7 @@ void stmt_print_list(struct stmt* s, int indents){
     stmt_print_list(s->next, indents);
 }
 
-/* Name resolution fot stmt */
+/* Name resolution for stmt */
 void stmt_resolve(struct stmt* s) {
     if (!s) return;
     switch (s->kind) {
@@ -134,4 +135,71 @@ void stmt_resolve(struct stmt* s) {
             break;
         }
     stmt_resolve(s->next);
+}
+
+/* Function to type check statements recursively */
+void stmt_typecheck(struct stmt* s, struct symbol *sym) {
+    if (!s) return;
+
+    struct type* t = {0};
+    switch (s->kind){
+        case STMT_DECL:
+            decl_typecheck(s->decl);
+            break;
+        case STMT_EXPR:
+            // Delete the type, done using it now
+            type_delete(expr_typecheck(s->expr));
+            break;
+        case STMT_IF_ELSE:
+            if ((t = expr_typecheck(s->expr))->kind != TYPE_BOOL) {
+                fprintf(stderr, "Type Error: If condition must be boolean, given ");
+                type_print(t);
+                fprintf(stderr, " (");
+                expr_print(s->expr);
+                fprintf(stderr, ")\n");
+                ERR_COUNT++;
+            }
+            type_delete(t);
+            stmt_typecheck(s->body, sym);
+            stmt_typecheck(s->else_body, sym);
+            break;
+        case STMT_FOR:
+            // Only need to check that middle expr is a condition
+            if ((t = expr_typecheck(s->expr))->kind != TYPE_BOOL) {
+                fprintf(stderr, "Type Error: Middle condition of for loop must be boolean, given ");
+                type_print(t);
+                fprintf(stderr, " (");
+                expr_print(s->expr);
+                fprintf(stderr, ")\n");
+                ERR_COUNT++;
+            }
+            type_delete(t);
+            // TODO: May need to delete init and next exprs? But never call them..
+            stmt_typecheck(s->body, sym);
+            break;
+        case STMT_PRINT:
+            for (struct expr* e = s->expr; e; e = e->right) { 
+                t = expr_typecheck(e->left);
+                if (t->kind == TYPE_VOID || t->kind == TYPE_ARRAY || t->kind == TYPE_FUNC) {
+                    //TODO
+                    fprintf(stderr, "Type Error: Cannot print type [void..array..etc]");
+                    ERR_COUNT++;
+                }
+                type_delete(t);
+            }
+            break;
+        case STMT_RETURN:
+            // Parsing will handle if the return types is not one of the four atomic types + void
+            if ((t = expr_typecheck(s->expr))->kind != sym->type->subtype->kind) {
+                // TODO:
+                fprintf(stderr, "Type Error: Return type does not match...");
+                ERR_COUNT++;
+            }
+            type_delete(t);
+            break;
+        case STMT_BLOCK:
+            stmt_typecheck(s->body, sym);
+            break;
+    }
+    stmt_typecheck(s->next, sym);
 }

@@ -23,7 +23,10 @@ typedef struct type {
 } type;
 
 struct type* type_create(type_t kind, struct type* subtype, struct param_list* params);
+struct type* type_copy(struct type *t);
 void         type_print(struct type *t);
+void         type_delete(struct type* t);
 int          type_func_same(struct type* t1, struct type* t2);
+int          type_same(struct type* t1, struct type* t2);
 
 #endif

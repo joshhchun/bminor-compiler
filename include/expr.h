@@ -78,6 +78,7 @@ struct expr* expr_create_bool_literal(int c);
 struct expr* expr_create_char_literal(char* c);
 struct expr* expr_create_float_literal(float c);
 struct expr* expr_create_string_literal(const char* str);
+struct type* expr_typecheck(struct expr* e);
 
 void expr_print(struct expr* e);
 void expr_print_list(struct expr* e);
