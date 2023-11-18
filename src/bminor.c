@@ -196,34 +196,34 @@ int main(int argc, char** argv) {
 
     set_program_type(argv[1]);
     switch (PROGRAM_TYPE) {
-    case T_ENCODE:
-        encode(argv[2]);
-        break;
-    case T_SCAN:
-        scan(argv[2]);
-        break;
-    case T_PARSE:
-        scan(argv[2]);
-        parse(argv[2]);
-        break;
-    case T_PRINT:
-        scan(argv[2]);
-        parse(argv[2]);
-        pprint(parser_result);
-        break;
-    case T_RESOLVE:
-        scan(argv[2]);
-        parse(argv[2]);
-        resolve(parser_result);
-        return (ERR_COUNT) ? 1 : 0;
-    case T_TYPECHECK:
-        scan(argv[2]);
-        parse(argv[2]);
-        resolve(parser_result);
-        if (ERR_COUNT) return 1;
-        typecheck(parser_result);
-        return (ERR_COUNT) ? 1 : 0;
-        break;
+        case T_ENCODE:
+            encode(argv[2]);
+            break;
+        case T_SCAN:
+            scan(argv[2]);
+            break;
+        case T_PARSE:
+            scan(argv[2]);
+            parse(argv[2]);
+            break;
+        case T_PRINT:
+            scan(argv[2]);
+            parse(argv[2]);
+            pprint(parser_result);
+            break;
+        case T_RESOLVE:
+            scan(argv[2]);
+            parse(argv[2]);
+            resolve(parser_result);
+            return (ERR_COUNT) ? 1 : 0;
+        case T_TYPECHECK:
+            scan(argv[2]);
+            parse(argv[2]);
+            resolve(parser_result);
+            if (ERR_COUNT) return 1;
+            typecheck(parser_result);
+            return (ERR_COUNT) ? 1 : 0;
+            break;
     }
     return 0;
 }

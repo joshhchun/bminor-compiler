@@ -49,6 +49,7 @@ struct param_list* param_list_copy(struct param_list* l) {
 int param_list_same(struct param_list* p1, struct param_list* p2) {
     for (; p1 || p2; p1 = p1->next, p2 = p2->next) {
         if ((!p1 || !p2) || strcmp(p1->ident, p2->ident) || !type_same(p1->type, p2->type)) {
+            printf("param list is different\n");
             return 0;
         }
     }

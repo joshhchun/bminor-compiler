@@ -1,6 +1,7 @@
 #include "../include/decl.h"
 extern int ERR_COUNT;
 
+/* Function to create decl */
 struct decl* decl_create(char* ident, struct type* type, struct expr* value, struct stmt* code, struct decl* next) {
     struct decl* d;
     if (!(d = calloc(1, sizeof(struct decl)))) {
@@ -15,7 +16,7 @@ struct decl* decl_create(char* ident, struct type* type, struct expr* value, str
     return d;
 }
 
-
+/* Function to print a decl */
 void decl_print(struct decl* d, int indents) {
     extern void indent(int indents);
     if (!d) return;
@@ -36,6 +37,7 @@ void decl_print(struct decl* d, int indents) {
     }
 }
 
+/* Function to print a list of decls */
 void decl_print_list(struct decl *d, int indents){
     if (!d) return;
     decl_print(d, indents);
@@ -43,7 +45,7 @@ void decl_print_list(struct decl *d, int indents){
     decl_print_list(d->next, indents);
 }
 
-
+/* Function to resolve a decl */
 void decl_resolve(struct decl* d) {
     if (!d) return;
     printf("in decl resolve..\n");
@@ -203,11 +205,11 @@ void decl_typecheck(struct decl* d) {
 
     switch (d->symbol->type->kind) {
         case TYPE_ARRAY:
-            if (is_global) global_array_typecheck(d);
-            else           local_array_typecheck(d);
+            if (is_global)     global_array_typecheck(d);
+            else               local_array_typecheck(d);
             break;
         case TYPE_FUNC:
-            if (d->code)   stmt_typecheck(d->code, d->symbol);
+            if (d->code)       stmt_typecheck(d->code, d->symbol);
             break;
         default:
             if (d->value) {
