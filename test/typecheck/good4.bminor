@@ -1,0 +1,17 @@
+/* if blocks */
+
+testfunc: function void ( x: integer, y:integer, z:integer ) = {
+	{
+	    if (3==3) print "yuh";
+	}
+	{
+		{
+		    x: integer = 2;
+		    if (x < 3) print "ok world";
+		    else if (x < 5) print "uij";
+		    else print "YUH";
+		}
+	}
+}
+
+

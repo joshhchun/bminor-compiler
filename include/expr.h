@@ -82,6 +82,8 @@ struct type* expr_typecheck(struct expr* e);
 
 void expr_print(struct expr* e);
 void expr_print_list(struct expr* e);
+void expr_type_print(struct expr* e, struct type* t);
+void expr_type_println(struct expr* e, struct type* t);
 
 
 void expr_resolve (struct expr* e);

@@ -1,0 +1,8 @@
+// Wrong if condition
+main: function integer () = {
+    b: float = 1.0;
+    c: float = 3.2 + b;
+    if (c) {
+        print "this is an error\n";
+    }
+}

@@ -1,0 +1,9 @@
+// Global arrays not having constant vars
+a: array [2] integer = {1, 2+3};
+
+c: integer = 3;
+a: array [c] integer = {1, 2, 3};
+
+
+d: array [2+3] integer;
+e: array [4] integer = {c, c+2, 3};

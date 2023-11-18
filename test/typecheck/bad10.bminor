@@ -1,0 +1,7 @@
+// arrays not having size
+a: array [] integer;
+b: array [] array [] integer = {{1, 2}, {3, 4}};
+
+main: function integer (z: char) = {
+    c: array [] integer = {1, 2, 3, 4};
+}

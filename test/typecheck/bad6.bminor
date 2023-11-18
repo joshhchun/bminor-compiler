@@ -1,0 +1,12 @@
+// Print type mismatch
+foo: function string () = {
+    return 4;
+}
+
+main: function integer () = {
+    x: integer = 5;
+    a: array [4] integer;
+    for (;;) {
+        print "hi\n", a, foo;
+    }
+}

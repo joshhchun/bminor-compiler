@@ -1,0 +1,10 @@
+// Incorrect for loop condition
+main: function integer () = {
+    s: string = "hello";
+    for (;s;) print "this is bad\n";
+
+    i: integer = 2;
+    for (i=0; i++; i++) {
+        return "bad\n";
+    }
+}

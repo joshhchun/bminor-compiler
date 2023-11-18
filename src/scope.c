@@ -65,7 +65,7 @@ int scope_insert(struct symbol* s) {
     if (s->type->kind != TYPE_FUNC ||
         lookup_s->type->kind != TYPE_FUNC ||
         (lookup_s->func_defined && s->func_defined) ||
-        type_same(s->type, lookup_s->type)
+        !type_same(s->type, lookup_s->type)
         ) {
         /* TODO: Just keeping prev decl for now, but should exit program here. */
         return 1;

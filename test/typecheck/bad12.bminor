@@ -1,0 +1,20 @@
+// Function call types dont match param types and func not defined
+foo: function integer(a: integer, b: float, c: float, d: string) = {
+        return 1;
+}
+
+bar: function float();
+
+x: function integer () = {
+    i: integer = foo(1, 2, "hi", "hello");
+    l: float = bar();
+    
+    test: integer = thisFuncDoesntExist();
+
+    // too many args
+    hello: float = foo(1, 2.1, 2.1, "hello", "too many now");
+
+    // not enough
+    return foo(1, 2.1, 2.1);
+
+}

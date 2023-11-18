@@ -48,11 +48,14 @@ struct param_list* param_list_copy(struct param_list* l) {
 /* Function to determine if two param lists are the same recursively */
 int param_list_same(struct param_list* p1, struct param_list* p2) {
     for (; p1 || p2; p1 = p1->next, p2 = p2->next) {
-        if ((!p1 || !p2) || strcmp(p1->ident, p2->ident) || type_same(p1->type, p2->type)) return 1;
+        if ((!p1 || !p2) || strcmp(p1->ident, p2->ident) || !type_same(p1->type, p2->type)) {
+            return 0;
+        }
     }
-    return 0;
+    return 1;
 }
 
+/* Function to delete a param struct */
 void param_list_delete(struct param_list *p) {
     if (!p) return;
     param_list_delete(p->next);

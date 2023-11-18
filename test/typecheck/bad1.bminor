@@ -1,0 +1,9 @@
+// Assign type mismatch
+
+main: function integer () = {
+    y: integer = 4.6;
+
+    // Mismatch with var
+    z: integer = 3;
+    x: float = 2.6 + 3.4 + 1.0 + z;
+}

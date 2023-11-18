@@ -1,0 +1,8 @@
+// Local arrays with non integer expression size
+foo: function integer () = {
+    c: float = 3.2;
+    b: float = 3.2 + c;
+    a: array [b] integer;
+
+    d: array [2.1 + 3.5 * 2.6] integer;
+}

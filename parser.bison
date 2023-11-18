@@ -9,7 +9,6 @@ struct decl* parser_result = 0;
 %}
 
 %token TOKEN_INT
-%token TOKEN_PLUS
 %token TOKEN_MINUS
 %token TOKEN_MUL
 %token TOKEN_DIV
@@ -262,7 +261,7 @@ expr7: expr7 TOKEN_MULT expr8 { $$ = expr_create(EXPR_MULT, $1, $3); }
 /* Not (!) and unary minus and plus */
 expr8: TOKEN_NOT val_literal  { $$ = expr_create(EXPR_NOT, $2, 0); }
 | TOKEN_NEG val_literal       { $$ = expr_create(EXPR_NEG, $2, 0); }
-| TOKEN_PLUS val_literal      { $$ = expr_create(EXPR_PLUS, $2, 0); }
+| TOKEN_ADD val_literal      { $$ = expr_create(EXPR_PLUS, $2, 0); }
 | expr8 TOKEN_EXP val_literal { $$ = expr_create(EXPR_EXP, $1, $3); }
 | TOKEN_LBRACE expr_list TOKEN_RBRACE { $$ = expr_create(EXPR_ARRAY_INIT, $2, 0); }
 | val_literal { $$ = $1; }

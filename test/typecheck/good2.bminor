@@ -1,0 +1,19 @@
+/* string format expr */
+
+x: integer = 65;
+s: string = "hello";
+b: boolean = false;
+d: array [2] array [2] float = {{1.2, 2.1}, {3.1, 3.5}};
+
+min: function integer ( a: integer, b: integer ) =
+{
+	if(a > b) return a;
+	else return b;
+}
+
+testfunc: function void ( z: integer ) =
+{
+	print "minimum", min(10, 5), "\n", z=10, z==10;
+}
+
+

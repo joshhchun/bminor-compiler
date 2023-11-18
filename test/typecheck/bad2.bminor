@@ -1,0 +1,19 @@
+// Array init type mismatch
+
+a: array [2] array [2] integer = {{1, 2}, {3, 4}};
+b: array [2] array [2] array [1] float = {{{1}, {2}}, {{3}, {4}}};
+
+// wrong type
+c: array [2] array [2] integer = {{1, 2}, {3.2, "hello"}};
+
+// too many nested arrays
+z: array [2] array [2] integer = {{{1}, {2}}, {{3}, {4}}};
+
+// not enough arrays
+t: array [2] array [2] integer = {1, 2};
+
+main: function integer () = {
+    // Assigning the wrong value to array type
+    a[1][0] = 3.5;
+    b[0][0][0] = "hello";
+}

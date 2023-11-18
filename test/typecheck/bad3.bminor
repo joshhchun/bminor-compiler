@@ -1,0 +1,13 @@
+// Returning wrong type in func
+main: function integer () = {
+    x: integer = 3;
+    if (1) {
+        for (;;) {
+            {
+                return 3;
+            }
+            return 6;
+        }
+        return "this should be an error";
+    }
+}

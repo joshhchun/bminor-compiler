@@ -1,0 +1,7 @@
+// Global vars not having constant expressions
+
+i: integer = 3 + 2;
+
+a: float = 3.2;
+b: float = a;
+c: float = b + a;

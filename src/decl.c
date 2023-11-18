@@ -46,6 +46,7 @@ void decl_print_list(struct decl *d, int indents){
 
 void decl_resolve(struct decl* d) {
     if (!d) return;
+    printf("in decl resolve..\n");
     // Create a new symbol
     symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL; 
 
@@ -54,6 +55,9 @@ void decl_resolve(struct decl* d) {
 
     // Try to resolve the value
     expr_resolve(d->value);
+
+    // Try to resolve arr_size if it exists;
+    if (d->type->array_size) expr_resolve(d->type->array_size);
 
     // Set if the decl is a function definition
     d->symbol->func_defined = (d->code) ? 1 : 0;
@@ -76,7 +80,7 @@ void arr_init_typecheck(struct type* arr_t, struct expr* e) {
     struct type* curr_t = {0};
     // For every dimension, make sure all the type matches the curr subtype
     if (!arr_t) {
-        fprintf(stdout, "Type Error: Too many nested arrays\n");
+        fprintf(stdout, "Type Error: Too many nested arrays in initialization\n");
         ERR_COUNT++;
         return;
     }
@@ -93,10 +97,8 @@ void arr_init_typecheck(struct type* arr_t, struct expr* e) {
         }
         if ((curr_t = expr_typecheck(e->left))->kind != arr_t->kind) {
             fprintf(stdout, "Type Error: Cannot assign ");
-            type_print(curr_t);
-            fprintf(stdout, " (");
-            expr_print(e->left);
-            fprintf(stdout, ") to array subtype of ");
+            expr_type_print(e->left, curr_t);
+            fprintf(stdout, " to array subtype of ");
             type_print(arr_t);
             fprintf(stdout, "\n");
             ERR_COUNT++;
@@ -104,52 +106,115 @@ void arr_init_typecheck(struct type* arr_t, struct expr* e) {
     }
 }
 
-/* Function to check if return types of a function matches the subtype */
-void func_typecheck(struct type* t, struct stmt* s, const char* func_name) {
-    if (!s) return;
-    if (s->kind == STMT_RETURN) {
-        if (expr_typecheck(s->expr)->kind != t->kind) {
-            // TODO:
-            fprintf(stderr, "Type Error: non matching return types");
+
+/* Internal helper functino to convert a type_t type to an expr_t type */
+expr_t expr_type_conv (type_t t) {
+    switch (t) {
+        case TYPE_BOOL:
+            return EXPR_BOOL;
+        case TYPE_CHAR:
+            return EXPR_CHAR_LITERAL;
+        case TYPE_FLOAT:
+            return EXPR_FLOAT_LITERAL;
+        case TYPE_INT:
+            return EXPR_INT_LITERAL;
+        case TYPE_STR:
+            return EXPR_STRING_LITERAL;
+        default:
+            fprintf(stderr, "Unreachable.\n");
+            return -1;
+    }
+}
+
+void global_array_typecheck(struct decl *d) {
+    struct type* t = d->symbol->type;
+    for (; t->subtype; t = t->subtype) {
+        if (!t->array_size) {
+            fprintf(stdout, "Type Error: Arrays cannot have an empty size (%s)\n", d->ident);
+            ERR_COUNT++;
+        } else if (t->array_size->kind != EXPR_INT_LITERAL) {
+            fprintf(stdout, "Type Error: Global arrays must have a constant integer size, given ");
+            struct type* arr_size_type = expr_typecheck(t->array_size);
+            expr_type_println(t->array_size, arr_size_type);
             ERR_COUNT++;
         }
     }
-    // Check every type of block that could exist (returns if null)
-    func_typecheck(t, s->body, func_name);
-    func_typecheck(t, s->else_body, func_name);
-    func_typecheck(t, s->next, func_name);
+    // Make sure each element matches the subtype of the array if it has an initializer
+    if (d->value) arr_init_typecheck(d->type->subtype, d->value->left);
+}
+
+/* Function to make sure that local array decls have an integer expression sized */
+void local_array_typecheck(struct decl* d) {
+    struct type* arr_size_type = 0;
+    for (struct type* t = d->symbol->type; t->subtype; t = t->subtype) {
+        if (!t->array_size) {
+            fprintf(stdout, "Type Error: Arrays cannot have an empty size (%s)\n", d->ident);
+            ERR_COUNT++;
+        }
+        else if ((arr_size_type = expr_typecheck(t->array_size))->kind != TYPE_INT) {
+            fprintf(stdout, "Type Error: Local arrays must have an integer expression size, given:");
+            expr_type_println(t->array_size, arr_size_type);
+            ERR_COUNT++;
+            free(arr_size_type);
+        }
+    }
+    if (d->value) {
+        fprintf(stdout, "Type Error: Local arrays cannot have an initializer list\n");
+        ERR_COUNT++;
+    }
+}
+
+/* Function to make sure that global decls only have constant values */
+void global_var_typecheck(struct decl* d) {
+    // Make sure the expression is only of the constant type of the ident
+    expr_t expr_type = expr_type_conv(d->symbol->type->kind);
+    for (struct expr* e = d->value; e; e = e->right) {
+        if (e->kind != expr_type) {
+            fprintf(stdout, "Type Error: Global variable ");
+            type_print(d->symbol->type);
+            fprintf(stdout, " (%s) must be assigned a constant expression, given (", d->ident);
+            expr_print(d->value);
+            fprintf(stdout, ")\n");
+            ERR_COUNT++;
+        }
+    }
 }
 
 
+/* Function to make sure the assignment expression matches the decl types for local vars */
+void local_var_typecheck(struct decl* d) {
+    struct type* t = expr_typecheck(d->value);
+    if (t->kind != d->type->kind) {
+        fprintf(stdout, "Type Error: Assigment of ");
+        expr_type_print(d->value, t);
+        fprintf(stdout, " does not match decl of ");
+        type_print(d->type);
+        fprintf(stdout, " (%s)\n", d->ident);
+        ERR_COUNT++;
+    }
+    free(t);
+}
+
+/* Function to typecheck declarations */
 void decl_typecheck(struct decl* d) {
     if (!d) return;
-    // Assignment
-    if (d->value) {
-        switch (d->type->kind) {
+
+    bool is_global = (d->symbol->kind == SYMBOL_GLOBAL ? 1 : 0);
+
+    switch (d->symbol->type->kind) {
         case TYPE_ARRAY:
-            // Make sure each element matches the subtype of the array
-            arr_init_typecheck(d->type->subtype, d->value->left);
+            if (is_global) global_array_typecheck(d);
+            else           local_array_typecheck(d);
             break;
-        default: {
-            // All basic types, just check left matches right
-            struct type* t = expr_typecheck(d->value);
-            if (t->kind != d->type->kind) {
-                fprintf(stderr, "Type Error: Assigment of ");
-                type_print(t);
-                fprintf(stderr, " (");
-                expr_print(d->value);
-                fprintf(stderr, ") does not match decl of ");
-                type_print(d->type);
-                fprintf(stderr, " (%s)\n", d->ident);
-                ERR_COUNT++;
+        case TYPE_FUNC:
+            if (d->code)   stmt_typecheck(d->code, d->symbol);
+            break;
+        default:
+            if (d->value) {
+                if (is_global) global_var_typecheck(d);
+                else           local_var_typecheck(d);
             }
-        }
-        }
-    }
-    
-    if (d->code) {
-        // Make sure return type(s) match the subtype
-        stmt_typecheck(d->code, d->symbol);
+            break;
     }
     decl_typecheck(d->next);
 }

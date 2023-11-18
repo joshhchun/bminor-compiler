@@ -1,0 +1,30 @@
+a: array [3] array [2] integer = {{1, 2}, {3, 4}, {5, 6}};
+foo: function integer (z: float, y: float, t: string);
+
+foo: function integer (z: float, y: float, t: string) = {
+    x: boolean = (z < y) || false;
+    if (x) {
+        for (;;) {
+            //shadow
+            z: integer = 3;
+            {
+                z: string = "hello world";
+                if (z == "hello world") {
+                    return 1;
+                }
+            }
+            if (z < 3) print "this should work";
+        }
+    } else if (z >= y) {
+        {
+            {
+                {
+                    i: integer = 3;
+                    for (; 3<4; i++) return 4;
+                }
+                i: float = 3.5 + z;
+                foo(i, i, "uij");
+            }
+        }
+    }
+}

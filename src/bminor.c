@@ -220,6 +220,7 @@ int main(int argc, char** argv) {
         scan(argv[2]);
         parse(argv[2]);
         resolve(parser_result);
+        if (ERR_COUNT) return 1;
         typecheck(parser_result);
         return (ERR_COUNT) ? 1 : 0;
         break;

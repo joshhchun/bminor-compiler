@@ -1,0 +1,9 @@
+// Local arrays having initializer
+test: function integer(a: integer, b: integer) = {
+        return 2;
+}
+foo: function integer () = {
+    a: array [4] integer = {1, 2, 3, 4};
+    print test(1, 2);
+}
+

@@ -48,7 +48,7 @@ int _type_same(struct type* t1, struct type* t2) {
 int type_same(struct type* t1, struct type* t2) {
     if (t1->kind != t2->kind) return 0;
     if (t1->kind == TYPE_FUNC) {
-        if (type_same(t1->subtype, t2->subtype) || param_list_same(t1->params, t2->params))
+        if (!type_same(t1->subtype, t2->subtype) || !param_list_same(t1->params, t2->params)) 
             return 0;
     } else if (t1->kind == TYPE_ARRAY) {
         return type_same(t1->subtype, t2->subtype);
