@@ -69,6 +69,7 @@ void decl_resolve(struct decl* d) {
 
     // If decl == func (d->code != null) then create new scope, resolve params, and code
     if (d->symbol->func_defined) {
+        var_count = 0;
         scope_enter();
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);

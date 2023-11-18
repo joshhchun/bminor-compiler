@@ -80,6 +80,7 @@ int scope_insert(struct symbol* s) {
 
 /* Adds entry to top scope, mapping name to symbol struct */
 void scope_bind(const char* name, struct symbol* s) {
+    extern int var_count;
     /* Check for redeclarations */
     if (scope_insert(s)) {
         fprintf(stderr, "Resolve Error: Redeclaration of %s.\n", s->ident);
@@ -92,7 +93,7 @@ void scope_bind(const char* name, struct symbol* s) {
             s->which = sym_t->top->param_count++;
             break;
         case SYMBOL_LOCAL:
-            s->which = sym_t->top->local_count++;
+            s->which = var_count++;
             break;
         case SYMBOL_GLOBAL:
             s->which = 0;
