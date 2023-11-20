@@ -48,7 +48,6 @@ void decl_print_list(struct decl *d, int indents){
 /* Function to resolve a decl */
 void decl_resolve(struct decl* d) {
     if (!d) return;
-    printf("in decl resolve..\n");
     // Create a new symbol
     symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL; 
 

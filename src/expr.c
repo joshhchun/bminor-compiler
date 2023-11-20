@@ -391,11 +391,6 @@ struct type* expr_typecheck(struct expr* e) {
                 expr_type_println(e, 0);
                 ERR_COUNT++;
                 result = type_copy(lt);
-            } else if (!e->left->symbol->func_defined) {
-                fprintf(stdout, "Type Error: Function not declared: ");
-                expr_type_println(e, 0);
-                ERR_COUNT++;
-                result = type_copy(lt->subtype);
             } else {
                 // Make sure that the arguments and param matches
                 struct expr* arg         = e->right;  
