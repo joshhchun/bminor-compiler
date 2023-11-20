@@ -1,0 +1,1969 @@
+=====STUDENT TESTS=====
+====Good Tests====
+===[STUDENT TESTS/good0.bminor Input]===
+/* Test multiple functions decls */
+
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+
+test: function integer (z: integer, y: char, t: float) = {
+    foo: integer = z + 2 + 3;
+    return foo;
+}
+
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+test: function integer (z: integer, y: char, t: float);
+
+===[STUDENT TESTS/good0.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good0.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+z resolves to param: 0.
+foo resolves to local: 0.
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+
+
+
+
+===[STUDENT TESTS/good1.bminor Input]===
+/* Try accesssing arrays of various sizes; */
+
+a: array [10] integer = {100,200,300,400,500,600,700,800,900};
+b: array [10] integer;
+c: array [10] array [10] integer;
+d: array [2] array [2] array [1] float = {{{1.2}, {2.1}}, {{3.1}, {4.1}}};
+
+testfunc: function void () = {
+    i: integer;
+    j: integer;
+
+    d[0][0][0] = 3.5;
+
+    for(i=0;i<10;i++) {
+        b[i] = a[i] * 10;
+    }
+
+    for(i=0;i<5;i++) {
+        b[i*2] = a[i] + b[i];
+    }
+
+    for(j=0;j<10;i++) {
+        for(i=0;i<10;i++) {
+            c[i][j] = i*j;
+        }
+    }
+
+    for(j=0;j<10;i++) {
+        for(i=0;i<10;i++) {
+            print c[i][j];
+            print " ";
+        }
+        print "\n";
+    }
+}
+
+
+===[STUDENT TESTS/good1.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good1.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+d resolves to global: d.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+b resolves to global: b.
+i resolves to local: 0.
+a resolves to global: a.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+b resolves to global: b.
+i resolves to local: 0.
+a resolves to global: a.
+i resolves to local: 0.
+b resolves to global: b.
+i resolves to local: 0.
+j resolves to local: 1.
+j resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+c resolves to global: c.
+i resolves to local: 0.
+j resolves to local: 1.
+i resolves to local: 0.
+j resolves to local: 1.
+j resolves to local: 1.
+j resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+c resolves to global: c.
+i resolves to local: 0.
+j resolves to local: 1.
+
+
+
+
+===[STUDENT TESTS/good10.bminor Input]===
+
+/* single statement ifs */
+
+x: integer = 65;
+s: string = "hello";
+b: boolean = false;
+
+min: function integer ( a: integer, b: integer ) =
+{
+	if(a > b) return a;
+	else return b;
+}
+
+testfunc: function void ( z: integer ) =
+{
+	print "minimum", min(10, 5), "\n";
+}
+
+
+
+===[STUDENT TESTS/good10.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good10.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+b resolves to param: 1.
+in decl resolve..
+min resolves to global: min.
+
+
+
+
+===[STUDENT TESTS/good11.bminor Input]===
+a: array [3] array [2] integer = {{1, 2}, {3, 4}, {5, 6}};
+foo: function integer (z: float, y: float, t: string);
+
+foo: function integer (z: float, y: float, t: string) = {
+    x: boolean = (z < y) || false;
+    if (x) {
+        for (;;) {
+            //shadow
+            z: integer = 3;
+            {
+                z: string = "hello world";
+                if (z == "hello world") {
+                    return 1;
+                }
+            }
+            if (z < 3) print "this should work";
+        }
+    } else if (z >= y) {
+        {
+            {
+                {
+                    i: integer = 3;
+                    for (; 3<4; i++) return 4;
+                }
+                i: float = 3.5 + z;
+                foo(i, i, "uij");
+            }
+        }
+    }
+}
+
+===[STUDENT TESTS/good11.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good11.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+z resolves to param: 0.
+y resolves to param: 1.
+x resolves to local: 0.
+in decl resolve..
+in decl resolve..
+z resolves to local: 2.
+z resolves to local: 1.
+z resolves to param: 0.
+y resolves to param: 1.
+in decl resolve..
+i resolves to local: 3.
+in decl resolve..
+z resolves to param: 0.
+foo resolves to global: foo.
+i resolves to local: 4.
+i resolves to local: 4.
+
+
+
+
+===[STUDENT TESTS/good2.bminor Input]===
+/* string format expr */
+
+x: integer = 65;
+s: string = "hello";
+b: boolean = false;
+d: array [2] array [2] float = {{1.2, 2.1}, {3.1, 3.5}};
+
+min: function integer ( a: integer, b: integer ) =
+{
+	if(a > b) return a;
+	else return b;
+}
+
+testfunc: function void ( z: integer ) =
+{
+	print "minimum", min(10, 5), "\n", z=10, z==10;
+}
+
+
+
+===[STUDENT TESTS/good2.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good2.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+b resolves to param: 1.
+in decl resolve..
+min resolves to global: min.
+z resolves to param: 0.
+z resolves to param: 0.
+
+
+
+
+===[STUDENT TESTS/good3.bminor Input]===
+
+/* returning right type */
+
+testfunc: function void ( x: integer, y:integer, z:integer ) = {
+	return testfunc(x, y, z);
+}
+
+
+
+===[STUDENT TESTS/good3.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good3.bminor Output]===
+in decl resolve..
+testfunc resolves to global: testfunc.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+
+
+
+
+===[STUDENT TESTS/good4.bminor Input]===
+/* if blocks */
+
+testfunc: function void ( x: integer, y:integer, z:integer ) = {
+	{
+	    if (3==3) print "yuh";
+	}
+	{
+		{
+		    x: integer = 2;
+		    if (x < 3) print "ok world";
+		    else if (x < 5) print "uij";
+		    else print "YUH";
+		}
+	}
+}
+
+
+
+===[STUDENT TESTS/good4.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good4.bminor Output]===
+in decl resolve..
+in decl resolve..
+x resolves to local: 0.
+x resolves to local: 0.
+
+
+
+
+===[STUDENT TESTS/good5.bminor Input]===
+/* A function contains a sequence of statements */
+/* Try decls and stmts and exprs together. */
+/* Add some float */
+
+simplefunc: function float ( x: integer, y: integer ) = {
+     // Redeclaring a param
+     x: integer = 9;
+     // A declaration
+     z: integer = x * y;
+
+     // for looop
+     for (x; x < 3; x++) {
+          print "this should work";
+     }
+
+     // A float declaration
+     q: float = 10e9;
+
+     // another float
+     v: float = 2.10e2;
+
+     // a float operation
+     return v;
+
+}
+
+
+
+===[STUDENT TESTS/good5.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good5.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+x resolves to local: 0.
+y resolves to param: 1.
+x resolves to local: 0.
+x resolves to local: 0.
+x resolves to local: 0.
+in decl resolve..
+in decl resolve..
+v resolves to local: 3.
+
+
+
+
+===[STUDENT TESTS/good6.bminor Input]===
+/* Try several variations of for-loops */
+
+simplefunc: function void (r: integer, s: integer, t: integer ) = {
+
+    i: integer;
+
+    for( i=0; i<r; i++ ) {
+        // redeclaring in for loop
+        i: integer = 3;
+        print i,"\n";
+    }
+
+    i=0;
+    for( ; i<s; i++ ) {
+        print i,"\n";
+    }
+
+    i=0;
+    for( ; i<r; ) {
+        print i,"\n";
+        i++;
+    }
+
+    for(;;) print "forever!\n";
+}
+
+
+
+===[STUDENT TESTS/good6.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good6.bminor Output]===
+in decl resolve..
+in decl resolve..
+i resolves to local: 0.
+i resolves to local: 0.
+r resolves to param: 0.
+i resolves to local: 0.
+in decl resolve..
+i resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+s resolves to param: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+r resolves to param: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+
+
+
+
+===[STUDENT TESTS/good7.bminor Input]===
+/* Test various nestings of if-else statements */
+
+testit: function boolean ( x: integer, y: integer ) = {
+
+	/* If statement without braces */
+	if( x<y ) print "less\n"; else print "low\n";
+
+	/* If statement with braces */
+	if( x<y ) { print "less\n"; } else { print "low\n"; }
+
+	/* This statement should print nothing */
+        if(20<10) if(10<20) print "incorrect!"; else print "dangling else!";
+
+	/* statements and decls inside of if-else */
+
+        if( x>y ) {
+              i: integer;
+              // redeclaring in if block
+              x: integer = 3;
+              y = 3 + x;
+              for(i=0;i<x;i++) print i, "\n";
+        } else {
+              i: integer;
+              for(i=0;i<y;i++) print i, "\n";
+        }
+
+	/* A decl can come after a few statements */
+	i: integer;
+
+	/* try the other way around */
+	for(i=0;i<x;i++) {
+              if( i<x ) print "small"; else print "large";
+        }
+
+        return true;
+}
+
+
+
+===[STUDENT TESTS/good7.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good7.bminor Output]===
+in decl resolve..
+x resolves to param: 0.
+y resolves to param: 1.
+x resolves to param: 0.
+y resolves to param: 1.
+x resolves to param: 0.
+y resolves to param: 1.
+in decl resolve..
+in decl resolve..
+y resolves to param: 1.
+x resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+x resolves to local: 1.
+i resolves to local: 0.
+i resolves to local: 0.
+in decl resolve..
+i resolves to local: 2.
+i resolves to local: 2.
+y resolves to param: 1.
+i resolves to local: 2.
+i resolves to local: 2.
+in decl resolve..
+i resolves to local: 3.
+i resolves to local: 3.
+x resolves to param: 0.
+i resolves to local: 3.
+i resolves to local: 3.
+x resolves to param: 0.
+
+
+
+
+===[STUDENT TESTS/good8.bminor Input]===
+/* Now try some expressions */
+
+x: integer = 65;
+s: string = "hello";
+b: boolean = false;
+
+min: function integer ( a: integer, b: integer ) =
+{
+	if( a<b ) return a; else return b;
+}
+
+testfunc: function void ( z: integer ) =
+{
+	// Nested integer operators.
+	y: integer = x*(x*10 + 55%6 + z/10);
+	print "y: ", y, "\n";
+
+	// Nested boolean operations.
+	c: boolean = ( x<100 && y>200 ) || !(b=true);
+	print "c: ", c, "\n";
+
+	// Boolean operations on strings?
+	d: boolean = (s == "goodbye");
+	print "d: ", d, "\n";
+
+	// Can we stack up assignments?
+	z = y = x;
+
+	a: array [100] integer;
+
+	// Function calls and array accesses:
+	y = min(a[10],a[20]);
+}
+
+
+
+===[STUDENT TESTS/good8.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good8.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+b resolves to param: 1.
+in decl resolve..
+in decl resolve..
+x resolves to global: x.
+x resolves to global: x.
+z resolves to param: 0.
+y resolves to local: 0.
+in decl resolve..
+x resolves to global: x.
+y resolves to local: 0.
+b resolves to global: b.
+c resolves to local: 1.
+in decl resolve..
+s resolves to global: s.
+d resolves to local: 2.
+z resolves to param: 0.
+y resolves to local: 0.
+x resolves to global: x.
+in decl resolve..
+y resolves to local: 0.
+min resolves to global: min.
+a resolves to local: 3.
+a resolves to local: 3.
+
+
+
+
+===[STUDENT TESTS/good9.bminor Input]===
+/* Check for minimum use of parentheses. */
+
+testfunc: function void ( x: integer, y:integer, z:integer ) = {
+
+          r: integer;
+	  b: boolean;
+
+          // Parens required
+	  r = (x+y)/z;
+	  r = x+(y+z);
+	  b = (true||false) && (false||true);
+
+          // Parens not required
+	  r = x+(y/z);
+	  r = (x+y)+z;
+	  b = (x+y) < (x+z);
+	  b = (true&&false) || (false&&true);
+
+}
+
+
+
+===[STUDENT TESTS/good9.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[STUDENT TESTS/good9.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+b resolves to local: 1.
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+r resolves to local: 0.
+x resolves to param: 0.
+y resolves to param: 1.
+z resolves to param: 2.
+b resolves to local: 1.
+x resolves to param: 0.
+y resolves to param: 1.
+x resolves to param: 0.
+z resolves to param: 2.
+b resolves to local: 1.
+
+
+
+
+====Bad Tests====
+===[STUDENT TESTS/bad0.bminor Input]===
+// Too many array subscripts
+
+main: function integer ()  = {
+    a: array [4] array [4] integer;
+    a[2][3][4] = 3;
+}
+
+===[STUDENT TESTS/bad0.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad0.bminor Output]===
+in decl resolve..
+in decl resolve..
+a resolves to local: 0.
+Type Error: Too many subscripts into array type of array [4] array [4] integer (a)
+
+
+
+
+===[STUDENT TESTS/bad1.bminor Input]===
+// Assign type mismatch
+
+main: function integer () = {
+    y: integer = 4.6;
+
+    // Mismatch with var
+    z: integer = 3;
+    x: float = 2.6 + 3.4 + 1.0 + z;
+}
+
+===[STUDENT TESTS/bad1.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad1.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+z resolves to local: 1.
+Type Error: Assigment of float (4.600000) does not match decl of integer (y)
+Type Error: Cannot add between float (2.600000+3.400000+1.000000) and integer (z)
+Type Error: Assigment of integer (2.600000+3.400000+1.000000+z) does not match decl of float (x)
+
+
+
+
+===[STUDENT TESTS/bad10.bminor Input]===
+// arrays not having size
+a: array [] integer;
+b: array [] array [] integer = {{1, 2}, {3, 4}};
+
+main: function integer (z: char) = {
+    c: array [] integer = {1, 2, 3, 4};
+}
+
+===[STUDENT TESTS/bad10.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad10.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+Type Error: Arrays cannot have an empty size (a)
+Type Error: Arrays cannot have an empty size (b)
+Type Error: Arrays cannot have an empty size (b)
+Type Error: Arrays cannot have an empty size (c)
+Type Error: Local arrays cannot have an initializer list
+
+
+
+
+===[STUDENT TESTS/bad11.bminor Input]===
+// Local arrays with non integer expression size
+foo: function integer () = {
+    c: float = 3.2;
+    b: float = 3.2 + c;
+    a: array [b] integer;
+
+    d: array [2.1 + 3.5 * 2.6] integer;
+}
+
+===[STUDENT TESTS/bad11.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad11.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+c resolves to local: 0.
+in decl resolve..
+b resolves to local: 1.
+in decl resolve..
+Type Error: Local arrays must have an integer expression size, given:float (b)
+Type Error: Local arrays must have an integer expression size, given:float (2.100000+3.500000*2.600000)
+
+
+
+
+===[STUDENT TESTS/bad12.bminor Input]===
+// Function call types dont match param types and func not defined
+foo: function integer(a: integer, b: float, c: float, d: string) = {
+        return 1;
+}
+
+bar: function float();
+
+x: function integer () = {
+    i: integer = foo(1, 2, "hi", "hello");
+    l: float = bar();
+    
+    test: integer = thisFuncDoesntExist();
+
+    // too many args
+    hello: float = foo(1, 2.1, 2.1, "hello", "too many now");
+
+    // not enough
+    return foo(1, 2.1, 2.1);
+
+}
+
+===[STUDENT TESTS/bad12.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad12.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+foo resolves to global: foo.
+in decl resolve..
+bar resolves to global: bar.
+in decl resolve..
+in decl resolve..
+foo resolves to global: foo.
+foo resolves to global: foo.
+
+Resolve Error: Unknown ident: thisFuncDoesntExist.
+
+
+
+===[STUDENT TESTS/bad13.bminor Input]===
+// wrong types for ops
+
+main : function integer () = {
+    a: boolean = 3 < 4.2;
+    b: boolean = "hi" >= "bar";
+    c: array [2] integer;
+    d: array [4] integer;
+    print c<d;
+
+    print 3&&2, 1||3.2, !4.2, -"hello", +"hello";
+
+
+}
+
+===[STUDENT TESTS/bad13.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad13.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+c resolves to local: 2.
+d resolves to local: 3.
+Type Error: Cannot compare (<) between integer (3) and float (4.200000)
+Type Error: Cannot compare (>=) between string ("hi") and string ("bar")
+Type Error: Cannot compare (<) between array [2] integer (c) and array [4] integer (d)
+Type Error: Cannot do logical comparison (&&) between integer (3) and integer (2)
+Type Error: Cannot do logical comparison (||) between integer (1) and float (3.200000)
+Type Error: Cannot use logical not (!) on float (4.200000)
+Type Error: Cannot use unary operator (-) on string ("hello")
+Type Error: Cannot use unary operator (+) on string ("hello")
+
+
+
+
+===[STUDENT TESTS/bad2.bminor Input]===
+// Array init type mismatch
+
+a: array [2] array [2] integer = {{1, 2}, {3, 4}};
+b: array [2] array [2] array [1] float = {{{1}, {2}}, {{3}, {4}}};
+
+// wrong type
+c: array [2] array [2] integer = {{1, 2}, {3.2, "hello"}};
+
+// too many nested arrays
+z: array [2] array [2] integer = {{{1}, {2}}, {{3}, {4}}};
+
+// not enough arrays
+t: array [2] array [2] integer = {1, 2};
+
+main: function integer () = {
+    // Assigning the wrong value to array type
+    a[1][0] = 3.5;
+    b[0][0][0] = "hello";
+}
+
+===[STUDENT TESTS/bad2.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad2.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+a resolves to global: a.
+b resolves to global: b.
+Type Error: Cannot assign integer (1) to array subtype of float
+Type Error: Cannot assign integer (2) to array subtype of float
+Type Error: Cannot assign integer (3) to array subtype of float
+Type Error: Cannot assign integer (4) to array subtype of float
+Type Error: Cannot assign float (3.200000) to array subtype of integer
+Type Error: Cannot assign string ("hello") to array subtype of integer
+Type Error: Cannot assign array to subtype of integer
+Type Error: Too many nested arrays in initialization
+Type Error: Cannot assign array to subtype of integer
+Type Error: Too many nested arrays in initialization
+Type Error: Cannot assign array to subtype of integer
+Type Error: Too many nested arrays in initialization
+Type Error: Cannot assign array to subtype of integer
+Type Error: Too many nested arrays in initialization
+Type Error: Cannot assign integer (1) to array subtype of array [2] integer
+Type Error: Cannot assign integer (2) to array subtype of array [2] integer
+Type Error: Cannot assign float (3.500000) to integer (a[1][0])
+Type Error: Cannot assign string ("hello") to float (b[0][0][0])
+
+
+
+
+===[STUDENT TESTS/bad3.bminor Input]===
+// Returning wrong type in func
+main: function integer () = {
+    x: integer = 3;
+    if (1) {
+        for (;;) {
+            {
+                return 3;
+            }
+            return 6;
+        }
+        return "this should be an error";
+    }
+}
+
+===[STUDENT TESTS/bad3.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad3.bminor Output]===
+in decl resolve..
+in decl resolve..
+Type Error: If condition must be boolean, given integer (1)
+Type Error: Return type of string ("this should be an error") does not match func return type of integer
+
+
+
+
+===[STUDENT TESTS/bad4.bminor Input]===
+// Wrong if condition
+main: function integer () = {
+    b: float = 1.0;
+    c: float = 3.2 + b;
+    if (c) {
+        print "this is an error\n";
+    }
+}
+
+===[STUDENT TESTS/bad4.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad4.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+b resolves to local: 0.
+c resolves to local: 1.
+Type Error: If condition must be boolean, given float (c)
+
+
+
+
+===[STUDENT TESTS/bad5.bminor Input]===
+// Incorrect for loop condition
+main: function integer () = {
+    s: string = "hello";
+    for (;s;) print "this is bad\n";
+
+    i: integer = 2;
+    for (i=0; i++; i++) {
+        return "bad\n";
+    }
+}
+
+===[STUDENT TESTS/bad5.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad5.bminor Output]===
+in decl resolve..
+in decl resolve..
+s resolves to local: 0.
+in decl resolve..
+i resolves to local: 1.
+i resolves to local: 1.
+i resolves to local: 1.
+Type Error: Middle condition of for loop must be boolean, given string (s)
+Type Error: Middle condition of for loop must be boolean, given integer (i++)
+Type Error: Return type of string ("bad\n") does not match func return type of integer
+
+
+
+
+===[STUDENT TESTS/bad6.bminor Input]===
+// Print type mismatch
+foo: function string () = {
+    return 4;
+}
+
+main: function integer () = {
+    x: integer = 5;
+    a: array [4] integer;
+    for (;;) {
+        print "hi\n", a, foo;
+    }
+}
+
+===[STUDENT TESTS/bad6.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad6.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+a resolves to local: 1.
+foo resolves to global: foo.
+Type Error: Return type of integer (4) does not match func return type of string
+Type Error: Cannot print type array [4] integer (a)
+Type Error: Cannot print type function string () (foo)
+
+
+
+
+===[STUDENT TESTS/bad7.bminor Input]===
+// Global arrays not having constant vars
+a: array [2] integer = {1, 2+3};
+
+c: integer = 3;
+a: array [c] integer = {1, 2, 3};
+
+
+d: array [2+3] integer;
+e: array [4] integer = {c, c+2, 3};
+
+===[STUDENT TESTS/bad7.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad7.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+c resolves to global: c.
+in decl resolve..
+in decl resolve..
+c resolves to global: c.
+c resolves to global: c.
+
+Resolve Error: Redeclaration of a.
+
+
+
+===[STUDENT TESTS/bad8.bminor Input]===
+// Global vars not having constant expressions
+
+i: integer = 3 + 2;
+
+a: float = 3.2;
+b: float = a;
+c: float = b + a;
+
+===[STUDENT TESTS/bad8.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad8.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+a resolves to global: a.
+in decl resolve..
+b resolves to global: b.
+a resolves to global: a.
+Type Error: Global variable integer (i) must be assigned a constant expression, given (3+2)
+Type Error: Global variable float (b) must be assigned a constant expression, given (a)
+Type Error: Global variable float (c) must be assigned a constant expression, given (b+a)
+Type Error: Global variable float (c) must be assigned a constant expression, given (b+a)
+
+
+
+
+===[STUDENT TESTS/bad9.bminor Input]===
+// Local arrays having initializer
+test: function integer(a: integer, b: integer) = {
+        return 2;
+}
+foo: function integer () = {
+    a: array [4] integer = {1, 2, 3, 4};
+    print test(1, 2);
+}
+
+
+===[STUDENT TESTS/bad9.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[STUDENT TESTS/bad9.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+test resolves to global: test.
+Type Error: Local arrays cannot have an initializer list
+
+
+
+
+=====HIDDEN TESTS=====
+====Good Tests====
+===[HIDDEN TESTS/good1.bminor Input]===
+/*
+Correct: The parameter name can vary as long as the type is the same.
+*/
+
+x: function integer(a:integer);
+
+x: function integer(b:integer) = {
+	return 0;
+}
+
+x: function integer(c:integer);
+
+===[HIDDEN TESTS/good1.bminor Status]===
+return code: 1
+TEST NOT PASSED
+
+===[HIDDEN TESTS/good1.bminor Output]===
+in decl resolve..
+in decl resolve..
+param list is different
+in decl resolve..
+param list is different
+
+Resolve Error: Redeclaration of x.
+Resolve Error: Redeclaration of x.
+
+
+
+===[HIDDEN TESTS/good2.bminor Input]===
+/*
+Correct: Test various nested definitions.
+*/
+
+f: function void() = {
+	x: integer = 1;
+	{
+		print x;
+		x: integer = x + 1;
+		print x;
+	}
+	print x;
+}
+
+===[HIDDEN TESTS/good2.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[HIDDEN TESTS/good2.bminor Output]===
+in decl resolve..
+in decl resolve..
+x resolves to local: 0.
+in decl resolve..
+x resolves to local: 0.
+x resolves to local: 1.
+x resolves to local: 0.
+
+
+
+
+===[HIDDEN TESTS/good3.bminor Input]===
+/*
+Correct: Test various function return types.
+*/
+
+A: function boolean(x: integer, y: integer);
+B: function integer(x: char);
+C: function char(a: string);
+
+main: function integer() = {
+	i: integer;
+	for (i = 0; i < 10; i++)
+		if (i % 2 == 0)
+			print i;
+		else
+			return i;
+
+	if (A(B('d') - 1, 10)) {
+		x: integer = 0;
+		return 2 * B('c') + x;
+	}
+
+	return B(C("hello")) % 3;
+}
+
+===[HIDDEN TESTS/good3.bminor Status]===
+return code: 1
+TEST NOT PASSED
+
+===[HIDDEN TESTS/good3.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+A resolves to global: A.
+B resolves to global: B.
+in decl resolve..
+B resolves to global: B.
+x resolves to local: 1.
+B resolves to global: B.
+C resolves to global: C.
+Type Error: Function not declared:  (B('d'))
+Type Error: Function not declared:  (A(-B('d'), 10))
+Type Error: Function not declared:  (B('c'))
+Type Error: Function not declared:  (C("hello"))
+Type Error: Function not declared:  (B(C("hello")))
+
+
+
+
+===[HIDDEN TESTS/good4.bminor Input]===
+/*
+Correct: Test combinations of boolean operators.
+*/
+
+func: function void(
+		a: integer,
+		b: integer,
+		c: boolean,
+		d: boolean
+	) = {
+
+	print a -b;
+	print c && d;
+	print a + b * a - a ^ b /a;
+
+	print a < b && d;
+	print (a < b) || (c && d);
+}
+
+===[HIDDEN TESTS/good4.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[HIDDEN TESTS/good4.bminor Output]===
+in decl resolve..
+a resolves to param: 0.
+b resolves to param: 1.
+c resolves to param: 2.
+d resolves to param: 3.
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+a resolves to param: 0.
+b resolves to param: 1.
+d resolves to param: 3.
+a resolves to param: 0.
+b resolves to param: 1.
+c resolves to param: 2.
+d resolves to param: 3.
+
+
+
+
+===[HIDDEN TESTS/good5.bminor Input]===
+/*
+Correct: Test array assignments.
+*/
+
+x:array [5] integer = {1,2,3,4,5};
+y:array [5] array [5] integer;
+
+main:function void () =
+{
+	y[1] = x;
+	count:integer;
+	for(count = 0; count < 5; count++)
+	{
+		y[count] = x;
+	} 	
+}
+
+===[HIDDEN TESTS/good5.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[HIDDEN TESTS/good5.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+y resolves to global: y.
+x resolves to global: x.
+in decl resolve..
+count resolves to local: 0.
+count resolves to local: 0.
+count resolves to local: 0.
+y resolves to global: y.
+count resolves to local: 0.
+x resolves to global: x.
+
+
+
+
+===[HIDDEN TESTS/good7.bminor Input]===
+/*
+Correct: Test if-expression and return-expression.
+*/
+
+main: function integer() = {
+	m: integer = 2;
+	n: boolean = true;
+
+	if (!n) return 0; else return -m;
+
+	print 10 * (-1 + m);
+}
+
+===[HIDDEN TESTS/good7.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[HIDDEN TESTS/good7.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+n resolves to local: 1.
+m resolves to local: 0.
+m resolves to local: 0.
+
+
+
+
+===[HIDDEN TESTS/good8.bminor Input]===
+/*
+Correct: Boolean expression in several places.
+*/
+
+x: function integer(a:boolean) = {
+	if (a) for (;a;) print a;
+}
+
+===[HIDDEN TESTS/good8.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[HIDDEN TESTS/good8.bminor Output]===
+in decl resolve..
+a resolves to param: 0.
+a resolves to param: 0.
+a resolves to param: 0.
+
+
+
+
+===[HIDDEN TESTS/good9.bminor Input]===
+/*
+Correct: A program to plot a quadratic function. 
+*/
+
+/* Make use of atoi from the standard library */
+
+atoi: function integer( s: string );
+
+quadratic: function integer ( a: integer, b: integer, c: integer, x: integer ) = {
+	return a*x*x + b*x + c*x;
+}
+
+main: function integer ( argc: integer, argv: array [] string ) =  {
+
+      if(argc<3) {
+          print "use: ", argv[0], "[a] [b] [c] [start] [end]\n";
+      }
+
+      a: integer = atoi(argv[0]);
+      b: integer = atoi(argv[1]);
+      c: integer = atoi(argv[2]);
+      start: integer = atoi(argv[3]);
+      end: integer = atoi(argv[4]);
+
+
+      x: integer;
+      
+      for(x=start;x<end;x++) {
+          print x, " ", quadratic(a,b,c,x), "\n";
+      }
+
+      return 0;
+}
+
+===[HIDDEN TESTS/good9.bminor Status]===
+return code: 1
+TEST NOT PASSED
+
+===[HIDDEN TESTS/good9.bminor Output]===
+in decl resolve..
+in decl resolve..
+a resolves to param: 0.
+x resolves to param: 3.
+x resolves to param: 3.
+b resolves to param: 1.
+x resolves to param: 3.
+c resolves to param: 2.
+x resolves to param: 3.
+in decl resolve..
+argc resolves to param: 0.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+x resolves to local: 5.
+start resolves to local: 3.
+x resolves to local: 5.
+end resolves to local: 4.
+x resolves to local: 5.
+x resolves to local: 5.
+quadratic resolves to global: quadratic.
+a resolves to local: 0.
+b resolves to local: 1.
+c resolves to local: 2.
+x resolves to local: 5.
+Type Error: Function not declared:  (atoi(argv[0]))
+Type Error: Function not declared:  (atoi(argv[1]))
+Type Error: Function not declared:  (atoi(argv[2]))
+Type Error: Function not declared:  (atoi(argv[3]))
+Type Error: Function not declared:  (atoi(argv[4]))
+
+
+
+
+===[HIDDEN TESTS/good10.bminor Input]===
+/*
+
+Testing float typechecking
+
+*/
+
+main: function integer() = {
+    m: float = 3.1;
+    n: float = 5.2;
+    
+    x: float = m + n;
+
+    print x;
+}
+
+===[HIDDEN TESTS/good10.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[HIDDEN TESTS/good10.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+in decl resolve..
+m resolves to local: 0.
+n resolves to local: 1.
+x resolves to local: 2.
+
+
+
+
+===[HIDDEN TESTS/good6.bminor Input]===
+/*
+Correct: Test assignment of array literals.
+*/
+
+main: function void (a: integer) = {
+	x: array [1] boolean;
+	y: array [1] integer;
+	if (x[y[a]]) return;
+	{
+		z: integer;
+		zz: integer = z;
+	}
+}
+
+===[HIDDEN TESTS/good6.bminor Status]===
+return code: 0
+Test passed successfully!
+
+===[HIDDEN TESTS/good6.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+x resolves to local: 0.
+y resolves to local: 1.
+a resolves to param: 0.
+in decl resolve..
+in decl resolve..
+z resolves to local: 2.
+
+
+
+
+====Bad Tests====
+===[HIDDEN TESTS/bad1.bminor Input]===
+/*
+Incorrect: Mismatched types in forward declaration
+*/
+
+x: function integer(a:char);
+x: function integer(a:integer) = {
+	return 0;
+}
+
+===[HIDDEN TESTS/bad1.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad1.bminor Output]===
+in decl resolve..
+in decl resolve..
+param list is different
+
+Resolve Error: Redeclaration of x.
+
+
+
+===[HIDDEN TESTS/bad2.bminor Input]===
+/*
+Incorrect: Variable redefined within a scope.
+*/
+
+f: function void() = {
+	x: integer = 1;
+	{
+		print x;
+		x: integer = x + 1;
+		print x;
+	}
+	x: integer = 2;
+	print x;
+}
+
+===[HIDDEN TESTS/bad2.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad2.bminor Output]===
+in decl resolve..
+in decl resolve..
+x resolves to local: 0.
+in decl resolve..
+x resolves to local: 0.
+x resolves to local: 1.
+in decl resolve..
+x resolves to local: 0.
+
+Resolve Error: Redeclaration of x.
+
+
+
+===[HIDDEN TESTS/bad3.bminor Input]===
+/*
+Incorrect: Mismatched function return types.
+*/
+
+main: function void() = {
+	return i;
+}
+
+func: function integer() = {
+	return;
+}
+
+===[HIDDEN TESTS/bad3.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad3.bminor Output]===
+in decl resolve..
+in decl resolve..
+
+Resolve Error: Unknown ident: i.
+
+
+
+===[HIDDEN TESTS/bad4.bminor Input]===
+/*
+Incorrect: Mismatched operators.
+*/
+
+
+func: function void(
+		a: integer,
+		b: integer,
+		c: boolean,
+		d: boolean
+	) = {
+
+	print a -c;
+	print c * d;
+	print a + b * a - a ^ b /d;
+
+	print a < b && a;
+	print (a < b) + (c && d);
+}
+
+===[HIDDEN TESTS/bad4.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad4.bminor Output]===
+in decl resolve..
+a resolves to param: 0.
+c resolves to param: 2.
+c resolves to param: 2.
+d resolves to param: 3.
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+a resolves to param: 0.
+b resolves to param: 1.
+d resolves to param: 3.
+a resolves to param: 0.
+b resolves to param: 1.
+a resolves to param: 0.
+a resolves to param: 0.
+b resolves to param: 1.
+c resolves to param: 2.
+d resolves to param: 3.
+Type Error: Cannot multiply between boolean (c) and boolean (d)
+Type Error: Cannot divide between integer (a^b) and boolean (d)
+Type Error: Cannot do logical comparison (&&) between boolean (a<b) and integer (a)
+Type Error: Cannot add between boolean ((a<b)) and boolean ((c&&d))
+
+
+
+
+===[HIDDEN TESTS/bad5.bminor Input]===
+/*
+Incorrect: Cannot subscript a value which is not an array.
+*/
+
+main: function void() = {
+	s : boolean = false;
+	c : char = s[1];
+	print c;
+}
+
+===[HIDDEN TESTS/bad5.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad5.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+s resolves to local: 0.
+c resolves to local: 1.
+Type Error: Cannot subscript into a non array type, given: boolean (s)
+Type Error: Assigment of boolean (s[1]) does not match decl of char (c)
+
+
+
+
+===[HIDDEN TESTS/bad6.bminor Input]===
+/*
+Incorrect: Cannot assign an array to an atomic type.
+*/
+
+main: function void () = {
+	// array of one boolean != boolean
+	x: array [1] boolean = {true};
+	if (x) return;
+}
+
+===[HIDDEN TESTS/bad6.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad6.bminor Output]===
+in decl resolve..
+in decl resolve..
+x resolves to local: 0.
+Type Error: Local arrays cannot have an initializer list
+Type Error: If condition must be boolean, given array [1] boolean (x)
+
+
+
+
+===[HIDDEN TESTS/bad7.bminor Input]===
+/*
+Incorrect: Improper operators on values.
+*/
+
+main: function integer() = {
+	m: integer = 2;
+	n: boolean = true;
+
+	// wrong negation
+	if (-n) return 0; else return !m;
+
+	// arithmetic on boolean
+	print 10 * (-1 + n);
+}
+
+===[HIDDEN TESTS/bad7.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad7.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+n resolves to local: 1.
+m resolves to local: 0.
+n resolves to local: 1.
+Type Error: Cannot use unary operator (-) on boolean (n)
+Type Error: If condition must be boolean, given integer (-n)
+Type Error: Cannot use logical not (!) on integer (m)
+Type Error: Return type of boolean (!m) does not match func return type of integer
+Type Error: Cannot add between integer (-1) and boolean (n)
+
+
+
+
+===[HIDDEN TESTS/bad8.bminor Input]===
+/*
+Incorrect: Cannot use an integer in place of a boolean.
+*/
+
+x: function integer(a:integer) = {
+	if (a) return 10;
+	for (;a;) print a;
+}
+
+===[HIDDEN TESTS/bad8.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad8.bminor Output]===
+in decl resolve..
+a resolves to param: 0.
+a resolves to param: 0.
+a resolves to param: 0.
+Type Error: If condition must be boolean, given integer (a)
+Type Error: Middle condition of for loop must be boolean, given integer (a)
+
+
+
+
+===[HIDDEN TESTS/bad9.bminor Input]===
+/*
+Incorrect: Several type mismatches throughout.
+*/
+
+/* Make use of atoi from the standard library */
+
+atoi: function boolean ( s: string );
+
+quadratic: function void ( a: char, b: string, c: boolean, x: integer ) = {
+	return a*x*x + b*x + c*x;
+}
+
+main: function integer ( argc: integer, argv: array [] string ) =  {
+
+      if(argc<3) {
+          print "use: ", argv[0], "[a] [b] [c] [start] [end]\n";
+      }
+
+      a: integer = atoi(argv[0]);
+      b: integer = atoi(argv[1]);
+      c: integer = atoi(argv[2]);
+      start: integer = atoi(argv[3]);
+      end: integer = atoi(argv[4]);
+
+
+      x: integer;
+      
+      for(x=start;x<end;x++) {
+          print x, " ", quadratic(a,b,c,x), "\n";
+      }
+
+      return 0;
+}
+
+===[HIDDEN TESTS/bad9.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad9.bminor Output]===
+in decl resolve..
+in decl resolve..
+a resolves to param: 0.
+x resolves to param: 3.
+x resolves to param: 3.
+b resolves to param: 1.
+x resolves to param: 3.
+c resolves to param: 2.
+x resolves to param: 3.
+in decl resolve..
+argc resolves to param: 0.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+atoi resolves to global: atoi.
+argv resolves to param: 1.
+in decl resolve..
+x resolves to local: 5.
+start resolves to local: 3.
+x resolves to local: 5.
+end resolves to local: 4.
+x resolves to local: 5.
+x resolves to local: 5.
+quadratic resolves to global: quadratic.
+a resolves to local: 0.
+b resolves to local: 1.
+c resolves to local: 2.
+x resolves to local: 5.
+Type Error: Cannot multiply between char (a) and integer (x)
+Type Error: Cannot multiply between string (b) and integer (x)
+Type Error: Cannot multiply between boolean (c) and integer (x)
+Type Error: Return type of integer (a*x*x+b*x+c*x) does not match func return type of void
+Type Error: Function not declared:  (atoi(argv[0]))
+Type Error: Assigment of boolean (atoi(argv[0])) does not match decl of integer (a)
+Type Error: Function not declared:  (atoi(argv[1]))
+Type Error: Assigment of boolean (atoi(argv[1])) does not match decl of integer (b)
+Type Error: Function not declared:  (atoi(argv[2]))
+Type Error: Assigment of boolean (atoi(argv[2])) does not match decl of integer (c)
+Type Error: Function not declared:  (atoi(argv[3]))
+Type Error: Assigment of boolean (atoi(argv[3])) does not match decl of integer (start)
+Type Error: Function not declared:  (atoi(argv[4]))
+Type Error: Assigment of boolean (atoi(argv[4])) does not match decl of integer (end)
+Type Error: Argument of type integer (a) does not match parameter type of char (a) in function (quadratic)
+Type Error: Argument of type integer (b) does not match parameter type of string (b) in function (quadratic)
+Type Error: Argument of type integer (c) does not match parameter type of boolean (c) in function (quadratic)
+Type Error: Cannot print type void (quadratic(a, b, c, x))
+
+
+
+
+===[HIDDEN TESTS/bad10.bminor Input]===
+/*
+Incorrect: Several type errors throughout.
+*/
+
+abs: function string (n: integer);
+
+digits: array [6] char = {
+	14,
+	8,
+	6168,
+	42,
+	0,
+	74546
+};
+
+main:function integer () = {
+	digits[4] = -468;
+	i: boolean = 0;
+	for (; abs(digits[i]) == digits[i];) {
+		print digits[i];
+		i = i + 1;
+		print ' ';
+	}
+	print '\n';
+        z: float = 1.0 + 2;
+	return 0;
+}
+
+===[HIDDEN TESTS/bad10.bminor Status]===
+return code: 1
+Test passed successfully!
+
+===[HIDDEN TESTS/bad10.bminor Output]===
+in decl resolve..
+in decl resolve..
+in decl resolve..
+digits resolves to global: digits.
+in decl resolve..
+abs resolves to global: abs.
+digits resolves to global: digits.
+i resolves to local: 0.
+digits resolves to global: digits.
+i resolves to local: 0.
+digits resolves to global: digits.
+i resolves to local: 0.
+i resolves to local: 0.
+i resolves to local: 0.
+in decl resolve..
+Type Error: Cannot assign integer (14) to array subtype of char
+Type Error: Cannot assign integer (8) to array subtype of char
+Type Error: Cannot assign integer (6168) to array subtype of char
+Type Error: Cannot assign integer (42) to array subtype of char
+Type Error: Cannot assign integer (0) to array subtype of char
+Type Error: Cannot assign integer (74546) to array subtype of char
+Type Error: Cannot assign integer (-468) to char (digits[4])
+Type Error: Assigment of integer (0) does not match decl of boolean (i)
+Type Error: Must use integer to subscript into array, given: char (digits)
+Type Error: Function not declared:  (abs(digits[i]))
+Type Error: Must use integer to subscript into array, given: char (digits)
+Type Error: Cannot compare (==) between string (abs(digits[i])) and char (digits[i])
+Type Error: Must use integer to subscript into array, given: char (digits)
+Type Error: Cannot add between boolean (i) and integer (1)
+Type Error: Cannot assign integer (i+1) to boolean (i)
+Type Error: Cannot add between float (1.000000) and integer (2)
+Type Error: Assigment of integer (1.000000+2) does not match decl of float (z)
+
+
+
+
+===== SUMMARIZED PRINTER RESULTS =====
+{
+  "student_tests": {
+    "Good": {
+      "correct": 12,
+      "incorrect": 0
+    },
+    "Bad": {
+      "correct": 14,
+      "incorrect": 0
+    }
+  },
+  "hidden_tests": {
+    "Good": {
+      "correct": 7,
+      "incorrect": 3
+    },
+    "Bad": {
+      "correct": 10,
+      "incorrect": 0
+    }
+  }
+}
+
+Printer Project
+---------------
+
+Continued correctness of the -scan, -parse, -print, and -resolve options (30/30 points)
+----------------------------------------------
+Scanning, parsing, printing, and resolving all seem to be correct.
+
+General correctness of the -typecheck option. (20/20 points)
+----------------------------------------------
+Typechecking looks to be done correctly
+
+Student Tests (20/20 points)
+------------------------------------------
+Nice test coverage
+
+Hidden Tests (17/20 points)
+------------------------------------------
+Function not declared is not always a problem, as the body of the function could get linked in after compilation.
+
+Coding Style (10/10 points)
+------------------------------------------
+Coding style looks quite nice. Well done!
+
+---------------
