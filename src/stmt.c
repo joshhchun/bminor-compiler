@@ -309,7 +309,7 @@ void stmt_codegen(struct stmt* s) {
         case STMT_RETURN:
             expr_codegen(s->expr);
             printf("MOVQ %s, %%rax\n", scratch_name(s->expr->reg));
-            printf("JMP .%s_end", curr_func_name);
+            printf("JMP %s_end", curr_func_name);
             scratch_free(s->expr->reg);
             break;
         }
