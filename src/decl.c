@@ -292,11 +292,10 @@ void decl_codegen(struct decl* d) {
                     printf("RET\n");
                     break;
                 case TYPE_STR: {
-                    const char* str_label = label_name(label_create());
                     // Global variables (non funcs) don't need a .global label?
                     //printf(".global %s\n", d->symbol->ident);
                     printf(".data\n");
-                    printf("%s:\n", str_label);
+                    printf("%s:\n", d->ident);
                     if (d->value) printf(".string %s\n", d->value->string_literal);
                     else printf(".string %s\n", "");
 
