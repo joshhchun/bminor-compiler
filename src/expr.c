@@ -839,18 +839,17 @@ void expr_codegen(struct expr *e) {
 
             printf("CMPQ $1, %s\n", scratch_name(e->left->reg));
             printf("JE %s\n", true_label);
-            printf("MOVQ $1, %s\n", scratch_name(e->right->reg));
+            printf("MOVQ $1, %s\n", scratch_name(e->left->reg));
             printf("JMP %s\n", done_label);
 
             // True label
             printf("%s:\n", true_label);
-            printf("MOVQ $0, %s\n", scratch_name(e->right->reg));
+            printf("MOVQ $0, %s\n", scratch_name(e->left->reg));
 
             // Done label
             printf("%s:\n", done_label);
 
-            e->reg = e->right->reg;
-            scratch_free(e->left->reg);
+            e->reg = e->left->reg;
             break;
         case EXPR_AND: {
             expr_codegen(e->left);
