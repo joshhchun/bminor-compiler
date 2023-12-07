@@ -957,6 +957,10 @@ expr_t type_to_expr (type_t kind) {
             printf("ERROR: Float print not impl.\n");
             exit(1);
             break;
+        default:
+            printf("ERROR: Got unknown type in get_type.\n");
+            exit(1);
+            break;
     }
 }
 
