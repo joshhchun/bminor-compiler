@@ -870,7 +870,7 @@ void expr_codegen(struct expr *e) {
 
             // False label (if one of the values was false)
             printf("%s:\n", false_label);
-            printf("MOVEQ $0, %s\n", scratch_name(e->right->reg));
+            printf("MOVQ $0, %s\n", scratch_name(e->right->reg));
 
             // Done label
             printf("%s:\n", done_label);
@@ -898,7 +898,7 @@ void expr_codegen(struct expr *e) {
 
             // True label (if one of the values was true)
             printf("%s:\n", true_label);
-            printf("MOVEQ $1, %s\n", scratch_name(e->right->reg));
+            printf("MOVQ $1, %s\n", scratch_name(e->right->reg));
 
             // Done label
             printf("%s:\n", done_label);
