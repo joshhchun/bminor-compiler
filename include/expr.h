@@ -7,6 +7,7 @@
 #include "scratch.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 
 typedef enum {
