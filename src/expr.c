@@ -586,13 +586,6 @@ int array_idx_mem(int base_addr_reg, struct expr* arg) {
 }
 
 void caller_save_regs() {
-    printf("PUSH %%rdi\n");
-    printf("PUSH %%rsi\n");
-    printf("PUSH %%rdx\n");
-    printf("PUSH %%rcx\n");
-    printf("PUSH %%r8\n");
-    printf("PUSH %%r9\n");
-
     printf("PUSH %%r10\n");
     printf("PUSH %%r11\n");
 }
@@ -600,13 +593,6 @@ void caller_save_regs() {
 void caller_restore_regs() {
     printf("POP %%r11\n");
     printf("POP %%r10\n");
-
-    printf("POP %%r9\n");
-    printf("POP %%r8\n");
-    printf("POP %%rcx\n");
-    printf("POP %%rdx\n");
-    printf("POP %%rsi\n");
-    printf("POP %%rdi\n");
 }
 
 void expr_codegen(struct expr *e) {

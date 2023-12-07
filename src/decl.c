@@ -223,6 +223,13 @@ void decl_typecheck(struct decl* d) {
 }
 
 void save_callee_registers() {
+    printf("PUSH %%rdi\n");
+    printf("PUSH %%rsi\n");
+    printf("PUSH %%rdx\n");
+    printf("PUSH %%rcx\n");
+    printf("PUSH %%r8\n");
+    printf("PUSH %%r9\n");
+
     printf("PUSHQ %%rbx\n");
     printf("PUSHQ %%r12\n");
     printf("PUSHQ %%r13\n");
@@ -236,6 +243,13 @@ void restore_callee_registers() {
     printf("POPQ %%r13\n");
     printf("POPQ %%r12\n");
     printf("POPQ %%rbx\n");
+
+    printf("POP %%r9\n");
+    printf("POP %%r8\n");
+    printf("POP %%rcx\n");
+    printf("POP %%rdx\n");
+    printf("POP %%rsi\n");
+    printf("POP %%rdi\n");
 }
 
 
