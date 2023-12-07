@@ -1,3 +1,5 @@
+#ifndef GENTOKENS_H
+#define GENTOKENS_H
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,3 +32,9 @@ int scanner();
             do { \
                 if (PROGRAM_TYPE == T_SCAN) printf(__VA_ARGS__); \
             } while (0)
+#define resolve_print(...) \
+            do { \
+                if (PROGRAM_TYPE == T_RESOLVE) printf(__VA_ARGS__); \
+            } while (0)
+
+#endif

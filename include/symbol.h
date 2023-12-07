@@ -1,8 +1,8 @@
-
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
 #include "type.h"
+#include "gen_tokens.h"
 #include <stdbool.h>
 
 typedef enum {
