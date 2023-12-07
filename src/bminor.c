@@ -18,6 +18,7 @@ void usage(int status) {
     fprintf(stderr, "\t--scan    : Scan a file and print out tokens\n");
     fprintf(stderr, "\t--print   : Build the AST and pretty print source code\n");
     fprintf(stderr, "\t--resolve : Build the AST and perform name resolution\n");
+    fprintf(stderr, "\t--codegen : Generate the assembly code for the program\n");
     exit(status);
 }
 
@@ -152,6 +153,11 @@ void resolve(struct decl* parser_result) {
     scope_exit();
 }
 
+void codegen(struct decl* parser_result, const char* file_name) {
+    printf(".file \"%s\"\n", file_name);
+    decl_codegen(parser_result);
+}
+
 /**
  *
  * Function to do name resolution on the AST
@@ -183,6 +189,8 @@ void set_program_type (const char* flag) {
         PROGRAM_TYPE = T_RESOLVE;
     } else if (same_str(flag, "--typecheck")) {
         PROGRAM_TYPE = T_TYPECHECK;
+    } else if (same_str(flag, "--codegen")) {
+        PROGRAM_TYPE = T_CODEGEN;
     } else if (same_str(flag, "--help")) {
         usage(0);
     } else {
@@ -224,6 +232,15 @@ int main(int argc, char** argv) {
             typecheck(parser_result);
             return (ERR_COUNT) ? 1 : 0;
             break;
+        case T_CODEGEN:
+            scan(argv[2]);
+            parse(argv[2]);
+            resolve(parser_result);
+            if (ERR_COUNT) return 1;
+            typecheck(parser_result);
+            if (ERR_COUNT) return 1;
+            codegen(parser_result, argv[2]);
+
     }
     return 0;
 }

@@ -1,5 +1,6 @@
 #include "../include/stmt.h"
 extern int ERR_COUNT;
+extern char* curr_func_name;
 
 struct stmt* stmt_create(stmt_t kind, struct decl* decl, struct expr* init_expr, struct expr* expr, struct expr* next_expr, struct stmt* body, struct stmt* else_body, struct stmt* next) {
     struct stmt* s;
@@ -207,4 +208,110 @@ void stmt_typecheck(struct stmt* s, struct symbol *sym) {
             break;
     }
     stmt_typecheck(s->next, sym);
+}
+
+void stmt_codegen(struct stmt* s) {
+    if (!s) return;
+    switch(s->kind) {
+        case STMT_EXPR:
+            expr_codegen(s->expr);
+            scratch_free(s->expr->reg);
+            break;
+        case STMT_DECL:
+            decl_codegen(s->decl);
+            break;
+        case STMT_BLOCK:
+            stmt_codegen(s->body);
+            break;
+        case STMT_IF_ELSE: {
+            const char* else_label = label_name(label_create());
+            const char* end_label  = label_name(label_create());
+
+            expr_codegen(s->expr);
+            printf("CMP $0, %s\n", scratch_name(s->expr->reg));
+            // Go to else body (if exists)
+            printf("JE %s\n", else_label);
+
+            // True case
+            stmt_codegen(s->body);
+            printf("JMP %s\n", end_label);
+
+            // Else case
+            printf("%s:\n", else_label);
+            stmt_codegen(s->else_body);
+            printf("%s:\n", end_label);
+            
+            scratch_free(s->expr->reg);
+            break;
+       }
+        case STMT_FOR: {
+            const char* begin_label = label_name(label_create());
+            const char* done_label  = label_name(label_create());
+
+            if (s->init_expr) {
+                expr_codegen(s->init_expr);
+                scratch_free(s->init_expr->reg);
+            }
+
+            printf("%s:\n", begin_label);
+
+            if (s->expr) {
+                expr_codegen(s->expr);
+                printf("CMP $0, %s\n", scratch_name(s->expr->reg));
+                scratch_free(s->expr->reg);
+                printf("JE %s\n", done_label);
+            }
+            
+            stmt_codegen(s->body);
+
+            if (s->next_expr) {
+                expr_codegen(s->next_expr);
+                scratch_free(s->next_expr->reg);
+            }
+            // Repeat loop
+            printf("JMP %s\n", begin_label);
+            
+            // Done label
+            printf("%s:\n", done_label);
+            break;
+        }
+        case STMT_PRINT:
+            for (struct expr* curr = s->expr; curr; curr = curr->right) {
+                struct expr* val = curr->left;
+                expr_codegen(val);
+
+                //TODO: Optimization could be just to store first reg
+                caller_save_regs();
+
+                // Move the argument into %rdi
+                printf("MOV %s, %%rdi\n", scratch_name(val->reg));
+                
+                expr_t expr_type = expr_get_type(val);
+                switch (expr_type) {
+                    case EXPR_INT_LITERAL:
+                        printf("CALL print_integer\n");
+                        break;
+                    case EXPR_CHAR_LITERAL:
+                        printf("CALL print_character\n");
+                        break;
+                    case EXPR_STRING_LITERAL:
+                        printf("CALL print_string\n");
+                        break;
+                    default:
+                        printf("ERROR: Should not get this type in print codegen.\n");
+                        break;
+                }
+
+                scratch_free(val->reg);
+                caller_restore_regs();
+            }
+            break;
+        case STMT_RETURN:
+            expr_codegen(s->expr);
+            printf("MOVQ %s, %%rax\n", scratch_name(s->expr->reg));
+            printf("JMP .%s_end", curr_func_name);
+            scratch_free(s->expr->reg);
+            break;
+        }
+    stmt_codegen(s->next);
 }

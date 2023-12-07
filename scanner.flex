@@ -1,5 +1,6 @@
 %{
 #include "../include/token.h"
+#include "../include/decode.h"
 %}
 
 DIGIT    [0-9]
@@ -66,8 +67,11 @@ while                                                 { return TOKEN_WHILE; }
 {DIGIT}+                                              { return TOKEN_INT_LITERAL; }
 ({DIGIT}+(\.{DIGIT}*|((\.{DIGIT}+)?[eE][-+]?{DIGIT}+))|\.{DIGIT}+) { return TOKEN_FLOAT_LITERAL; }
 \"([^"\\\n]|\\.){0,255}\"                             { return TOKEN_STRING_LITERAL; }
-
-'([^\\']|\\[^']|(\\0x{HEX}{HEX}))'                    { return TOKEN_CHAR_LITERAL; }
+'([^\\']|\\[^']|(\\0x{HEX}{HEX}))'                    { 
+                                                        uint8_t y = decode_char(yytext);
+                                                        yylval.char_literal = y;
+                                                        return TOKEN_CHAR_LITERAL;
+                                                      }
 
 (\/\*([^*]|\*[^\/])*\*\/)|(\/\*([^\*]|\*[^\/])*\*\*\/)                { /* Ignore */ }
 \/\/[^\n]*\n                                          { /* Ignore */ }                                

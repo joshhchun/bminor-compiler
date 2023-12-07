@@ -14,6 +14,7 @@ typedef enum p_type {
     T_PRINT,
     T_RESOLVE,
     T_TYPECHECK,
+    T_CODEGEN,
 } p_type;
 
 extern p_type PROGRAM_TYPE;

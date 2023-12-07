@@ -23,5 +23,6 @@ void               param_list_print(struct param_list* l);
 void               param_list_resolve(struct param_list* l);
 void               param_list_delete(struct param_list *p);
 int                param_list_same(struct param_list* p1, struct param_list* p2);
+int                param_list_count(struct param_list* l);
 
 #endif

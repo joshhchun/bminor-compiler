@@ -39,6 +39,13 @@ void param_list_resolve(struct param_list *l) {
     }
 }
 
+/* Function to count how many params there are in a given list */
+int param_list_count(struct param_list* l) {
+    int c = 0;
+    for (; l && c++; l = l->next);
+    return c;
+}
+
 /* Function to duplicate a param_list */
 struct param_list* param_list_copy(struct param_list* l) {
     if (!l) return 0;

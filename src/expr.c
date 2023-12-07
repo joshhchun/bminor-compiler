@@ -1,6 +1,13 @@
 #include "../include/expr.h"
 
 extern int ERR_COUNT;
+const char* arg_names[6] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+
+void caller_save_argregs() {
+    
+    
+
+}
 
 struct expr*  expr_create( expr_t kind, struct expr* left,struct expr* right ) {
     struct expr* e;
@@ -35,14 +42,9 @@ struct expr* expr_create_float_literal(float c) {
     e->float_literal = c;
     return e;
 }
-struct expr* expr_create_char_literal(char* c) {
+struct expr* expr_create_char_literal(uint8_t c) {
     struct expr* e = expr_create(EXPR_CHAR_LITERAL, 0, 0);
-    char *dup_string = strdup(c);
-    if (!dup_string) {
-        fprintf(stderr, "ERROR: Not enough space to allocate char literal.\n");
-        exit(EXIT_FAILURE);
-    }
-    e->char_literal = dup_string;
+    e->char_literal = c;
     return e;
 }
 struct expr* expr_create_string_literal(const char *str) {
@@ -82,9 +84,12 @@ void expr_print( struct expr *e ) {
         case EXPR_STRING_LITERAL: 
             fprintf(stdout, "%s", e->string_literal);
             break;
-        case EXPR_CHAR_LITERAL:
-            fprintf(stdout, "%s", e->char_literal);
+        case EXPR_CHAR_LITERAL: {
+            char buf[BUFSIZ] = {0};
+            char_encode((char)e->char_literal, buf);
+            fprintf(stdout, "%s", buf);
             break;
+        }
         case EXPR_FLOAT_LITERAL:
             fprintf(stdout, "%f", e->float_literal);
             break;
@@ -554,4 +559,464 @@ struct type* expr_typecheck(struct expr* e) {
             break;
         }
     return result;
+}
+
+// Creates and returns a register with the memory address of the array reference
+// TODO: Maybe check arr bounds here?
+int array_idx_mem(int base_addr_reg, struct expr* arg) {
+    // Generate reg for the index
+    expr_codegen(arg->left);
+
+    // Assuming all elements are 8 bytes right now...
+    char buf[BUFSIZ] = {0};
+    sprintf(buf, "0(%s, %s, 8)", scratch_name(base_addr_reg), scratch_name(arg->left->reg));
+    int mem_reg = scratch_alloc();
+
+    // Move the address into the reg
+    printf("LEAQ %s, %s\n", buf, scratch_name(mem_reg));
+    
+    // Should be able to free these now, only need mem_reg
+    scratch_free(base_addr_reg);
+    scratch_free(arg->left->reg);
+
+    if (arg->right) {
+        mem_reg = array_idx_mem(mem_reg, arg->right);
+    }
+    return mem_reg;
+}
+
+void caller_save_regs() {
+    printf("PUSH %%rdi\n");
+    printf("PUSH %%rsi\n");
+    printf("PUSH %%rdx\n");
+    printf("PUSH %%rcx\n");
+    printf("PUSH %%r8\n");
+    printf("PUSH %%r9\n");
+
+    printf("PUSH %%r10\n");
+    printf("PUSH %%r11\n");
+}
+
+void caller_restore_regs() {
+    printf("POP %%r11\n");
+    printf("POP %%r10\n");
+
+    printf("POP %%r9\n");
+    printf("POP %%r8\n");
+    printf("POP %%rcx\n");
+    printf("POP %%rdx\n");
+    printf("POP %%rsi\n");
+    printf("POP %%rdi\n");
+}
+
+void expr_codegen(struct expr *e) {
+    if (!e) return;
+    switch(e->kind) {
+        // Leaf node: allocate register and load value.
+        case EXPR_IDENT:
+            e->reg = scratch_alloc();
+            printf("MOVQ %s, %s\n",
+                symbol_codegen(e->symbol),
+                scratch_name(e->reg));
+            break;
+        case EXPR_STRING_LITERAL: {
+            //  .data
+            //       .label
+            //           .str "%s"
+            //       .text
+            const char* str_label = label_name(label_create());
+            printf(".data\n");
+            printf("%s\n", str_label);
+            printf(".string \"%s\"\n", e->string_literal);
+            printf(".text\n");
+            
+            e->reg = scratch_alloc();
+            printf("MOVQ $%s, %s\n", str_label, scratch_name(e->reg));
+            break;
+        }
+        case EXPR_FLOAT_LITERAL:
+            e->reg = scratch_alloc();
+            printf("MOVQ $%f, %s\n", e->float_literal, scratch_name(e->reg));
+            break;
+        // TODO: Maybe clean these val literals up? They all seem to be integers...
+        case EXPR_BOOL:
+            e->reg = scratch_alloc();
+            printf("MOVQ $%d, %s\n", e->bool_literal, scratch_name(e->reg));
+            break;
+        case EXPR_INT_LITERAL:
+            e->reg = scratch_alloc();
+            printf("MOVQ $%d, %s\n", e->int_literal, scratch_name(e->reg));
+            break;
+        case EXPR_CHAR_LITERAL:
+            //TODO: MOVB or MOVQ?
+            e->reg = scratch_alloc();
+            printf("MOVB $%u, %s\n", e->char_literal, scratch_name(e->reg));
+            break;
+        // Interior node: generate children, then add them.
+        case EXPR_ADD:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("ADDQ %s, %s\n",
+                scratch_name(e->left->reg),
+                scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_SUB:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("SUBQ %s, %s\n",
+                scratch_name(e->left->reg),
+                scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_MULT:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("MOVQ %s, %%rax\n", scratch_name(e->left->reg));
+            printf("IMUL %s\n",       scratch_name(e->right->reg));
+            printf("MOVQ %%rax, %s\n",   scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_DIV:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("MOVQ %s, %%rax\n", scratch_name(e->left->reg));
+            printf("CQO\n");
+            printf("IDIVQ %s\n", scratch_name(e->right->reg));
+            printf("MOVQ %%rax, %s\n", scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_MOD:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("MOVQ %s, %%rax\n", scratch_name(e->left->reg));
+            printf("CQO\n");
+            printf("IDIVQ %s\n", scratch_name(e->right->reg));
+            printf("MOVQ %%rdx, %s\n", scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_INC:
+            expr_codegen(e->left);
+            printf("INCQ %s\n", scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            break;
+        case EXPR_DEC:
+            expr_codegen(e->left);
+            printf("DEQQ %s\n", scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            break;
+        case EXPR_EXP:
+            // TODO: Don't know how to do exp yet
+        case EXPR_ASSIGN:
+            // TODO: This might be flipped
+            expr_codegen(e->right);
+            // If its an array...
+            if (e->left->kind == EXPR_ARRAY_SUB) {
+                // Need the memory address of the specific thing
+                int base_addr_reg = scratch_alloc();
+                // Move the initial base address of the array into a scratch reg
+                printf("LEAQ %s, %s\n", symbol_codegen(e->left->symbol), scratch_name(base_addr_reg));
+                // Should hold a register with the final memory address of the specified ref
+                int final_idx_ref = array_idx_mem(base_addr_reg, e->right);
+                // TODO: Might be backwards, maybe need a []
+                printf("MOVQ %s, %s\n", scratch_name(e->right->reg), scratch_name(final_idx_ref));
+
+                // Store the assigned value to the right reg...
+                e->right->reg = final_idx_ref;
+                scratch_free(e->left->reg);
+                scratch_free(base_addr_reg);
+                scratch_free(final_idx_ref);
+            } else {
+                // TODO: Possible only move 1 byte MOVB is if its a char or bool
+                printf("MOVQ %s, %s\n",
+                    scratch_name(e->right->reg),
+                    symbol_codegen(e->left->symbol));
+                e->reg = e->right->reg;
+            }
+            break;
+        case EXPR_GT:
+        case EXPR_LEQ:
+        case EXPR_GEQ:
+        case EXPR_EQ:
+        case EXPR_NEQ:
+        case EXPR_LT: {
+            const char* true_label = label_name(label_create());
+            const char* end_label  = label_name(label_create());
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("CMP %s, %s\n",
+                    scratch_name(e->left->reg),
+                    scratch_name(e->right->reg));
+            switch (e->kind) {
+                case EXPR_LT:
+                    printf("JL %s\n", true_label);
+                    break;
+                case EXPR_GT:
+                    printf("JG %s\n", true_label);
+                    break;
+                case EXPR_LEQ:
+                    printf("JLE %s\n", true_label);
+                    break;
+                case EXPR_GEQ:
+                    printf("JGE %s\n", true_label);
+                    break;
+                case EXPR_EQ:
+                    printf("JE %s\n", true_label);
+                    break;
+                case EXPR_NEQ:
+                    printf("JNE %s\n", true_label);
+                    break;
+                default:
+                    printf("Unreachable\n");
+                    exit(1);
+            }
+            printf("MOVQ $0, %s\n", scratch_name(e->right->reg));
+            printf("JMP %s\n", end_label);
+
+            // True label
+            printf("%s:\n", true_label);
+            printf("MOVQ $1, %s\n", scratch_name(e->right->reg));
+
+            // End label (do nothing, pre-loaded it with false)
+            printf("%s:\n", end_label);
+
+            scratch_free(e->left->reg);
+            e->reg = e->right->reg;
+            break;
+        }
+        case EXPR_FUNC: {
+            // Push caller-saved regs
+            caller_save_regs();
+
+            int i = 0;
+            for (struct expr *arg = e->right; arg; arg = arg->right, i++) {
+                expr_codegen(arg);
+                // Move each argument into the registers
+                printf("MOVQ %s, %s\n", arg_names[i], scratch_name(arg->reg));
+                scratch_free(arg->reg);
+            }
+            printf("CALL %s\n", e->left->ident);
+
+            // Restore caller saved regs
+            caller_restore_regs();
+
+            printf("MOVQ %%rax, %s\n", scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            scratch_free(e->right->reg);
+            break;
+        }
+        case EXPR_ARRAY_SUB: {
+            // Register should hold value of the array sub (e.g. a[5]) as assign ref is not handled here;
+            int base_addr_reg = scratch_alloc();
+            // Move the initial base address of the array into a scratch reg
+            printf("LEAQ %s, %s\n", symbol_codegen(e->left->symbol), scratch_name(base_addr_reg));
+            // Should hold a register with the final memory address of the specified ref
+            int final_idx_ref = array_idx_mem(base_addr_reg, e->right);
+            // Move the value of the ref address to a ref
+            // TODO: Maybe store the result in a new reg vs left reg
+            printf("MOVQ %s, %s\n", scratch_name(final_idx_ref), scratch_name(e->left->reg));
+
+            e->reg = e->left->reg;
+            scratch_free(e->right->reg);
+            scratch_free(base_addr_reg);
+            scratch_free(final_idx_ref);
+            break;
+         }
+        case EXPR_PAREN:
+            expr_codegen(e->left);
+            e->reg = e->left->reg;
+            break;
+        case EXPR_NOT:
+            expr_codegen(e->left);
+            
+            const char* true_label  = label_name(label_create());
+            const char* done_label = label_name(label_create());
+
+            printf("CMPQ $1, %s\n", scratch_name(e->left->reg));
+            printf("JE %s\n", true_label);
+            printf("MOVQ $1, %s\n", scratch_name(e->right->reg));
+            printf("JMP %s\n", done_label);
+
+            // True label
+            printf("%s:\n", true_label);
+            printf("MOVQ $0, %s\n", scratch_name(e->right->reg));
+
+            // Done label
+            printf("%s:\n", done_label);
+
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_AND: {
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+        
+            const char* false_label = label_name(label_create());
+            const char* done_label  = label_name(label_create());
+
+            // Compare each boolean value to 0 to see if they are true
+            printf("CMPQ $0, %s\n", scratch_name(e->left->reg));
+            printf("JE %s\n", false_label);
+            printf("CMPQ $0, %s\n", scratch_name(e->left->reg));
+            printf("JE %s\n", false_label);
+
+            // If the two are both true, then store $1 into the register and jump to end
+            printf("MOVQ $1, %s\n", scratch_name(e->right->reg));
+            printf("JMP %s\n", done_label);
+
+            // False label (if one of the values was false)
+            printf("%s:\n", false_label);
+            printf("MOVEQ $0, %s\n", scratch_name(e->right->reg));
+
+            // Done label
+            printf("%s:\n", done_label);
+
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        }
+        case EXPR_OR: {
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+        
+            const char* true_label = label_name(label_create());
+            const char* done_label  = label_name(label_create());
+
+            // See if any of the values are true
+            printf("CMPQ $1, %s\n", scratch_name(e->left->reg));
+            printf("JE %s\n", true_label);
+            printf("CMPQ $1, %s\n", scratch_name(e->left->reg));
+            printf("JE %s\n", true_label);
+
+            // If none are true then store a 0
+            printf("MOVQ $0, %s\n", scratch_name(e->right->reg));
+            printf("JMP %s\n", done_label);
+
+            // True label (if one of the values was true)
+            printf("%s:\n", true_label);
+            printf("MOVEQ $1, %s\n", scratch_name(e->right->reg));
+
+            // Done label
+            printf("%s:\n", done_label);
+
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        }
+        case EXPR_NEG:
+            expr_codegen(e->left);
+            printf("NEG %s\n", scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            break;
+        case EXPR_PLUS:
+            expr_codegen(e->left);
+            e->reg = e->left->reg;
+            break;
+        case EXPR_ARRAY_INIT:
+            // TODO: Probably handled in decl?
+            break;
+        case EXPR_ARG:
+            expr_codegen(e->left);
+            e->reg = e->left->reg;    
+            break;
+        default:
+            printf("Unreachable.\n");
+            exit(1);
+        }
+}
+
+expr_t type_to_expr (type_t kind) {
+    switch (kind) {
+        case TYPE_BOOL:
+            return EXPR_BOOL;
+        case TYPE_CHAR:
+            return EXPR_CHAR_LITERAL;
+        case TYPE_INT:
+            return EXPR_INT_LITERAL;
+        case TYPE_STR:
+            return EXPR_STRING_LITERAL;
+        case TYPE_FUNC:
+            printf("ERROR: Got type func in get_type, should not be possible.\n");
+            exit(1);
+            break;
+        case TYPE_VOID:
+            printf("ERROR: Got type void in get_type, should not be possible.\n");
+            exit(1);
+            break;
+        case TYPE_ARRAY:
+            // TODO: Array print impl?
+            printf("ERROR: Array print not impl.\n");
+            exit(1);
+            break;
+        case TYPE_FLOAT:
+            printf("ERROR: Float print not impl.\n");
+            exit(1);
+            break;
+    }
+}
+
+expr_t get_array_type (struct expr* e) {
+    struct type* curr_t = e->left->symbol->type->subtype;
+    for (; curr_t->subtype; curr_t = curr_t->subtype);
+    return type_to_expr(curr_t->kind);
+}
+
+expr_t expr_get_type(struct expr* e) {
+    switch (e->kind) {
+        case EXPR_ADD:
+        case EXPR_SUB:
+        case EXPR_MULT:
+        case EXPR_DIV:
+        case EXPR_EXP:
+        case EXPR_MOD:
+        case EXPR_INC:
+        case EXPR_NEG:
+        case EXPR_DEC:
+        case EXPR_PLUS:
+        case EXPR_INT_LITERAL:
+            return EXPR_INT_LITERAL;
+        case EXPR_AND:
+        case EXPR_OR:
+        case EXPR_NOT:
+        case EXPR_LT:
+        case EXPR_GT:
+        case EXPR_LEQ:
+        case EXPR_GEQ:
+        case EXPR_EQ:
+        case EXPR_NEQ:
+        case EXPR_BOOL:
+            return EXPR_BOOL;
+        case EXPR_CHAR_LITERAL:
+            return EXPR_CHAR_LITERAL;
+        case EXPR_STRING_LITERAL:
+            return EXPR_STRING_LITERAL;
+        case EXPR_FUNC:
+            return type_to_expr(e->left->symbol->type->subtype->kind);
+        case EXPR_ARRAY_SUB:
+            return get_array_type(e);
+        case EXPR_IDENT:
+            return type_to_expr(e->symbol->type->kind);
+        case EXPR_PAREN:
+            return expr_get_type(e->right);
+            break;
+        case EXPR_ASSIGN:
+            return expr_get_type(e->right);
+
+        // Shouldn't come here as of now
+        case EXPR_ARG:
+            printf("ERROR: Should not be arg in print\n");
+            break;
+        case EXPR_FLOAT_LITERAL:
+            printf("ERROR: Should not be float in print\n");
+            break;
+        case EXPR_ARRAY_INIT:
+            printf("ERROR: Should not be arr init in print\n");
+            break;
+    }
+    return -1;
 }

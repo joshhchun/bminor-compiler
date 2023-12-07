@@ -16,10 +16,12 @@ struct symbol {
     struct type* type;
     char*        ident;
     int          which;
+    int          local_var_count;
     bool         func_defined;
 };
 
 struct symbol* symbol_create(symbol_t kind, struct type* type, char* ident);
 void           symbol_print(struct symbol* s);
+const char*    symbol_codegen(struct symbol* s);
 
 #endif

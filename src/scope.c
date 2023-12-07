@@ -94,6 +94,7 @@ void scope_bind(const char* name, struct symbol* s) {
             break;
         case SYMBOL_LOCAL:
             s->which = var_count++;
+            s->local_var_count = var_count;
             break;
         case SYMBOL_GLOBAL:
             s->which = 0;

@@ -2,53 +2,6 @@
 
 /**
  *
- * Function to decode a singular char
- * Input: encoded char: char*
- * Output: decoded char: char
- *
- */
-char decode_char(char* c) {
-    size_t len = strlen(c);
-
-    /* Singular char, return it */
-    if (len == 3) return c[1];
-    c += 2;
-
-    /* Special backslash code */
-    if (len == 4) {
-        switch (*c) {
-            case 'a':
-                return '\a';
-            case 'b':
-                return '\b';
-            case 'e':
-                return '\e';
-            case 'f':
-                return '\f';
-            case 'n':
-                return '\n';
-            case 'r':
-                return '\r';
-            case 't':
-                return '\t';
-            case 'v':
-                return '\v';
-            case '\\':
-                return '\\';
-            case '\'':
-                return '\'';
-            default:
-                return '\0';
-        }
-    }
-
-    /* Hex code */    
-    char hex_values[3] = {*(c + 2), *(c + 3), '\0'};
-    return (char)strtol(hex_values, NULL, 16);
-}
-
-/**
- *
  * Function to scan through source file and generate tokens using Flex.
  * Input: void
  * Output: success status: int

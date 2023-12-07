@@ -160,9 +160,9 @@
 typedef union YYSTYPE
 #line 67 "parser.bison"
 {
-        char* string_literal;
-        int int_literal;
-        char* char_literal;
+        char*   string_literal;
+        int     int_literal;
+        uint8_t char_literal;
 
         struct decl *decl;
         struct stmt *stmt;

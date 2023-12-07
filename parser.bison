@@ -65,9 +65,9 @@ struct decl* parser_result = 0;
 %token TOKEN_COMMENT
 
 %union {
-        char* string_literal;
-        int int_literal;
-        char* char_literal;
+        char*   string_literal;
+        int     int_literal;
+        uint8_t char_literal;
 
         struct decl *decl;
         struct stmt *stmt;
@@ -76,6 +76,7 @@ struct decl* parser_result = 0;
         struct type *type;
 }
 
+%type <char_literal> TOKEN_CHAR_LITERAL
 %type <decl> program decl decl_list func_decl var_decl
 
 %type <param_list> param_list param_next
@@ -86,7 +87,7 @@ struct decl* parser_result = 0;
 
 %type <type> val_type all_types array_type return_type 
 
-%type <string_literal> ident
+%type <string_literal> ident TOKEN_IDENT
 
 
 %%
@@ -271,13 +272,13 @@ val_literal : TOKEN_INT_LITERAL { $$ = expr_create_integer_literal(atoi(yytext))
 | inc_or_dec { $$ = $1; }
 | TOKEN_CHAR_LITERAL
 { 
-        $$ = expr_create_char_literal(yytext);
+        $$ = expr_create_char_literal($1);
 }
-| TOKEN_FLOAT_LITERAL { $$ = expr_create_float_literal(atof(yytext)); }
+| TOKEN_FLOAT_LITERAL  { $$ = expr_create_float_literal(atof(yytext)); }
 | TOKEN_STRING_LITERAL { $$ = expr_create_string_literal(yytext); }
-| TOKEN_TRUE { $$ = expr_create_bool_literal(1); }
-| TOKEN_FALSE { $$ = expr_create_bool_literal(0); }
-| func_call { $$ = $1; }
+| TOKEN_TRUE           { $$ = expr_create_bool_literal(1); }
+| TOKEN_FALSE          { $$ = expr_create_bool_literal(0); }
+| func_call            { $$ = $1; }
 | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = expr_create(EXPR_PAREN, 0, $2); }
 | mut { $$ = $1; }
 ;
@@ -286,15 +287,7 @@ inc_or_dec: ident_expr TOKEN_INC { $$ = expr_create(EXPR_INC, $1, 0); }
 | ident_expr TOKEN_DEC           { $$ = expr_create(EXPR_DEC, $1, 0); }
 ;
 
-ident: TOKEN_IDENT
-{ 
-        char *s;
-        if (!(s = strdup(yytext))) {
-                fprintf(stderr, "ERROR: Could not allocate enough space for ident.\n");
-                exit(EXIT_FAILURE);
-        }
-        $$ = s;
-}
+ident: TOKEN_IDENT { $$ = $1; }
 ;
 
 mut : ident_expr { $$ = $1; }

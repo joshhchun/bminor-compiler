@@ -3,8 +3,11 @@
 
 #include "symbol.h"
 #include "encode.h"
+#include "label.h"
+#include "scratch.h"
 #include <stdlib.h>
 #include <string.h>
+
 
 typedef enum {
     /* Ops */
@@ -64,9 +67,10 @@ struct expr {
 	int            int_literal;
 	const char*    string_literal;
 	float          float_literal;
-	char*          char_literal;
+	uint8_t        char_literal;
 	bool           bool_literal;
 	struct symbol* symbol;
+	int            reg;
 };
 
 struct expr* expr_create(expr_t kind, struct expr* left, struct expr* right);
@@ -75,7 +79,7 @@ struct expr* expr_create_array_sub(struct expr* ident, struct expr* index);
 struct expr* expr_create_ident(const char* n);
 struct expr* expr_create_integer_literal(int c);
 struct expr* expr_create_bool_literal(int c);
-struct expr* expr_create_char_literal(char* c);
+struct expr* expr_create_char_literal(uint8_t c);
 struct expr* expr_create_float_literal(float c);
 struct expr* expr_create_string_literal(const char* str);
 struct type* expr_typecheck(struct expr* e);
@@ -85,7 +89,11 @@ void expr_print_list(struct expr* e);
 void expr_type_print(struct expr* e, struct type* t);
 void expr_type_println(struct expr* e, struct type* t);
 
+void expr_resolve(struct expr* e);
+void expr_codegen(struct expr *e);
+expr_t expr_get_type(struct expr* e);
 
-void expr_resolve (struct expr* e);
+void caller_save_regs();
+void caller_restore_regs();
 
 #endif

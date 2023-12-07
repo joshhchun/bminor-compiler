@@ -72,6 +72,7 @@ void decl_resolve(struct decl* d) {
         scope_enter();
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);
+        d->symbol->local_var_count = var_count;
         scope_exit();
     }
     decl_resolve(d->next);
@@ -219,4 +220,140 @@ void decl_typecheck(struct decl* d) {
             break;
     }
     decl_typecheck(d->next);
+}
+
+void save_callee_registers() {
+    printf("PUSHQ %%rbx\n");
+    printf("PUSHQ %%r12\n");
+    printf("PUSHQ %%r13\n");
+    printf("PUSHQ %%r14\n");
+    printf("PUSHQ %%r15\n");
+}
+
+void restore_callee_registers() {
+    printf("POPQ %%r15\n");
+    printf("POPQ %%r14\n");
+    printf("POPQ %%r13\n");
+    printf("POPQ %%r12\n");
+    printf("POPQ %%rbx\n");
+}
+
+
+void decl_codegen(struct decl* d) {
+    if (!d) return;
+    switch (d->symbol->kind) {
+        case SYMBOL_GLOBAL:
+            switch (d->type->kind) {
+                case TYPE_FUNC:
+                    printf(".text\n");
+                    printf(".global %s\n", d->ident);
+                    printf("%s:\n", d->ident);
+                    // Set curr func name so return statement knows where to jump
+                    curr_func_name = d->ident;
+
+                    /* Func prologue */
+
+                    // Save base pointer and set new one
+                    printf("PUSHQ %%rbp\n");
+                    printf("MOVQ %%rsp, %%rbp\n");
+
+                    // Allocate space for local vars
+                    if (d->symbol->local_var_count) {
+                        printf("SUBQ $%d, %%rsp\n", d->symbol->local_var_count * 8);
+                    }
+
+                    // Save callee-registers
+                    save_callee_registers();
+
+                    // Body of function
+                    stmt_codegen(d->code);
+
+                    // Epilogue
+                    restore_callee_registers();
+
+                    printf(".%s_end\n", d->ident);
+                    printf("MOVQ %%rbp, %%rsp\n");
+                    printf("POPQ %%rbp\n");
+                    // Return in stmt_codegen() should handle putting return value in %rax
+                    printf("RET\n");
+                    break;
+                case TYPE_STR: {
+                    const char* str_label = label_name(label_create());
+                    // Global variables (non funcs) don't need a .global label?
+                    //printf(".global %s\n", d->symbol->ident);
+                    printf(".data\n");
+                    printf("%s:\n", str_label);
+                    if (d->value) printf(".string \"%s\"\n", d->value->string_literal);
+                    else printf(".string \"%s\"\n", "");
+
+                    // .text should be printed when I go into a function? So not needed
+                    break;
+               }
+                case TYPE_BOOL:
+                    printf(".data\n");
+                    printf("%s:\n", d->ident);
+                    printf(".quad %d\n", d->value->bool_literal);
+                    break;
+                case TYPE_CHAR:
+                    printf(".data\n");
+                    printf("%s:\n", d->ident);
+                    printf(".quad %d\n", d->value->char_literal);
+                    break;
+                case TYPE_INT:
+                    printf(".data\n");
+                    printf("%s:\n", d->ident);
+                    printf(".quad %d\n", d->value->int_literal);
+                    break;
+                case TYPE_ARRAY:
+                    printf(".data\n") ;
+                    printf("%s:\n", d->ident);
+                    // Check the subtype, only supporting 1D arrays of integer as of now.
+                    if (d->type->subtype->kind != TYPE_INT) {
+                        printf("ERROR: Only 1D arrays of integers implemented.\n");
+                        exit(1);
+                    }
+
+                    // if initialized
+                    if (d->value) {
+                        for (struct expr* e = d->value->right; e; e = e->right) {
+                            printf(".quad %d\n", e->left->int_literal);
+                        }
+                    } else {
+                        // TODO: Might have to change
+                        // If the array is uninitialized, then just fill with zero's  (8 bytes per element)
+                        printf(".zero %d\n", d->type->array_size->int_literal * 8);
+                    }
+
+                    break;
+                case TYPE_FLOAT:
+                    printf("ERROR: Float not implemented yet.\n");
+                    exit(1);
+                    break;
+                default:
+                    printf("ERROR: Should not get this type in decl codegen.\n");
+                    exit(1);
+                }
+            break;
+        case SYMBOL_LOCAL:
+            // If no value, do nothing as space is already allocated on the stack for it (filled with garbage)
+            if (!d->value) break;
+            switch (d->value->kind) {
+                case EXPR_STRING_LITERAL:
+                case EXPR_BOOL:
+                case EXPR_CHAR_LITERAL:
+                case EXPR_INT_LITERAL:
+                    expr_codegen(d->value);
+                    printf("MOVQ %s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                    break;
+                default:
+                    printf("ERROR: Unsupported local decl type: %d.\n", d->value->kind);
+                    exit(1);
+                    break;
+            }
+            break;
+        default:
+            printf("ERROR: Unsupported decl type.\n");
+            exit(1);
+    }
+    decl_codegen(d->next);
 }
