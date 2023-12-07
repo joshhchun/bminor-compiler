@@ -283,8 +283,8 @@ void decl_codegen(struct decl* d) {
                     //printf(".global %s\n", d->symbol->ident);
                     printf(".data\n");
                     printf("%s:\n", str_label);
-                    if (d->value) printf(".string \"%s\"\n", d->value->string_literal);
-                    else printf(".string \"%s\"\n", "");
+                    if (d->value) printf(".string %s\n", d->value->string_literal);
+                    else printf(".string %s\n", "");
 
                     // .text should be printed when I go into a function? So not needed
                     break;
