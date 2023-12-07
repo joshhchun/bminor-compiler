@@ -1,7 +1,7 @@
 #include "../include/scratch.h"
 #include <stdint.h>
 
-scratch_entry scratch_table[SCRATCH_SIZE] = {{false, "rbx"}, {false, "r10"}, {false, "r11"}, {false, "r12"}, {false, "r13"}, {false, "r14"}, {false, "r15"}};
+scratch_entry scratch_table[SCRATCH_SIZE] = {{false, "%rbx"}, {false, "%r10"}, {false, "%r11"}, {false, "%r12"}, {false, "%r13"}, {false, "%r14"}, {false, "%r15"}};
 
 /* Function to find a free scratch register */
 int scratch_alloc() {
