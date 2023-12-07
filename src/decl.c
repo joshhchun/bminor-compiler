@@ -271,7 +271,7 @@ void decl_codegen(struct decl* d) {
                     // Epilogue
                     restore_callee_registers();
 
-                    printf("%s_end\n", d->ident);
+                    printf("%s_end:\n", d->ident);
                     printf("MOVQ %%rbp, %%rsp\n");
                     printf("POPQ %%rbp\n");
                     // Return in stmt_codegen() should handle putting return value in %rax
