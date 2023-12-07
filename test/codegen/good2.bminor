@@ -1,0 +1,16 @@
+// Mult
+
+main: function integer () = {
+	x: integer = 2;
+	y: integer = x * 3;
+	z: integer = 2 * 2 * 2 * x;
+
+	print "should be 6: ", y, " should be 16: ", z, " should be 0: ", z*0, "\n";
+
+	if (x != 2 || y != 6 || z != 16 ) {
+		print "error..\n";
+		return 1;
+	} else {
+		return 0;
+	}
+}

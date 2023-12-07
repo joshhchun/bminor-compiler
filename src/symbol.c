@@ -32,7 +32,7 @@ void symbol_print(struct symbol* s){
 const char* symbol_codegen(struct symbol *s) {
     // If the symbol scope is global just return the ident
     if (s->kind == SYMBOL_GLOBAL) {
-            return s->ident;
+        return s->ident;
     } else {
         char buf[BUFSIZ] = {0};
         int  offset = s->which + 1;

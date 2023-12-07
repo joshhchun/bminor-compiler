@@ -1,0 +1,16 @@
+// Test subtraction
+
+main: function integer () = {
+	x: integer = 10;
+	y: integer = x - 5;
+	z: integer = y - 1 - 1 - 1 - 1;
+
+	print "should be 5: ", y, " should be 1: ", z, " should be 0: ", z-1, "\n";
+
+	if (x != 10 || y != 5 || z != 1) {
+		print "error..\n";
+		return 1;
+	} else {
+		return 0;
+	}
+}

@@ -1,0 +1,29 @@
+// Different types of expr
+
+main: function integer () = {
+	// Chained assigns
+	x: integer = 3;
+	y: integer;
+	z: integer;
+	z = y = x;
+
+	print "should be 3: ", x, " && ", y, "\n";
+	if (y != 3 || x != 3) 
+		return 1;
+
+	// Local string decls
+	foo: string = "hello world\n";
+	bar: string = "my name is josh\n";
+	foo2: string = "ok lol a lot of strings wooo\n";
+	print foo, bar, foo2, "now this string is not from a var\n";
+
+	test: string = foo;
+	test2: string = foo2;
+	print "these strings should be same: \n";
+	print test;
+	print foo;
+	print test2;
+	print foo2;
+	return 0;
+	
+}

@@ -1,0 +1,16 @@
+// Exp
+
+main: function integer () = {
+	x: integer = 2;
+	y: integer = x^3;
+	z: integer = y^2;
+
+	print "should be 8: ", y, " should be 64: ", z, " should be 1: ", z^0, "\n";
+
+	if (x != 2 || y != 8 || z != 64 ) {
+		print "error..\n";
+		return 1;
+	} else {
+		return 0;
+	}
+}

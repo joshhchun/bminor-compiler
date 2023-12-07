@@ -2,10 +2,12 @@
 extern int ERR_COUNT;
 
 /* Function to create decl */
-struct decl* decl_create(char* ident, struct type* type, struct expr* value, struct stmt* code, struct decl* next) {
+struct decl* decl_create(char* ident, struct type* type, struct expr* value,
+                         struct stmt* code, struct decl* next) {
     struct decl* d;
     if (!(d = calloc(1, sizeof(struct decl)))) {
-        fprintf(stderr, "ERROR: Could not allocate enough memory for expr_create.\n");
+        fprintf(stderr,
+                "ERROR: Could not allocate enough memory for expr_create.\n");
         exit(EXIT_FAILURE);
     }
     d->ident = ident;
@@ -23,12 +25,12 @@ void decl_print(struct decl* d, int indents) {
     fprintf(stdout, "%s: ", d->ident);
     type_print(d->type);
 
-    if (d->value){
+    if (d->value) {
         fprintf(stdout, " = ");
         expr_print(d->value);
     }
 
-    if (d->code){
+    if (d->code) {
         fprintf(stdout, " = ");
         stmt_print(d->code, indents, true);
         indent(indents);
@@ -38,7 +40,7 @@ void decl_print(struct decl* d, int indents) {
 }
 
 /* Function to print a list of decls */
-void decl_print_list(struct decl *d, int indents){
+void decl_print_list(struct decl* d, int indents) {
     if (!d) return;
     decl_print(d, indents);
     fprintf(stdout, "%s", "\n");
@@ -49,7 +51,7 @@ void decl_print_list(struct decl *d, int indents){
 void decl_resolve(struct decl* d) {
     if (!d) return;
     // Create a new symbol
-    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL; 
+    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
 
     // Bind it to the name of the decl in curr scope (top)
     d->symbol = symbol_create(kind, d->type, d->ident);
@@ -66,7 +68,8 @@ void decl_resolve(struct decl* d) {
     // Bind the name to the symbol
     scope_bind(d->ident, d->symbol);
 
-    // If decl == func (d->code != null) then create new scope, resolve params, and code
+    // If decl == func (d->code != null) then create new scope, resolve params,
+    // and code
     if (d->symbol->func_defined) {
         var_count = 0;
         scope_enter();
@@ -83,14 +86,16 @@ void arr_init_typecheck(struct type* arr_t, struct expr* e) {
     struct type* curr_t = {0};
     // For every dimension, make sure all the type matches the curr subtype
     if (!arr_t) {
-        fprintf(stdout, "Type Error: Too many nested arrays in initialization\n");
+        fprintf(stdout,
+                "Type Error: Too many nested arrays in initialization\n");
         ERR_COUNT++;
         return;
     }
     for (; e; e = e->right) {
         if (e->left->kind == EXPR_ARRAY_INIT) {
             if (arr_t->kind != TYPE_ARRAY) {
-                fprintf(stdout, "Type Error: Cannot assign array to subtype of ");
+                fprintf(stdout,
+                        "Type Error: Cannot assign array to subtype of ");
                 type_print(arr_t);
                 fprintf(stdout, "\n");
                 ERR_COUNT++;
@@ -109,9 +114,8 @@ void arr_init_typecheck(struct type* arr_t, struct expr* e) {
     }
 }
 
-
 /* Internal helper functino to convert a type_t type to an expr_t type */
-expr_t expr_type_conv (type_t t) {
+expr_t expr_type_conv(type_t t) {
     switch (t) {
         case TYPE_BOOL:
             return EXPR_BOOL;
@@ -129,40 +133,51 @@ expr_t expr_type_conv (type_t t) {
     }
 }
 
-void global_array_typecheck(struct decl *d) {
+void global_array_typecheck(struct decl* d) {
     struct type* t = d->symbol->type;
     for (; t->subtype; t = t->subtype) {
         if (!t->array_size) {
-            fprintf(stdout, "Type Error: Arrays cannot have an empty size (%s)\n", d->ident);
+            fprintf(stdout,
+                    "Type Error: Arrays cannot have an empty size (%s)\n",
+                    d->ident);
             ERR_COUNT++;
         } else if (t->array_size->kind != EXPR_INT_LITERAL) {
-            fprintf(stdout, "Type Error: Global arrays must have a constant integer size, given ");
+            fprintf(stdout,
+                    "Type Error: Global arrays must have a constant integer "
+                    "size, given ");
             struct type* arr_size_type = expr_typecheck(t->array_size);
             expr_type_println(t->array_size, arr_size_type);
             ERR_COUNT++;
         }
     }
-    // Make sure each element matches the subtype of the array if it has an initializer
+    // Make sure each element matches the subtype of the array if it has an
+    // initializer
     if (d->value) arr_init_typecheck(d->type->subtype, d->value->left);
 }
 
-/* Function to make sure that local array decls have an integer expression sized */
+/* Function to make sure that local array decls have an integer expression sized
+ */
 void local_array_typecheck(struct decl* d) {
     struct type* arr_size_type = 0;
     for (struct type* t = d->symbol->type; t->subtype; t = t->subtype) {
         if (!t->array_size) {
-            fprintf(stdout, "Type Error: Arrays cannot have an empty size (%s)\n", d->ident);
+            fprintf(stdout,
+                    "Type Error: Arrays cannot have an empty size (%s)\n",
+                    d->ident);
             ERR_COUNT++;
-        }
-        else if ((arr_size_type = expr_typecheck(t->array_size))->kind != TYPE_INT) {
-            fprintf(stdout, "Type Error: Local arrays must have an integer expression size, given:");
+        } else if ((arr_size_type = expr_typecheck(t->array_size))->kind !=
+                   TYPE_INT) {
+            fprintf(stdout,
+                    "Type Error: Local arrays must have an integer expression "
+                    "size, given:");
             expr_type_println(t->array_size, arr_size_type);
             ERR_COUNT++;
             free(arr_size_type);
         }
     }
     if (d->value) {
-        fprintf(stdout, "Type Error: Local arrays cannot have an initializer list\n");
+        fprintf(stdout,
+                "Type Error: Local arrays cannot have an initializer list\n");
         ERR_COUNT++;
     }
 }
@@ -175,7 +190,9 @@ void global_var_typecheck(struct decl* d) {
         if (e->kind != expr_type) {
             fprintf(stdout, "Type Error: Global variable ");
             type_print(d->symbol->type);
-            fprintf(stdout, " (%s) must be assigned a constant expression, given (", d->ident);
+            fprintf(stdout,
+                    " (%s) must be assigned a constant expression, given (",
+                    d->ident);
             expr_print(d->value);
             fprintf(stdout, ")\n");
             ERR_COUNT++;
@@ -183,8 +200,8 @@ void global_var_typecheck(struct decl* d) {
     }
 }
 
-
-/* Function to make sure the assignment expression matches the decl types for local vars */
+/* Function to make sure the assignment expression matches the decl types for
+ * local vars */
 void local_var_typecheck(struct decl* d) {
     struct type* t = expr_typecheck(d->value);
     if (t->kind != d->type->kind) {
@@ -206,27 +223,29 @@ void decl_typecheck(struct decl* d) {
 
     switch (d->symbol->type->kind) {
         case TYPE_ARRAY:
-            if (is_global)     global_array_typecheck(d);
-            else               local_array_typecheck(d);
+            if (is_global)
+                global_array_typecheck(d);
+            else
+                local_array_typecheck(d);
             break;
         case TYPE_FUNC:
-            if (d->code)       stmt_typecheck(d->code, d->symbol);
+            if (d->code) stmt_typecheck(d->code, d->symbol);
             break;
         default:
             if (d->value) {
-                if (is_global) global_var_typecheck(d);
-                else           local_var_typecheck(d);
+                if (is_global)
+                    global_var_typecheck(d);
+                else
+                    local_var_typecheck(d);
             }
             break;
     }
     decl_typecheck(d->next);
 }
 
-void save_callee_registers() {
-}
+void save_callee_registers() {}
 
-void restore_callee_registers() {
-}
+void restore_callee_registers() {}
 
 // Prologue for function
 void func_prologue(struct decl* d) {
@@ -238,13 +257,12 @@ void func_prologue(struct decl* d) {
     printf("MOVQ %%rsp, %%rbp\n");
 
     // Allocate params
-    printf("PUSH %%rdi\n");
-    printf("PUSH %%rsi\n");
-    printf("PUSH %%rdx\n");
-    printf("PUSH %%rcx\n");
-    printf("PUSH %%r8\n");
-    printf("PUSH %%r9\n");
-
+    printf("PUSHQ %%rdi\n");
+    printf("PUSHQ %%rsi\n");
+    printf("PUSHQ %%rdx\n");
+    printf("PUSHQ %%rcx\n");
+    printf("PUSHQ %%r8\n");
+    printf("PUSHQ %%r9\n");
 
     // Allocate space for local vars
     if (d->symbol->local_var_count) {
@@ -261,6 +279,9 @@ void func_prologue(struct decl* d) {
 
 // Epilogue for a function
 void func_epilogue(struct decl* d) {
+    // Print epilogue label
+    printf("%s_end:\n", d->ident);
+
     // Pop callee-registers
     printf("POPQ %%r15\n");
     printf("POPQ %%r14\n");
@@ -269,22 +290,18 @@ void func_epilogue(struct decl* d) {
     printf("POPQ %%rbx\n");
 
     // Pop registers
-    printf("POP %%r9\n");
-    printf("POP %%r8\n");
-    printf("POP %%rcx\n");
-    printf("POP %%rdx\n");
-    printf("POP %%rsi\n");
-    printf("POP %%rdi\n");
-
-    // Print epilogue label
-    printf("%s_end:\n", d->ident);
+    printf("POPQ %%r9\n");
+    printf("POPQ %%r8\n");
+    printf("POPQ %%rcx\n");
+    printf("POPQ %%rdx\n");
+    printf("POPQ %%rsi\n");
+    printf("POPQ %%rdi\n");
 
     // Restore stack and base pointers
     printf("MOVQ %%rbp, %%rsp\n");
     printf("POPQ %%rbp\n");
     printf("RET\n");
 }
-
 
 void decl_codegen(struct decl* d) {
     if (!d) return;
@@ -295,27 +312,27 @@ void decl_codegen(struct decl* d) {
                     printf(".text\n");
                     printf(".global %s\n", d->ident);
                     printf("%s:\n", d->ident);
-
                     /* Func prologue */
                     func_prologue(d);
-
                     // Body of function
                     stmt_codegen(d->code);
-
                     // Epilogue
                     func_epilogue(d);
                     break;
                 case TYPE_STR: {
                     // Global variables (non funcs) don't need a .global label?
-                    //printf(".global %s\n", d->symbol->ident);
+                    // printf(".global %s\n", d->symbol->ident);
                     printf(".data\n");
                     printf("%s:\n", d->ident);
-                    if (d->value) printf(".string %s\n", d->value->string_literal);
-                    else printf(".string %s\n", "");
+                    if (d->value)
+                        printf(".string %s\n", d->value->string_literal);
+                    else
+                        printf(".string %s\n", "");
 
-                    // .text should be printed when I go into a function? So not needed
+                    // .text should be printed when I go into a function? So not
+                    // needed
                     break;
-               }
+                }
                 case TYPE_BOOL:
                     printf(".data\n");
                     printf("%s:\n", d->ident);
@@ -332,23 +349,27 @@ void decl_codegen(struct decl* d) {
                     printf(".quad %d\n", d->value->int_literal);
                     break;
                 case TYPE_ARRAY:
-                    printf(".data\n") ;
+                    printf(".data\n");
                     printf("%s:\n", d->ident);
-                    // Check the subtype, only supporting 1D arrays of integer as of now.
+                    // Check the subtype, only supporting 1D arrays of integer
+                    // as of now.
                     if (d->type->subtype->kind != TYPE_INT) {
-                        printf("ERROR: Only 1D arrays of integers implemented.\n");
+                        printf(
+                            "ERROR: Only 1D arrays of integers implemented.\n");
                         exit(1);
                     }
 
                     // if initialized
                     if (d->value) {
-                        for (struct expr* e = d->value->right; e; e = e->right) {
+                        for (struct expr* e = d->value->left; e; e = e->right) {
                             printf(".quad %d\n", e->left->int_literal);
                         }
                     } else {
                         // TODO: Might have to change
-                        // If the array is uninitialized, then just fill with zero's  (8 bytes per element)
-                        printf(".zero %d\n", d->type->array_size->int_literal * 8);
+                        // If the array is uninitialized, then just fill with
+                        // zero's  (8 bytes per element)
+                        printf(".zero %d\n",
+                               d->type->array_size->int_literal * 8);
                     }
 
                     break;
@@ -357,24 +378,29 @@ void decl_codegen(struct decl* d) {
                     exit(1);
                     break;
                 default:
-                    printf("ERROR: Should not get this type in decl codegen.\n");
+                    printf(
+                        "ERROR: Should not get this type in decl codegen.\n");
                     exit(1);
-                }
+            }
             break;
         case SYMBOL_LOCAL:
-            // If no value, do nothing as space is already allocated on the stack for it (filled with garbage)
+            // If no value, do nothing as space is already allocated on the
+            // stack for it (filled with garbage)
             if (!d->value) break;
-            switch (d->value->kind) {
-                case EXPR_STRING_LITERAL:
-                case EXPR_BOOL:
-                case EXPR_CHAR_LITERAL:
-                case EXPR_IDENT:
-                case EXPR_INT_LITERAL:
-                    expr_codegen(d->value);
-                    printf("MOVQ %s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+            expr_codegen(d->value);
+            switch (d->type->kind) {
+                case TYPE_BOOL:
+                case TYPE_CHAR:
+                case TYPE_FLOAT:
+                case TYPE_STR:
+                case TYPE_INT:
+                    printf("MOVQ %s, %s\n", scratch_name(d->value->reg),
+                           symbol_codegen(d->symbol));
+                    scratch_free(d->value->reg);
                     break;
                 default:
-                    printf("ERROR: Unsupported local decl type: %d.\n", d->value->kind);
+                    printf("ERROR: Unsupported local decl type: %d.\n",
+                           d->value->kind);
                     exit(1);
                     break;
             }

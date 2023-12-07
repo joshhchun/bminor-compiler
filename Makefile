@@ -25,5 +25,5 @@ test: $(TESTS)
 	echo $^ | xargs -n 1 sh
 
 clean: 
-	rm -f src/*.o bminor src/scanner.c test/*/*.out src/parser.output src/parser.c
+	rm -f src/*.o bminor src/scanner.c test/*/*.out src/parser.output src/parser.c include/token.h
 

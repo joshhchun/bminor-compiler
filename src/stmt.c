@@ -278,13 +278,13 @@ void stmt_codegen(struct stmt* s) {
         case STMT_PRINT:
             for (struct expr* curr = s->expr; curr; curr = curr->right) {
                 struct expr* val = curr->left;
+                // Save the first reg
+                printf("PUSHQ %%rdi\n");
+
                 expr_codegen(val);
 
-                //TODO: Optimization could be just to store first reg
-                caller_save_regs();
-
                 // Move the argument into %rdi
-                printf("MOV %s, %%rdi\n", scratch_name(val->reg));
+                printf("MOVQ %s, %%rdi\n", scratch_name(val->reg));
                 
                 expr_t expr_type = expr_get_type(val);
                 switch (expr_type) {
@@ -297,19 +297,22 @@ void stmt_codegen(struct stmt* s) {
                     case EXPR_STRING_LITERAL:
                         printf("CALL print_string\n");
                         break;
+                    case EXPR_BOOL:
+                        printf("CALL print_boolean\n");
+                        break;
                     default:
                         printf("ERROR: Should not get this type in print codegen.\n");
                         break;
                 }
 
+                printf("POPQ %%rdi\n");
                 scratch_free(val->reg);
-                caller_restore_regs();
             }
             break;
         case STMT_RETURN:
             expr_codegen(s->expr);
             printf("MOVQ %s, %%rax\n", scratch_name(s->expr->reg));
-            printf("JMP %s_end", curr_func_name);
+            printf("JMP %s_end\n", curr_func_name);
             scratch_free(s->expr->reg);
             break;
         }

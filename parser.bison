@@ -65,15 +65,15 @@ struct decl* parser_result = 0;
 %token TOKEN_COMMENT
 
 %union {
-        char*   string_literal;
-        int     int_literal;
-        uint8_t char_literal;
+		char*   string_literal;
+		int     int_literal;
+		uint8_t char_literal;
 
-        struct decl *decl;
-        struct stmt *stmt;
-        struct expr *expr;
-        struct param_list* param_list;
-        struct type *type;
+		struct decl *decl;
+		struct stmt *stmt;
+		struct expr *expr;
+		struct param_list* param_list;
+		struct type *type;
 }
 
 %type <char_literal> TOKEN_CHAR_LITERAL
@@ -98,8 +98,8 @@ program : decl_list TOKEN_EOF { parser_result = $1; return 0;}
 /*  Decl list (highest level thing)*/
 decl_list : decl decl_list
 {
-        $1->next = $2;
-        $$ = $1;
+		$1->next = $2;
+		$$ = $1;
 }
 | decl { $$ = $1; }
 ;
@@ -131,8 +131,8 @@ ident TOKEN_DEFINE TOKEN_FUNC return_type TOKEN_LPAREN param_list TOKEN_RPAREN T
 /* Statement lists */
 stmt_list : stmt stmt_next
 {
-        $1->next = $2;
-        $$ = stmt_create(STMT_BLOCK, 0, 0, 0, 0, $1, 0, 0);
+		$1->next = $2;
+		$$ = stmt_create(STMT_BLOCK, 0, 0, 0, 0, $1, 0, 0);
 }
 | { $$ = stmt_create(STMT_BLOCK, 0, 0, 0, 0, 0, 0, 0); }
 ;
@@ -161,19 +161,19 @@ simp_stmt : TOKEN_LBRACE stmt_list TOKEN_RBRACE { $$ = $2; }
 cmpd_stmt : if_expr stmt                    { $$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, 0, 0); }
 | if_expr if_dangle TOKEN_ELSE stmt 
 {
-        $$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, $4, 0);
+		$$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, $4, 0);
 }
 | for_stmt reg_end 
 { 
-        $1->body = $2;
-        $$ = $1;
+		$1->body = $2;
+		$$ = $1;
 }
 ;
 
 /* Non dangling if statement */
 if_dangle: if_expr if_dangle TOKEN_ELSE if_dangle
 {
-        $$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, $4, 0);
+		$$ = stmt_create(STMT_IF_ELSE, 0, 0, $1, 0, $2, $4, 0);
 }
 | for_stmt dangle_end { $1->body = $2; }
 | simp_stmt { $$ = $1; }
@@ -210,7 +210,7 @@ func_call: ident_expr TOKEN_LPAREN opt_expr_list TOKEN_RPAREN { $$ = expr_create
 expr_list : expr { $$ = expr_create(EXPR_ARG, $1, 0); }
 | expr TOKEN_COMMA expr_list
 { 
-        $$ = expr_create(EXPR_ARG, $1, $3);
+		$$ = expr_create(EXPR_ARG, $1, $3);
 }
 ;
 
@@ -238,7 +238,7 @@ expr3: expr3 TOKEN_AND expr4 { $$ = expr_create(EXPR_AND, $1, $3); }
 ;
 /* equality */
 expr4: expr4 TOKEN_EQ expr5 { $$ = expr_create(EXPR_EQ, $1, $3); }
-| expr4 TOKEN_NOT TOKEN_EQ expr5 { $$ = expr_create(EXPR_NEQ, $1, $4); }
+| expr4 TOKEN_INEQ expr5 { $$ = expr_create(EXPR_NEQ, $1, $3); }
 | expr5 { $$ = $1; }
 ;
 /* equalities */
@@ -250,7 +250,7 @@ expr5: expr5 TOKEN_LT expr6 { $$ = expr_create(EXPR_LT, $1, $3); }
 ;
 /* addition and subtraction */
 expr6: expr6 TOKEN_ADD expr7 { $$ = expr_create(EXPR_ADD, $1, $3); }
-| expr6 TOKEN_NEG expr7 { $$ = expr_create(EXPR_NEG, $1, $3); }
+| expr6 TOKEN_NEG expr7 { $$ = expr_create(EXPR_SUB, $1, $3); }
 | expr7 { $$ = $1; }
 ;
 /* mult and div */
@@ -272,7 +272,7 @@ val_literal : TOKEN_INT_LITERAL { $$ = expr_create_integer_literal(atoi(yytext))
 | inc_or_dec { $$ = $1; }
 | TOKEN_CHAR_LITERAL
 { 
-        $$ = expr_create_char_literal($1);
+		$$ = expr_create_char_literal($1);
 }
 | TOKEN_FLOAT_LITERAL  { $$ = expr_create_float_literal(atof(yytext)); }
 | TOKEN_STRING_LITERAL { $$ = expr_create_string_literal(yytext); }
@@ -303,10 +303,10 @@ array_access : TOKEN_LBRACKET expr TOKEN_RBRACKET array_access { $$ = expr_creat
 
 /* Array types (can be recursive) */
 array_type : TOKEN_ARRAY TOKEN_LBRACKET array_size TOKEN_RBRACKET all_types
-           { 
-                $$ = type_create(TYPE_ARRAY, $5, 0);
-                $$->array_size = $3;
-           }
+		   { 
+				$$ = type_create(TYPE_ARRAY, $5, 0);
+				$$->array_size = $3;
+		   }
 ;
 
 array_size : expr { $$ = $1; }
@@ -343,6 +343,6 @@ init: TOKEN_ASSIGN
 %%
 
 int yyerror(char *s) {
-    printf("parse error: %s\n",s);
-    return 1;
+	printf("parse error: %s\n",s);
+	return 1;
 }

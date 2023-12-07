@@ -1,0 +1,8 @@
+// Test simple addition (var add and raw add)
+
+main: function integer () = {
+    x: integer = 3 + 2;
+    y: integer = 5;
+
+    print "should be 5: ", x, " ", "should be 10: ", x+y, "\n";
+}

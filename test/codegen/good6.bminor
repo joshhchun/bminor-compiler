@@ -1,0 +1,26 @@
+// Different types of expr
+
+main: function integer () = {
+
+	// Boolean tests
+	q: boolean = true;
+	w: boolean = false;
+	print q, "\n";
+	print w, "\n";
+	if (q != true || q != false) {
+		return 1;
+	}
+	print q==true, "\n";
+	print w==false, "\n";
+	
+	y: integer = 4;
+	true_b: boolean = (y == 4 && 3+y == 7);
+	false_b: boolean = (3 == 3 && y == 4 && 3+y == 8);
+	print "should be true: ", true_b, " should be false: ", false_b, "\n";
+	if (true_b) {
+		return 0;
+	} else {
+		print "error...\n";
+		return 1;
+	}
+}

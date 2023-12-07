@@ -1,0 +1,16 @@
+// Div
+
+main: function integer () = {
+	x: integer = 40;
+	y: integer = x/2;
+	z: integer = x/y;
+
+	print "should be 20: ", y, " should be 2: ", z, " should be 0: ", 0/z, "\n";
+
+	if (y != 20 || z != 2 ) {
+		print "error..\n";
+		return 1;
+	} else {
+		return 0;
+	}
+}
