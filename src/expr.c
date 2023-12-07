@@ -3,12 +3,6 @@
 extern int ERR_COUNT;
 const char* arg_names[6] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
-void caller_save_argregs() {
-    
-    
-
-}
-
 struct expr*  expr_create( expr_t kind, struct expr* left,struct expr* right ) {
     struct expr* e;
     if (!(e = calloc(1, sizeof(struct expr)))) {
@@ -601,7 +595,8 @@ void expr_codegen(struct expr *e) {
         // Leaf node: allocate register and load value.
         case EXPR_IDENT:
             e->reg = scratch_alloc();
-            printf("MOVQ %s, %s\n",
+            printf("MOVQ %s%s, %s\n",
+                e->symbol->type->kind == TYPE_STR && e->symbol->kind == SYMBOL_GLOBAL ? "$" : "",
                 symbol_codegen(e->symbol),
                 scratch_name(e->reg));
             break;
@@ -783,7 +778,7 @@ void expr_codegen(struct expr *e) {
             for (struct expr *arg = e->right; arg; arg = arg->right, i++) {
                 expr_codegen(arg);
                 // Move each argument into the registers
-                printf("MOVQ %s, %s\n", arg_names[i], scratch_name(arg->reg));
+                printf("MOVQ %s, %s\n", scratch_name(arg->reg), arg_names[i]);
                 scratch_free(arg->reg);
             }
             printf("CALL %s\n", e->left->ident);

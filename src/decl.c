@@ -223,6 +223,21 @@ void decl_typecheck(struct decl* d) {
 }
 
 void save_callee_registers() {
+}
+
+void restore_callee_registers() {
+}
+
+// Prologue for function
+void func_prologue(struct decl* d) {
+    // Set curr func name so return statement knows where to jump
+    curr_func_name = d->ident;
+
+    // Save base pointer and set new one
+    printf("PUSHQ %%rbp\n");
+    printf("MOVQ %%rsp, %%rbp\n");
+
+    // Allocate params
     printf("PUSH %%rdi\n");
     printf("PUSH %%rsi\n");
     printf("PUSH %%rdx\n");
@@ -230,6 +245,13 @@ void save_callee_registers() {
     printf("PUSH %%r8\n");
     printf("PUSH %%r9\n");
 
+
+    // Allocate space for local vars
+    if (d->symbol->local_var_count) {
+        printf("SUBQ $%d, %%rsp\n", d->symbol->local_var_count * 8);
+    }
+
+    // Save callee-registers
     printf("PUSHQ %%rbx\n");
     printf("PUSHQ %%r12\n");
     printf("PUSHQ %%r13\n");
@@ -237,19 +259,30 @@ void save_callee_registers() {
     printf("PUSHQ %%r15\n");
 }
 
-void restore_callee_registers() {
+// Epilogue for a function
+void func_epilogue(struct decl* d) {
+    // Pop callee-registers
     printf("POPQ %%r15\n");
     printf("POPQ %%r14\n");
     printf("POPQ %%r13\n");
     printf("POPQ %%r12\n");
     printf("POPQ %%rbx\n");
 
+    // Pop registers
     printf("POP %%r9\n");
     printf("POP %%r8\n");
     printf("POP %%rcx\n");
     printf("POP %%rdx\n");
     printf("POP %%rsi\n");
     printf("POP %%rdi\n");
+
+    // Print epilogue label
+    printf("%s_end:\n", d->ident);
+
+    // Restore stack and base pointers
+    printf("MOVQ %%rbp, %%rsp\n");
+    printf("POPQ %%rbp\n");
+    printf("RET\n");
 }
 
 
@@ -262,34 +295,15 @@ void decl_codegen(struct decl* d) {
                     printf(".text\n");
                     printf(".global %s\n", d->ident);
                     printf("%s:\n", d->ident);
-                    // Set curr func name so return statement knows where to jump
-                    curr_func_name = d->ident;
 
                     /* Func prologue */
-
-                    // Save base pointer and set new one
-                    printf("PUSHQ %%rbp\n");
-                    printf("MOVQ %%rsp, %%rbp\n");
-
-                    // Allocate space for local vars
-                    if (d->symbol->local_var_count) {
-                        printf("SUBQ $%d, %%rsp\n", d->symbol->local_var_count * 8);
-                    }
-
-                    // Save callee-registers
-                    save_callee_registers();
+                    func_prologue(d);
 
                     // Body of function
                     stmt_codegen(d->code);
 
                     // Epilogue
-                    restore_callee_registers();
-
-                    printf("%s_end:\n", d->ident);
-                    printf("MOVQ %%rbp, %%rsp\n");
-                    printf("POPQ %%rbp\n");
-                    // Return in stmt_codegen() should handle putting return value in %rax
-                    printf("RET\n");
+                    func_epilogue(d);
                     break;
                 case TYPE_STR: {
                     // Global variables (non funcs) don't need a .global label?
@@ -354,6 +368,7 @@ void decl_codegen(struct decl* d) {
                 case EXPR_STRING_LITERAL:
                 case EXPR_BOOL:
                 case EXPR_CHAR_LITERAL:
+                case EXPR_IDENT:
                 case EXPR_INT_LITERAL:
                     expr_codegen(d->value);
                     printf("MOVQ %s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
