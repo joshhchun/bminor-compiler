@@ -626,7 +626,7 @@ void expr_codegen(struct expr *e) {
             //       .text
             const char* str_label = label_name(label_create());
             printf(".data\n");
-            printf("%s\n", str_label);
+            printf("%s:\n", str_label);
             printf(".string %s\n", e->string_literal);
             printf(".text\n");
             
