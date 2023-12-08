@@ -1,0 +1,25 @@
+// Different types of expr
+
+main: function integer () = {
+	// Test chars
+	x: char = 'c';
+	print x, '\n';
+	if (x != 'c') {
+		print "error..\n";
+		return 1;
+	}
+
+	// Test inc and dec
+	z: integer = 3;
+	z++;
+	print "should be 4: ", z, "\n";
+	if (z != 4) {
+		return 1;
+	}
+	z--;
+	z--;
+	print "should be 2: ", z, "\n";
+	if (z != 2) {
+		return 1;
+	}
+}

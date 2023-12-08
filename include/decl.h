@@ -24,7 +24,7 @@ void         decl_print(struct decl* d, int indent);
 void         decl_print_list(struct decl* d, int indents);
 void         decl_resolve(struct decl* d);
 void         decl_typecheck(struct decl* d);
-void         decl_codegen(struct decl* d);
+void         decl_codegen(struct decl* d, FILE* fp);
 
 #endif
 

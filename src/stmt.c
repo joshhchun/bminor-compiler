@@ -210,36 +210,36 @@ void stmt_typecheck(struct stmt* s, struct symbol *sym) {
     stmt_typecheck(s->next, sym);
 }
 
-void stmt_codegen(struct stmt* s) {
+void stmt_codegen(struct stmt* s, FILE* fp) {
     if (!s) return;
     switch(s->kind) {
         case STMT_EXPR:
-            expr_codegen(s->expr);
+            expr_codegen(s->expr, fp);
             scratch_free(s->expr->reg);
             break;
         case STMT_DECL:
-            decl_codegen(s->decl);
+            decl_codegen(s->decl, fp);
             break;
         case STMT_BLOCK:
-            stmt_codegen(s->body);
+            stmt_codegen(s->body, fp);
             break;
         case STMT_IF_ELSE: {
             const char* else_label = label_name(label_create());
             const char* end_label  = label_name(label_create());
 
-            expr_codegen(s->expr);
-            printf("CMP $0, %s\n", scratch_name(s->expr->reg));
+            expr_codegen(s->expr, fp);
+            fprintf(fp, "CMP $0, %s\n", scratch_name(s->expr->reg));
             // Go to else body (if exists)
-            printf("JE %s\n", else_label);
+            fprintf(fp, "JE %s\n", else_label);
 
             // True case
-            stmt_codegen(s->body);
-            printf("JMP %s\n", end_label);
+            stmt_codegen(s->body, fp);
+            fprintf(fp, "JMP %s\n", end_label);
 
             // Else case
-            printf("%s:\n", else_label);
-            stmt_codegen(s->else_body);
-            printf("%s:\n", end_label);
+            fprintf(fp, "%s:\n", else_label);
+            stmt_codegen(s->else_body, fp);
+            fprintf(fp, "%s:\n", end_label);
             
             scratch_free(s->expr->reg);
             break;
@@ -249,72 +249,72 @@ void stmt_codegen(struct stmt* s) {
             const char* done_label  = label_name(label_create());
 
             if (s->init_expr) {
-                expr_codegen(s->init_expr);
+                expr_codegen(s->init_expr, fp);
                 scratch_free(s->init_expr->reg);
             }
 
-            printf("%s:\n", begin_label);
+            fprintf(fp, "%s:\n", begin_label);
 
             if (s->expr) {
-                expr_codegen(s->expr);
-                printf("CMP $0, %s\n", scratch_name(s->expr->reg));
+                expr_codegen(s->expr, fp);
+                fprintf(fp, "CMP $0, %s\n", scratch_name(s->expr->reg));
                 scratch_free(s->expr->reg);
-                printf("JE %s\n", done_label);
+                fprintf(fp, "JE %s\n", done_label);
             }
             
-            stmt_codegen(s->body);
+            stmt_codegen(s->body, fp);
 
             if (s->next_expr) {
-                expr_codegen(s->next_expr);
+                expr_codegen(s->next_expr, fp);
                 scratch_free(s->next_expr->reg);
             }
             // Repeat loop
-            printf("JMP %s\n", begin_label);
+            fprintf(fp, "JMP %s\n", begin_label);
             
             // Done label
-            printf("%s:\n", done_label);
+            fprintf(fp, "%s:\n", done_label);
             break;
         }
         case STMT_PRINT:
             for (struct expr* curr = s->expr; curr; curr = curr->right) {
                 struct expr* val = curr->left;
                 // Save the first reg
-                printf("PUSHQ %%rdi\n");
+                fprintf(fp, "PUSHQ %%rdi\n");
 
-                expr_codegen(val);
+                expr_codegen(val, fp);
 
                 // Move the argument into %rdi
-                printf("MOVQ %s, %%rdi\n", scratch_name(val->reg));
+                fprintf(fp, "MOVQ %s, %%rdi\n", scratch_name(val->reg));
                 
-                expr_t expr_type = expr_get_type(val);
+                expr_t expr_type = expr_get_type(val, fp);
                 switch (expr_type) {
                     case EXPR_INT_LITERAL:
-                        printf("CALL print_integer\n");
+                        fprintf(fp, "CALL print_integer\n");
                         break;
                     case EXPR_CHAR_LITERAL:
-                        printf("CALL print_character\n");
+                        fprintf(fp, "CALL print_character\n");
                         break;
                     case EXPR_STRING_LITERAL:
-                        printf("CALL print_string\n");
+                        fprintf(fp, "CALL print_string\n");
                         break;
                     case EXPR_BOOL:
-                        printf("CALL print_boolean\n");
+                        fprintf(fp, "CALL print_boolean\n");
                         break;
                     default:
-                        printf("ERROR: Should not get this type in print codegen.\n");
+                        fprintf(fp, "ERROR: Should not get this type in print codegen.\n");
                         break;
                 }
 
-                printf("POPQ %%rdi\n");
+                fprintf(fp, "POPQ %%rdi\n");
                 scratch_free(val->reg);
             }
             break;
         case STMT_RETURN:
-            expr_codegen(s->expr);
-            printf("MOVQ %s, %%rax\n", scratch_name(s->expr->reg));
-            printf("JMP %s_end\n", curr_func_name);
+            expr_codegen(s->expr, fp);
+            fprintf(fp, "MOVQ %s, %%rax\n", scratch_name(s->expr->reg));
+            fprintf(fp, "JMP %s_end\n", curr_func_name);
             scratch_free(s->expr->reg);
             break;
         }
-    stmt_codegen(s->next);
+    stmt_codegen(s->next, fp);
 }

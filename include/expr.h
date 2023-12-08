@@ -91,10 +91,10 @@ void expr_type_print(struct expr* e, struct type* t);
 void expr_type_println(struct expr* e, struct type* t);
 
 void expr_resolve(struct expr* e);
-void expr_codegen(struct expr *e);
-expr_t expr_get_type(struct expr* e);
+void expr_codegen(struct expr *e, FILE* fp);
+expr_t expr_get_type(struct expr* e, FILE* fp);
 
-void caller_save_regs();
-void caller_restore_regs();
+void caller_save_regs(FILE* fp);
+void caller_restore_regs(FILE* fp);
 
 #endif

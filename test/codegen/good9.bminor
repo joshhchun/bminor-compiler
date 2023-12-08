@@ -1,0 +1,13 @@
+// loops
+
+main: function integer () = {
+	x: boolean = true;
+	if (x) {
+		i: integer = 0;
+		for (; i < 20; i++) {
+			{
+				print i, "\n";
+			}
+		}
+	}
+}

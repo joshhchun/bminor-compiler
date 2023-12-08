@@ -31,7 +31,7 @@ void         stmt_typecheck(struct stmt* s, struct symbol *sym);
 void         stmt_print(struct stmt* s, int indent, bool start_indent);
 void         stmt_print_list(struct stmt* s, int indents);
 void         stmt_resolve(struct stmt* s);
-void         stmt_codegen(struct stmt* s);
+void         stmt_codegen(struct stmt* s, FILE* fp);
 
 
 #endif

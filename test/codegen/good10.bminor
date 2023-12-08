@@ -1,0 +1,13 @@
+// loops
+
+x:integer=5;
+main: function integer () = {
+	// Uses a complex expression
+	y:integer = 2;
+	z: integer = (x + 10) * y - x*4;
+	if (z != 10) {
+		print "error..\n";
+		return 1;
+	}
+	return 0;
+}

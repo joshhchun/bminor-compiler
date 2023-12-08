@@ -1,0 +1,20 @@
+// nested func calls test
+foo: function integer (y: integer) = {
+	return y + 5;
+}
+
+bar: function integer (z: integer) = {
+	l: integer = 10;
+	return l + z;
+}
+
+main: function integer () = {
+	x: integer = foo(5);
+	print "should be 10: ", x, "\n";
+	y: integer = bar(10);
+	print "should be 20: ", y, "\n";
+	print "should be 15: ", foo(x), "\n";
+	print "should be 25: ", foo(y), "\n";
+	print "should be 25: ", foo(bar(foo(5))), "\n";
+	
+}

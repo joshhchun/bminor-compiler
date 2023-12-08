@@ -153,9 +153,10 @@ void resolve(struct decl* parser_result) {
     scope_exit();
 }
 
-void codegen(struct decl* parser_result, const char* file_name) {
-    printf(".file \"%s\"\n", file_name);
-    decl_codegen(parser_result);
+void codegen(struct decl* parser_result, const char* file_name, const char* write_file) {
+    FILE* fp = fopen(write_file, "w");
+    fprintf(fp, ".file \"%s\"\n", file_name);
+    decl_codegen(parser_result, fp);
 }
 
 /**
@@ -200,7 +201,7 @@ void set_program_type (const char* flag) {
 
 int main(int argc, char** argv) {
     /* Usage */
-    if (argc != 3) usage(1);
+    if (argc < 4) usage(1);
 
     set_program_type(argv[1]);
     switch (PROGRAM_TYPE) {
@@ -239,7 +240,7 @@ int main(int argc, char** argv) {
             if (ERR_COUNT) return 1;
             typecheck(parser_result);
             if (ERR_COUNT) return 1;
-            codegen(parser_result, argv[2]);
+            codegen(parser_result, argv[2], argv[3]);
 
     }
     return 0;
