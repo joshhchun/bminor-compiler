@@ -596,6 +596,11 @@ void expr_codegen(struct expr *e, FILE* fp) {
 		// Leaf node: allocate register and load value.
 		case EXPR_IDENT:
 			e->reg = scratch_alloc();
+			if (e->symbol->kind == SYMBOL_GLOBAL && e->symbol->type->kind == TYPE_STR) {
+				fprintf(fp, "LEAQ %s(%%rip), %s\n",
+					symbol_codegen(e->symbol),
+					scratch_name(e->reg));
+			} else
 			fprintf(fp, "MOVQ %s, %s\n",
 				symbol_codegen(e->symbol),
 				scratch_name(e->reg));
@@ -612,7 +617,7 @@ void expr_codegen(struct expr *e, FILE* fp) {
 			fprintf(fp, ".text\n");
 			
 			e->reg = scratch_alloc();
-			fprintf(fp, "MOVQ $%s, %s\n", str_label, scratch_name(e->reg));
+			fprintf(fp, "LEAQ %s(%%rip), %s\n", str_label, scratch_name(e->reg));
 			break;
 		}
 		case EXPR_FLOAT_LITERAL:
@@ -806,7 +811,7 @@ void expr_codegen(struct expr *e, FILE* fp) {
 			// Restore caller saved regs
 			caller_restore_regs(fp);
 
-            int ret_reg = scratch_alloc();
+			int ret_reg = scratch_alloc();
 			fprintf(fp, "MOVQ %%rax, %s\n", scratch_name(ret_reg));
 			e->reg = ret_reg;
 			break;

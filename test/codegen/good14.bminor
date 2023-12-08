@@ -1,0 +1,19 @@
+// more str comparisons
+main: function integer () = {
+	x: string = "hello";
+	y: string = x;
+
+    if (x == y) print "same!\n";
+    else{
+        print "not same..!\n";
+        return 1;
+    }
+
+    z: string = "ok";
+    if (x == z) print "same!\n";
+    else print "not same..!\n";
+    l: string = "hello";
+    if (x == l) print "same!\n";
+    else print "not same..!\n";
+    return 0;
+}

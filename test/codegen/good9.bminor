@@ -10,4 +10,5 @@ main: function integer () = {
 			}
 		}
 	}
+    return 0;
 }

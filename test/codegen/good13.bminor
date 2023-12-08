@@ -14,6 +14,7 @@ main:function integer () =
 	else
 	{
 		print "shouldn't be printed";
+        return 1;
 	}
 	if(str != str2)
 	{
@@ -22,5 +23,7 @@ main:function integer () =
 	else
 	{
 		print "shouldn't be printed";
+        return 1;
 	}
+    return 0;
 }

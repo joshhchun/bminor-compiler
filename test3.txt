@@ -1,6 +1,0 @@
-y: integer = 2;
-
-main: function integer () = {
-    x: integer = 3;
-    print x;
-}

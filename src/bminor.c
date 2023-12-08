@@ -201,7 +201,7 @@ void set_program_type (const char* flag) {
 
 int main(int argc, char** argv) {
     /* Usage */
-    if (argc < 4) usage(1);
+    if (argc > 4) usage(1);
 
     set_program_type(argv[1]);
     switch (PROGRAM_TYPE) {

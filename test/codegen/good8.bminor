@@ -16,5 +16,5 @@ main: function integer () = {
 	print "should be 15: ", foo(x), "\n";
 	print "should be 25: ", foo(y), "\n";
 	print "should be 25: ", foo(bar(foo(5))), "\n";
-	
+    return 0;
 }

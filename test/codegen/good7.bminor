@@ -22,4 +22,5 @@ main: function integer () = {
 	if (z != 2) {
 		return 1;
 	}
+    return 0;
 }

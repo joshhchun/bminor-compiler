@@ -1,0 +1,9 @@
+// returning strings
+foo: function string () = {
+    return "hello";
+}
+
+main: function integer () = {
+    print foo(), " world\n";
+    return 0;
+}

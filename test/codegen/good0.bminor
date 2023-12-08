@@ -5,4 +5,6 @@ main: function integer () = {
     y: integer = 5;
 
     print "should be 5: ", x, " ", "should be 10: ", x+y, "\n";
+    if (x+y != 10) return 0;
+    return 0;
 }

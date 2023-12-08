@@ -1,0 +1,17 @@
+foo: function integer (y: integer) = {
+    return y * 2;
+}
+
+bar: function integer (x: integer) = {
+    return x * 2;
+}
+
+main: function integer () = {
+    x: integer = foo(bar(foo(bar(foo(bar(foo(bar(2))))))));
+    print x;
+    if (x != 2^9) {
+        print "error...\n";
+        return 1;
+    }
+    return 0;
+}

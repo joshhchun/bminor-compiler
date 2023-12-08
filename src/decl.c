@@ -389,7 +389,6 @@ void decl_codegen(struct decl* d, FILE* fp) {
 		case SYMBOL_LOCAL:
 			// If no value, do nothing as space is already allocated on the
 			// stack for it (filled with garbage)
-			if (!d->value) break;
 			expr_codegen(d->value, fp);
 			switch (d->type->kind) {
 				case TYPE_BOOL:
@@ -397,9 +396,12 @@ void decl_codegen(struct decl* d, FILE* fp) {
 				case TYPE_FLOAT:
 				case TYPE_STR:
 				case TYPE_INT:
-					fprintf(fp, "MOVQ %s, %s\n", scratch_name(d->value->reg),
-						   symbol_codegen(d->symbol));
-					scratch_free(d->value->reg);
+					if (d->value) {
+						fprintf(fp, "MOVQ %s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+						scratch_free(d->value->reg);
+					} else {
+						fprintf(fp, "MOVQ $0, %s\n", symbol_codegen(d->symbol));
+					}
 					break;
 				default:
 					fprintf(fp, "ERROR: Unsupported local decl type: %d.\n",

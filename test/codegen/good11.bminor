@@ -9,8 +9,10 @@ main: function integer () =
 	{
 		print "should be printed\n";
 	}
-	else
+	else {
 		print "shouldn't be printed\n";
+		return 1;
+	}
 	
 	if(c != a )
 	{
@@ -19,6 +21,7 @@ main: function integer () =
 	else
 	{
 		print "shouldn't be printed\n";
+		return 1;
 	}
 
 
@@ -35,9 +38,11 @@ main: function integer () =
 	if(c == a )
 	{
 		print "shouldn't be printed\n";
+		return 1;
 	}
 	else
 	{
 		print "should be printed\n";
 	}
+	return 0;
 }

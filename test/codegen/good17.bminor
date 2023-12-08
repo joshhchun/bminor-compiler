@@ -1,0 +1,21 @@
+// loops and calls
+foo: function integer (x: integer) = {
+    // return 0 if odd
+    if (x%2 == 1) {
+        return 0;
+    }
+    // else 1
+    return 1;
+}
+
+main: function integer () = {
+    i: integer;
+    {
+        {
+            for (i=0; i<30; i++) {
+                print foo(i), "\n";
+            }
+        }
+    }
+    return 0;
+}
